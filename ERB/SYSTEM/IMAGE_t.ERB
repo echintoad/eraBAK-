@@ -253,6 +253,14 @@ FOR iID, 0, CHARANUM
 			sTemp:1 = 미소
 		ELSEIF GROUPMATCH(eMotion_Text, "원한", "분노", "분개")
 			sTemp:1 = 분노
+		ELSEIF GROUPMATCH(eMotion_Text, "암울", "슬픔", "우울")
+			sTemp:1 = 슬픔
+		ELSEIF GROUPMATCH(eMotion_Text, "공포", "겁냄")
+			sTemp:1 = 공포
+		ELSEIF GROUPMATCH(eMotion_Text, "광기")
+			sTemp:1 = 광기
+		ELSEIF GROUPMATCH(eMotion_Text, "최면", "공허", "붕괴")
+			sTemp:1 = 공허
 		ELSE
 			sTemp:1 = 통상
 		ENDIF
