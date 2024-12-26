@@ -544,7 +544,9 @@ SELECTCASE 대상
 		ENDIF
 	CASE 83
 		;카에데(정장(가이드))
-		IF CLOTH:옷대상:의상부위_상하의 == 12
+		IF CLOTH:옷대상:의상부위_상하의 == 2
+			clothes = _체육복
+		ELSEIF CLOTH:옷대상:의상부위_상하의 == 12
 			clothes = _정장
 		ELSE
 			clothes = _의복
