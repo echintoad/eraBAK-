@@ -895,6 +895,13 @@ SELECTCASE 대상
 		ELSE
 			clothes = _의복
 		ENDIF
+	CASE 142
+		;142 쿠로코(마스크의복)
+		IF CLOTH:옷대상:의상부위_악세서리 == 2
+			clothes = _마스크의복
+		ELSE
+			clothes = _의복
+		ENDIF
 	CASEELSE
 		clothes = _의복
 ENDSELECT
