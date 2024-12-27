@@ -411,6 +411,44 @@ SELECTCASE 대상
 		ELSE
 			clothes = _의복
 		ENDIF
+	CASE 61
+		;61 요시미(스페셜(할로윈), 응원단(밴드))
+		IF CLOTH:옷대상:의상부위_상하의 == 1
+			clothes = _스페셜
+		ELSEIF CLOTH:옷대상:의상부위_상하의 == 5
+			clothes = _응원단
+		ELSE
+			clothes = _의복
+		ENDIF
+	CASE 62
+		;62 아이리(스페셜(할로윈), 응원단(밴드))
+		IF CLOTH:옷대상:의상부위_상하의 == 1
+			clothes = _스페셜
+		ELSEIF CLOTH:옷대상:의상부위_상하의 == 5
+			clothes = _응원단
+		ELSE
+			clothes = _의복
+		ENDIF
+	CASE 63
+		;63 나츠(스페셜(할로윈), 체육복, 응원단(밴드))
+		IF CLOTH:옷대상:의상부위_상하의 == 1
+			clothes = _스페셜
+		ELSEIF CLOTH:옷대상:의상부위_상하의 == 2
+			clothes = _체육복
+		ELSEIF CLOTH:옷대상:의상부위_상하의 == 5
+			clothes = _응원단
+		ELSE
+			clothes = _의복
+		ENDIF
+	CASE 64
+		;64 카즈사(스페셜(할로윈), 응원단(밴드))
+		IF CLOTH:옷대상:의상부위_상하의 == 1
+			clothes = _스페셜
+		ELSEIF CLOTH:옷대상:의상부위_상하의 == 5
+			clothes = _응원단
+		ELSE
+			clothes = _의복
+		ENDIF
 	CASE 65
 		;미네(응원단(아이돌)+마스크)
 		IF CLOTH:옷대상:의상부위_상하의 == 5
