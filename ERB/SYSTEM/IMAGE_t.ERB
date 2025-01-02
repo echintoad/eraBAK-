@@ -95,25 +95,33 @@ SELECTCASE 대상
 			ENDIF
 		ENDIF
 	CASE 9
-		;아루(전통복(새해))
+		;아루(전통복(새해), 드레스)
 		IF CLOTH:옷대상:의상부위_상하의 == 7
 			clothes = _전통복
+		ELSEIF CLOTH:옷대상:의상부위_상하의 == 11
+			clothes = _드레스
 		ELSE
 			clothes = _의복
 		ENDIF
 	CASE 10
-		;무츠키(전통복(새해))
+		;무츠키(전통복(새해), 드레스, 정장)
 		IF CLOTH:옷대상:의상부위_상하의 == 7
 			clothes = _전통복
+		ELSEIF CLOTH:옷대상:의상부위_상하의 == 11
+			clothes = _드레스
+		ELSEIF CLOTH:옷대상:의상부위_상하의 == 12
+			clothes = _정장
 		ELSE
 			clothes = _의복
 		ENDIF
 	CASE 11
-		;카요코(샬레, 전통복(새해))
+		;카요코(샬레, 전통복(새해), 드레스)
 		IF CLOTH:옷대상:의상부위_상하의 == 6
 			clothes = _샬레
 		ELSEIF CLOTH:옷대상:의상부위_상하의 == 7
 			clothes = _전통복
+		ELSEIF CLOTH:옷대상:의상부위_상하의 == 11
+			clothes = _드레스
 		ELSE
 			clothes = _의복
 		ENDIF
@@ -121,7 +129,10 @@ SELECTCASE 대상
 		;하루카(전통복(새해))
 		IF CLOTH:옷대상:의상부위_상하의 == 7
 			clothes = _전통복
-		
+		ELSEIF CLOTH:옷대상:의상부위_상하의 == 11
+			clothes = _드레스
+		ELSEIF CLOTH:옷대상:의상부위_상하의 == 12
+			clothes = _정장
 		ELSE
 			clothes = _의복
 		ENDIF
