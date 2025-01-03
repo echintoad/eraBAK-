@@ -703,7 +703,11 @@ SELECTCASE 대상
 		IF CLOTH:옷대상:의상부위_상하의 == 7
 			clothes = _전통복
 		ELSE
-			clothes = _의복
+			IF CLOTH:옷대상:의상부위_악세서리 == 2
+				clothes = _마스크의복
+			ELSE
+				clothes = _의복
+			ENDIF
 		ENDIF
 	CASE 104
 		;칸나(수영복)
