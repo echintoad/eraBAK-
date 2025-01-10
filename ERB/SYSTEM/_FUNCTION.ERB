@@ -63,12 +63,11 @@ CALL SKILL_INIT(ARG:0)
 CALL CLOTH_INIT(ARG:0)
 
 CALL WEAPON_INIT(ARG:0)
-;모든 캐릭터 장비 초기화
-FOR LOCAL, 0, 200
-	FOR COUNT, 0, 3
-		착용장비:LOCAL:COUNT = -1
-	NEXT
+;캐릭터 장비 초기화
+FOR COUNT, 0, 3
+	착용장비:(ARG:0):COUNT = -1
 NEXT
+
 
 ;범용 캐릭터라면 구상 패턴을 설정
 IF IS_CHILD(ARG:0) || IS_RANDOM_CHARA(ARG:0)

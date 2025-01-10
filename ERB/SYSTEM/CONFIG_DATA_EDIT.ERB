@@ -340,7 +340,7 @@ ELSEIF RESULT == 18
 	PRINTL 장비로인해 증가한 스텟은 초기화 하지않고 장비만을 제거합니다 남용시 버그가 있을 수 있으니 주의하세요
 	CALL ASK_YN
 	IF RESULT == 0
-	FOR LOCAL, 0, 200
+	FOR LOCAL, 0, 2000
 		FOR COUNT, 0, 3
 			착용장비:LOCAL:COUNT = -1
 		NEXT

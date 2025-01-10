@@ -1,6 +1,6 @@
 ﻿#DIM SAVEDATA 장비,81
-#DIM SAVEDATA 착용장비,200,3;200은 캐릭터 수
-#DIM SAVEDATA 총력전장비스탯상승,200,12;200은 캐릭터 수
+#DIM SAVEDATA 착용장비,2000,3;200은 캐릭터 수
+#DIM SAVEDATA 총력전장비스탯상승,2000,12;200은 캐릭터 수
 #DIM CONST 총력전장비무투           = 0
 #DIM CONST 총력전장비치명대미지     = 1
 #DIM CONST 총력전장비치명수치       = 2
