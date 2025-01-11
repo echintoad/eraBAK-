@@ -396,6 +396,19 @@ SELECTCASE 대상
 				clothes = _의복
 			ENDIF
 		ENDIF
+	CASE 54
+		;하나코(체육복, 수영복, 학교수영복, 샬레)
+		IF CLOTH:옷대상:의상부위_상하의 == 2
+			clothes = _체육복
+		ELSEIF CLOTH:옷대상:의상부위_상하의 == 3
+			clothes = _수영복
+		ELSEIF CLOTH:옷대상:의상부위_상하의 == 4
+			clothes = _학교수영복
+		ELSEIF CLOTH:옷대상:의상부위_상하의 == 6
+			clothes = _샬레
+		ELSE
+			clothes = _의복
+		ENDIF
 	CASE 55
 		;아즈사(마스크, 체육복, 수영복, 학교수영복)
 		IF CLOTH:옷대상:의상부위_상하의 == 2
@@ -421,6 +434,21 @@ SELECTCASE 대상
 			clothes = _학교수영복
 		ELSE
 			clothes = _의복
+		ENDIF
+	CASE 59
+		;우이(안경, 수영복+안경)
+		IF CLOTH:옷대상:의상부위_상하의 == 3
+			IF CLOTH:옷대상:의상부위_악세서리 == 1
+				clothes = _안경수영복
+			ELSE
+				clothes = _수영복
+			ENDIF
+		ELSE
+			IF CLOTH:옷대상:의상부위_악세서리 == 1
+				clothes = _안경의복
+			ELSE
+				clothes = _의복
+			ENDIF
 		ENDIF
 	CASE 61
 		;61 요시미(스페셜(할로윈), 응원단(밴드))
