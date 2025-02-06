@@ -8,7 +8,7 @@ RESULTS '= "총력전"
 ;「총력전」의 선택 가부 판정
 ;-------------------------------------------------
 @SHOP_LIFE_CHECK68
-SIF CFLAG:MASTER:포로처
+SIF CFLAG:MASTER:포로처 || 총력전클리어플래그 == 1
 	RETURN 0
 RETURN 1
 
@@ -67,7 +67,7 @@ CALL COLUMN_RIGHT_PRINTL
 CALL COLUMN_RIGHT_LINE
 CALL COLUMN_RIGHT_PRINTL
 ;오른쪽 컬럼의 표준적인 캐릭터 리스트와 페이지 이동 호출
-IF 선택인원수 >= 1 && 총력전클리어플래그 == 0
+IF 선택인원수 >= 1
 	PRINTBUTTON "[이 멤버로 결정]", 1
 	PRINTPLAIN   
 	PRINTBUTTON "[리셋]", 2
