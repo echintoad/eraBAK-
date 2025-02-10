@@ -1,0 +1,40 @@
+﻿;-------------------------------------------------
+; BAK용 CHARA_.*.csv 에 의상이 있는지 체크
+; BAK 에 쓰는 CHARA_.*.csv 명명 방식 에 맞춰서 작동함
+; "의상", "악세서리" 만 쓸 동안만 정상 작동함
+; 얼굴/스탠딩 이 있다는 가정하에 작동
+;-------------------------------------------------
+
+;-------------------------------------------------
+; 의상이 있는지 체크
+; RESULT에 0/1 반환(BOOL?)
+; 악세서리는 입고 있는 의상과 체크
+; 나중에 부위 수가 올라가면 FOR LOOP로 바꿔야 할 거임
+;-------------------------------------------------
+@CLOTH_EXIST_CHARA(대상, 부위, ID)
+#DIM 대상
+#DIM 부위
+#DIM ID
+#DIMS chkName
+
+; CSV 에 쓰이는 이름 세팅
+IF 부위 == 0
+	; 의상 체크
+	CALL GET_CLOTH_NAME_CSV(부위, ID)
+	chkName = 얼굴_%RESULTS%_통상_{대상}
+	; DEBUGPRINTFORML Checking Cloth, %RESULTS%
+ELSE
+	; 악세서리 체크
+	CALL GET_CLOTH_NAME_CSV(부위, ID)
+	chkName = 얼굴_%RESULTS%
+	CALL GET_CLOTH_NAME_CSV(0, CLOTH:대상:의상부위_상하의)
+	chkName = %chkName%%RESULTS%_통상_{대상}
+	; DEBUGPRINTFORML Checking %chkName%
+ENDIF
+
+; DEBUGPRINTFORML checking var name %chkName%
+SIF SPRITECREATED(chkName)
+	RETURN 1
+
+; DEBUGPRINTL No match found
+RETURN 0

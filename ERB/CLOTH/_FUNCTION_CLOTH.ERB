@@ -82,6 +82,17 @@ CATCH
 	RESULTS = 없음
 ENDCATCH
 
+;-------------------------------------------------
+;CSV에 쓰이는 의상명을 취득하는 나팔(?) 함수
+;-------------------------------------------------
+@GET_CLOTH_NAME_CSV(부위, ID)
+#DIM 부위
+#DIM ID
+
+TRYCCALLFORM CLOTH_NAME_%CLOTH_PART_NAME_ENG:부위%_CSV_{ID}()
+CATCH
+	RESULTS = 없음
+ENDCATCH
 
 ;-------------------------------------------------
 ;착용 의상 표시（버튼 붙어 있는）
@@ -143,9 +154,17 @@ RESTART
 VARSET 이용가부, 0
 이용가부:0 = 1
 의상수 = 1
+; DEBUGPRINTFORML Checking Chara ID: {대상}
 FOR LOCAL, 1, MAX_CLOTH_ID
+	; 의상이 있는지 확인
 	TRYCCALLFORM CLOTH_NAME_%CLOTH_PART_NAME_ENG:부위%_{LOCAL}()
-		이용가부:LOCAL = 1
+		; 대상이 의상이 있는지 확인
+		CALL CLOTH_EXIST_CHARA(대상, 부위, LOCAL)
+		IF RESULT
+			이용가부:LOCAL = 1
+		ELSE
+			이용가부:LOCAL = 0
+		ENDIF
 		의상수 ++
 	CATCH
 		이용가부:LOCAL = 0
