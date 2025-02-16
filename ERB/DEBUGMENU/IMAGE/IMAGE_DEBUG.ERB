@@ -100,17 +100,17 @@ NEXT
 #DIM DYNAMIC acc
 
 #DIMS DYNAMIC TEMPHTML
-#DIM DYNAMIC img_size = 800
+#DIM DYNAMIC img_size = 1000
 #DIMS DYNAMIC output
-#DIMS DYNAMIC expressions,3
-; #DIMS expressions,7
+; #DIMS DYNAMIC expressions,3
+#DIMS DYNAMIC expressions,7
 expressions:0 = 통상
 expressions:1 = 미소
 expressions:2 = 분노
-; expressions:3 = 슬픔
-; expressions:4 = 공포
-; expressions:5 = 광기
-; expressions:6 = 공허
+expressions:3 = 슬픔
+expressions:4 = 공포
+expressions:5 = 광기
+expressions:6 = 공허
 
 CALL GET_CLOTH_NAME_CSV(0, outfit)
 output = %RESULTS%
