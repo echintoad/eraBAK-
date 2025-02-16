@@ -1,0 +1,171 @@
+﻿;-------------------------------------------------
+; 캐릭터 화상/의상 확인을 위해 기능
+; CLOTH:ID: ... 등 사용 불가, CLOTH length 가 0 인듯
+; INIT_NEWGAME 써서 가능 할것 같긴 한데...
+;-------------------------------------------------
+
+@IMAGEDEBUG()
+#DIM DYNAMIC FIRST_LINE
+#DIM DYNAMIC CHAR_ID = 1
+#DIM DYNAMIC CHAR_MAX = 142 ; 최대 캐릭터 ID
+#DIM DYNAMIC IMG_TYPE = 0
+#DIMS DYNAMIC CHAR_NAME
+
+FIRST_LINE = LINECOUNT
+
+ALIGNMENT CENTER
+CALL SINGLE_DRAWLINE
+PRINTL Image Debug
+CALL SINGLE_DRAWLINE
+ALIGNMENT LEFT
+
+FIRST_LINE = LINECOUNT
+$STARTDEBUG_IMG
+CALL SINGLE_DRAWLINE
+CHAR_NAME = %CSVNAME(CHAR_ID)%
+PRINTFORML ({CHAR_ID}) %CHAR_NAME% 확인중...
+
+CALL IMAGEDEBUG_CHAR(CHAR_ID, IMG_TYPE)
+
+CALL SINGLE_DRAWLINE
+WHILE 1
+	PRINTBUTTON "0[돌아간다]", 0
+	PRINTL
+	PRINTBUTTON "[이미지 타입 변경]", 1000
+	PRINTL
+	PRINTBUTTON "[이전캐릭터]", 1009
+	PRINTBUTTON "[다음캐릭터]", 1010
+	PRINTL 
+	PRINTL 또는 캐릭터 ID 입력
+	INPUT
+	SELECTCASE RESULT
+		CASE 0
+			RETURN
+		CASE 1000
+			IMG_TYPE = 1 - IMG_TYPE
+		CASE 1009
+			IF CHAR_ID == 1
+				CHAR_ID = CHAR_MAX
+			ELSE
+				CHAR_ID--
+			ENDIF
+		CASE 1010
+			IF CHAR_ID == CHAR_MAX
+				CHAR_ID = 1
+			ELSE
+				CHAR_ID++
+			ENDIF
+		CASEELSE
+			CHAR_ID = RESULT
+	ENDSELECT
+	CLEARLINE LINECOUNT - FIRST_LINE
+	GOTO STARTDEBUG_IMG
+WEND
+
+; 캐릭터 의상 화상 전체 확인
+@IMAGEDEBUG_CHAR(ID, type)
+#DIM DYNAMIC ID
+#DIM DYNAMIC type
+
+#DIM DYNAMIC cnt,2 ; variable bleeding ftw
+#DIM DYNAMIC outfit
+#DIM DYNAMIC acc
+; 비효율적이지만, 디버그니까 패스
+#DIM DYNAMIC outfitMax
+#DIM DYNAMIC accMax
+
+CALL IMAGEDEBUG_CLOTHMAX(0)
+outfitMax = RESULT
+CALL IMAGEDEBUG_CLOTHMAX(1)
+accMax = RESULT
+
+FOR cnt:0, 0, outfitMax+1
+	CALL IMAGEDEBUG_PICNAME(ID, type, cnt:0)
+	IF SPRITECREATED(RESULTS)
+		FOR cnt:1, 0, accMax+1
+			CALL IMAGEDEBUG_PICNAME(ID, type, cnt:0, cnt:1)
+			IF SPRITECREATED(RESULTS)
+				CALL IMAGEDEBUG_LINE(ID, type, cnt:0, cnt:1)
+				; PRINTFORML CHK cnt:0 {cnt:0}, CHK COUNT:0 {COUNT:0}
+			ENDIF
+		NEXT
+	ENDIF
+NEXT
+
+; 캐릭터 표정 라인업
+@IMAGEDEBUG_LINE(ID, type, outfit=0, acc=0)
+#DIM DYNAMIC ID
+#DIM DYNAMIC type
+#DIM DYNAMIC outfit
+#DIM DYNAMIC acc
+
+#DIMS DYNAMIC TEMPHTML
+#DIM DYNAMIC img_size = 800
+#DIMS DYNAMIC output
+#DIMS DYNAMIC expressions,3
+; #DIMS expressions,7
+expressions:0 = 통상
+expressions:1 = 미소
+expressions:2 = 분노
+; expressions:3 = 슬픔
+; expressions:4 = 공포
+; expressions:5 = 광기
+; expressions:6 = 공허
+
+CALL GET_CLOTH_NAME_CSV(0, outfit)
+output = %RESULTS%
+CALL GET_CLOTH_NAME_CSV(1, acc)
+PRINTFORML ◆ %RESULTS%%output% ◆
+FOR COUNT, 0, VARSIZE("expressions")
+	; PRINTFORM PRINTING %expressions:COUNT%
+	CALL IMAGEDEBUG_PICNAME(ID, type, outfit, acc, expressions:COUNT)
+	IF COUNT == 0
+		TEMPHTML = <img src='%RESULTS%' height='{img_size}' ypos='0'>
+	ELSE
+		TEMPHTML += @"<img src='%RESULTS%' height='{img_size}' ypos='0'>"
+	ENDIF
+NEXT
+HTML_PRINT TEMPHTML
+img_size = img_size / 100 ; Do as I say, not as I do :P
+CALL PRINT_ENTER(img_size)
+
+; CSV 이미지 이름
+@IMAGEDEBUG_PICNAME(ID, type, outfit=0, acc=0, expr="통상")
+#DIM DYNAMIC ID
+#DIM DYNAMIC type
+#DIM DYNAMIC outfit
+#DIM DYNAMIC acc
+#DIMS DYNAMIC expr
+
+#DIMS DYNAMIC output
+
+IF type
+	output = 얼굴
+ELSE
+	output = 스탠딩
+ENDIF
+
+CALL GET_CLOTH_NAME_CSV(1, acc)
+SIF RESULTS == "없음"
+	RESULTS = 통상
+output = %output%_%RESULTS%
+
+CALL GET_CLOTH_NAME_CSV(0, outfit)
+SIF RESULTS == "없음"
+	RESULTS =
+output = %output%%RESULTS%
+output = %output%_%expr%_{ID}
+
+RESULTS = %output%
+
+@IMAGEDEBUG_CLOTHMAX(부위)
+#DIM 부위
+
+; #DIM fallback = 40
+FOR COUNT, 0, 40
+	TRYCCALLFORM CLOTH_NAME_%CLOTH_PART_NAME_ENG:부위%_{COUNT}()
+	CATCH
+		RETURN COUNT - 1
+	ENDCATCH
+NEXT
+RETURN 0
