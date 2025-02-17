@@ -162,10 +162,10 @@ FOR LOCAL, 1, MAX_CLOTH_ID
 		CALL CLOTH_EXIST_CHARA(대상, 부위, LOCAL)
 		IF RESULT
 			이용가부:LOCAL = 1
+			의상수 ++
 		ELSE
 			이용가부:LOCAL = 0
 		ENDIF
-		의상수 ++
 	CATCH
 		이용가부:LOCAL = 0
 	ENDCATCH
