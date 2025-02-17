@@ -32,6 +32,7 @@ RETURNF LASTLOAD_VERSION < GET_VERSION_VALUE(버젼문자열)
 ;-------------------------------------------------
 @UPDATE
 #DIM 강제인계플래그
+#DIM DYNAMIC cnt
 
 강제인계플래그 = 0
 
@@ -79,6 +80,27 @@ IF CHECK_UPDATE("0.3.8");랜덤/아이 캐릭터 장비 리셋
 			NEXT
 		ENDIF
 	NEXT
+ENDIF
+
+IF CHECK_UPDATE("0.3.9");의상 리셋
+	{
+		PRINTFORML \n0.3.9 버전에 의상 이름, 번호가 바뀌었습니다
+		\n의상을 초기화 합니까?\n
+	}
+	PRINTBUTTON "0[예(추천)]", 0
+	PRINTL
+	PRINTBUTTON "1[아니오]", 1
+	INPUT
+	SELECTCASE RESULT
+		CASE 0
+		; 고정 캐릭터만 리셋
+			FOR cnt, 1, 143
+				CALL CLOTH_INIT(cnt)
+			NEXT
+			PRINTL 의상 초기화 완료
+		CASE 1
+			PRINTL 의상 초기화를 건너뜁니다
+	ENDSELECT
 ENDIF
 
 IF 강제인계플래그
