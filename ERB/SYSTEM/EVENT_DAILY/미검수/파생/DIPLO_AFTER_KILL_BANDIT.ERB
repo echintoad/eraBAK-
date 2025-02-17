@@ -11,7 +11,7 @@ RETURN DAILY_GET_DISABLE_CONFIG("REQUEST_CHARA")
 ;대응하는 데일리의 DISABLE 체크를 규약으로서 필수로 한다
 ;---------------------
 @EVENT_DAILY_DERIVATION_AFTER_KILL_KAISER_DECISION()
-SIF ID_TO_CHARA(DVAR:사관요구_도둑베어버리기플래그) != -1
+SIF ID_TO_CHARA(DVAR:사관요구_카이저_코퍼레이션베어버리기플래그) != -1
 	RETURN 1
 RETURN 0
 
@@ -20,7 +20,7 @@ RETURN 0
 ;---------------------
 @EVENT_DAILY_DERIVATION_AFTER_KILL_KAISER()
 #DIM 대상
-대상 = ID_TO_CHARA(DVAR:사관요구_도둑베어버리기플래그)
+대상 = ID_TO_CHARA(DVAR:사관요구_카이저_코퍼레이션베어버리기플래그)
 CALL SINGLE_DRAWLINE
 PRINTFORMW 위병의 눈을 속여, 복수의 남자가 궁정에 잠입했다……
 PRINTFORMW 복도를 걷고 있었던 %ANAME(대상)%에 배후로부터 소리없이 다가와, 약을 스며들게 한 옷감을 머리로부터 씌운다
@@ -51,7 +51,7 @@ TFLAG:56 = 30
 
 @EVENTEND_AFTER_KILL_KAISER_AFTER_TRAIN_A
 #DIM 대상
-대상 = ID_TO_CHARA(DVAR:사관요구_도둑베어버리기플래그)
+대상 = ID_TO_CHARA(DVAR:사관요구_카이저_코퍼레이션베어버리기플래그)
 
 PRINTFORMW %조사처리(ANAME(대상),"가")% 눈을 뜨면, 거기는 기억에 없는 방이었다
 PRINTFORMW 한가닥의 실 휘감지 않은 스스로의 신체는 밧줄로 속박되어 낯선 남자들에게 모여지고 있다
@@ -77,7 +77,7 @@ RETURN 1
 
 @EVENTEND_AFTER_KILL_KAISER_AFTER_TRAIN_B
 #DIM 대상
-대상 = ID_TO_CHARA(DVAR:사관요구_도둑베어버리기플래그)
+대상 = ID_TO_CHARA(DVAR:사관요구_카이저_코퍼레이션베어버리기플래그)
 
 PRINTFORMW ……조교는 간신히 끝난 것 같다
 PRINTFORMW 격렬한 능욕에 기력이 다한 %조사처리(ANAME(대상),"는")%, 그 양구멍으로부터 백탁을 뚝뚝 흘려 보내면서, 때때로 경련할 뿐이 되어 있다
@@ -94,6 +94,6 @@ RESETCOLOR
 CALL SINGLE_DRAWLINE
 CALL CHANGE_COUNTRY(대상, GET_COUNTRY_FROM_ID(SP_COUNTRY_ID:(특수세력_카이저_코퍼레이션)))
 EXP:대상:윤간경험 += RAND(25, 50)
-DVAR:사관요구_도둑베어버리기플래그 = 0
+DVAR:사관요구_카이저_코퍼레이션베어버리기플래그 = 0
 
 RETURN 1
