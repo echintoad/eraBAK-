@@ -1,0 +1,139 @@
+﻿;악세서리 벗기기
+
+;-------------------------------------------------
+;커맨드 명칭
+;-------------------------------------------------
+@COM_NAME560
+#DIMS accName
+CALL GET_CLOTH_NAME(1, CLOTH:(MTAR:0):의상부위_악세서리)
+accName = %RESULTS%
+
+RESULTS = %조사처리(accName,"을")% 벗긴다
+
+
+;-------------------------------------------------
+;선택 가부 판정
+; 추가, 나중에 수정 해야 할수도: 
+;-------------------------------------------------
+@COM_ABLE560
+; DEBUGPRINTL START 560 CHECK
+;공통 부분
+CALL COM_ABLE_COMMON(560)
+SIF RESULT == 0
+	RETURN 0
+; DEBUGPRINTL COMMON PASS
+;플레이어는/타겟 최대로 1명까지
+SIF MPLY_NUM != 1
+	RETURN 0
+SIF MTAR_NUM != 1
+	RETURN 0
+; DEBUGPRINTL TARGET PASS
+;주인공이 플레이어 때 한정
+SIF MPLY:0 != MASTER
+	RETURN 0
+; DEBUGPRINTL PLAYER CHECK PASS
+;키스중은 불가 ?
+SIF IS_EQUIP(MPLY:0, 342)
+	RETURN 0
+; DEBUGPRINTL KISS CHECK PASS
+;타겟이 화상이 있음
+SIF !EXIST_PICTURE(MTAR:0)
+	RETURN 0
+; DEBUGPRINTL HAS PICTURE CHECK PASS
+;타겟이 악세서리를 끼고 있을 때 한정
+SIF CLOTH:(MTAR:0):의상부위_악세서리 == 0
+	RETURN 0
+; DEBUGPRINTL ACCESSORY CHECK PASS
+RETURN 1
+
+;-------------------------------------------------
+;메인 처리
+;-------------------------------------------------
+@COM560
+
+; 결과 세팅
+TCVAR:(MTAR:0):25 = 30
+
+; 소스는 기본 커맨드 보다 동일 또는 적게
+;친밀하게 응한 환락의 소스 추가
+SOURCE:(MTAR:0):환락 = -10
+CALL ADD_SOURCE_KANRAKU(MPLY:0, 100)
+CALL ADD_SOURCE_KANRAKU(MTAR:0, 100)
+SOURCE:(MPLY:0):환락 = MAX(SOURCE:(MPLY:0):환락, 0)
+SOURCE:(MTAR:0):환락 = MAX(SOURCE:(MTAR:0):환락, 0)
+
+;친밀하게 응한 애정의 소스 추가
+CALL ADD_SOURCE_AIZYOU(MPLY:0, 40)
+CALL ADD_SOURCE_AIZYOU(MTAR:0, 40)
+
+;주도권에 응한 소스의 추가
+CALL ADD_SOURCE_INITIATIVE_N(MPLY:0, 20, 20)
+CALL ADD_SOURCE_INITIATIVE_N(MTAR:0, 20, 20)
+
+
+; 추가 판정 구상 전 지문
+CALL GET_CLOTH_NAME(1, CLOTH:(MTAR:0):의상부위_악세서리)
+PRINTFORML %플레이어는% %조사처리(ANAME(MTAR:0),"에게")% %조사처리(RESULTS,"을")% 벗도록 했다.
+
+; 1차 판정
+CALL COM_ORDER_BASE(MTAR:0)
+; IF TALENT:(MTAR:0):친애
+; 	CALL COM_ORDER_ELEMENT(MTAR:0, "친애", 15)
+; ELSEIF TALENT:(MTAR:0):연모
+; 	CALL COM_ORDER_ELEMENT(MTAR:0, "연모", 5)
+; ENDIF
+
+; IF TALENT:(MTAR:0):예속
+; 	CALL COM_ORDER_ELEMENT(MTAR:0, "예속", 15)
+; ELSEIF TALENT:(MTAR:0):복종
+; 	CALL COM_ORDER_ELEMENT(MTAR:0, "복종", 5)
+; ENDIF
+
+IF TALENT:(MTAR:0):낙인
+	CALL COM_ORDER_ELEMENT(MTAR:0, "낙인", TCVAR:(MTAR:0):25)
+ENDIF
+
+; 공허, 붕괴 시 2차 판정 건너 뛰기
+IF GROUPMATCH(TOSTR_EMOTION(MTAR:0), "공허", "붕괴")
+	CALL COM_ORDER_ELEMENT(MTAR:0, TOSTR_EMOTION(MTAR:0), TCVAR:(MTAR:0):25)
+	GOTO COM_RESULT
+ENDIF
+
+; 2차 판정: 추가 구상: KOJO_EVENT(MTAR:0, XXX)
+CALL KOJO_EVENT(MTAR:0, 470)
+
+$COM_RESULT
+; 결과 표시
+PRINTL
+PRINTFORMW  = {TCVAR:(MTAR:0):24} %TOSTR_COMPARE(TCVAR:(MTAR:0):24, TCVAR:(MTAR:0):25)% 실행치{TCVAR:(MTAR:0):25}\n
+
+; 성공/실패 구상 + 악세서리 벗기기
+IF TCVAR:(MTAR:0):24 >= TCVAR:(MTAR:0):25
+	CALL KOJO_EVENT(MTAR:0, 471)
+	CALL SET_CLOTH(MTAR:0, 1, 0)
+ELSE
+	CALL KOJO_EVENT(MTAR:0, 472)
+ENDIF
+
+; 턴 경과
+RETURN 1
+
+;-------------------------------------------------
+;지문(전문)
+;-------------------------------------------------
+; @COM_TEXT_BEFORE560
+; PRINTFORML before
+
+;-------------------------------------------------
+;지문(파라미터·각인 변동 후)
+;-------------------------------------------------
+; @COM_TEXT_LAST560
+
+;-------------------------------------------------
+
+;커맨드 구분
+;-------------------------------------------------
+
+@COM_AVAILABLE_WHEN560
+; DEBUGPRINTL 560 CHECK WHEN
+RETURN 커맨드_공통
