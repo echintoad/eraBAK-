@@ -1,0 +1,996 @@
+﻿;-------------------------------------------------
+;이벤트 구상
+;-------------------------------------------------
+
+;=================================================
+;●각종 이벤트
+;※ARG에 이벤트번호가 들어간다. 자세하게는 자료 폴더의 「era 연희 이벤트표」를 참조
+;※RETURN의 값을 0→1으로 바꾸면, Default의 메세지가 표시되지 않게 된다
+;=================================================
+; CFLAG 관리 300～1999
+; 점자를 수화 대신으로, 점자 번역기 (https://jinh.kr/braille/)
+; 플레이어가 점자를 읽을 줄 알아서 "수화(점자) 지식" 없이 이득 있는 선택지를 고른다면, 그건 버그가 아니라 기능입니다
+; CFLAG:300 = 플래이어 수화(점자) 지식 <- 지금은 지략 + 정치 로 관련 이벤드 시작시 처리중, 나중엔 이벤트로 수화 배우기?
+; CFLAG:301 = 수화(점자) 로 대화 중, 아직 안쓰임
+; 지금 400 이상은 소규모 용
+; CFLAG:400 = 추가 선택지 답장 기록
+;=================================================
+
+@KOJO_EVENT_K114(ARG)
+#DIM DYNAMIC FIRST_LINE ;CLEARLINE 에 쓸 변수 저장용
+; #DIMS DYNAMIC tempLine ;임시 string 저장용
+
+;-------------------------------------------------
+;퍼스트 키스 실행
+;-------------------------------------------------
+IF ARG == 1
+	;연모 or 복종
+	IF TALENT:연모 || TALENT:복종
+		;PRINTFORMW 
+	;연인
+	ELSEIF TALENT:연인
+		;PRINTFORMW 
+	;그 이외
+	ELSE
+		;PRINTFORMW 
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;고백 성공
+;-------------------------------------------------
+IF ARG == 2
+	;연모 or 복종
+	IF TALENT:연모 || TALENT:복종
+		;PRINTFORMW 
+	;그 이외
+	ELSE
+		;PRINTFORMW 
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;고백 실패
+;-------------------------------------------------
+IF ARG == 3
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;쓰러트리기 성공(술에 취함의 영향·합의는 얻을 수 없다)
+;-------------------------------------------------
+IF ARG == 4
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;쓰러트리기 성공(합의를 취득)
+;-------------------------------------------------
+IF ARG == 5
+	;연모 or 복종
+	IF TALENT:연모 || TALENT:복종
+		;PRINTFORMW 
+	;그 이외
+	ELSE
+		;PRINTFORMW 
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;쓰러트리기 실패
+;-------------------------------------------------
+IF ARG == 6
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;쓰러트리기 성공(이미 합의 있어)
+;-------------------------------------------------
+IF ARG == 7
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;본명을 허락하는 이벤트
+;-------------------------------------------------
+IF ARG == 10
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;데이트중에 저쪽에서 키스
+;-------------------------------------------------
+IF ARG == 20
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;데이트중에 저쪽에서 고백
+;-------------------------------------------------
+IF ARG == 21
+	;PRINTFORMW 
+
+	;CALL ASK_YN("받아들인다", "거절한다")
+
+	;고백을 받아들인다
+	;IF RESULT == 0
+	;	PRINTFORMW 
+	;
+	;	;고백 성공시는 TFLAG:4에 1을 대입
+	;	TFLAG:4 = 1
+
+	;고백을 거절한다
+	;ELSE
+	;	PRINTFORMW 
+	;
+	;	;고백 성공시는 TFLAG:4에 0을 대입
+	;	TFLAG:4 = 0
+	;ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;상대로부터 밀어 쓰러트려진다
+;-------------------------------------------------
+;합의 없음
+IF ARG == 22
+	;PRINTFORMW 
+	RETURN 0
+;합의 이루어＆취한 기세
+ELSEIF ARG == 23
+	;PRINTFORMW 
+	RETURN 0
+;합의 있어
+ELSEIF ARG == 24
+	;PRINTFORMW 
+	RETURN 0
+;합의 있어＆취한 기세
+ELSEIF ARG == 25
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;상대로부터 졸라대진다
+;-------------------------------------------------
+;합의 없음
+IF ARG == 26
+	;PRINTFORMW 
+	RETURN 0
+;합의 이루어＆취한 기세
+ELSEIF ARG == 27
+	;PRINTFORMW 
+	RETURN 0
+;합의 있어
+ELSEIF ARG == 28
+	;PRINTFORMW 
+	RETURN 0
+;합의 있어＆취한 기세
+ELSEIF ARG == 29
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;취기 한계에서 넘어진다
+;-------------------------------------------------
+IF ARG == 32
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;임신 발각
+;-------------------------------------------------
+IF ARG == 40
+	;포로 조교
+	IF CFLAG:9 == CFLAG:MASTER:1
+		;종 친불명
+		IF CFLAG:23 == 0
+			IF ABL:출산 >= 3
+				;PRINTFORMW 
+			ELSE
+				;PRINTFORMW 
+			ENDIF
+		;주인공인 아이를 임신했다
+		ELSEIF CFLAG:23 == GET_ID(MASTER)
+			IF TALENT:연모 || TALENT:복종 || TALENT:친구
+				;PRINTFORMW 
+			ELSEIF TALENT:연인 || TALENT:낙인
+				;PRINTFORMW 
+			ELSE
+				IF ABL:출산 >= 3
+					;PRINTFORMW 
+				ELSE
+					;PRINTFORMW 
+				ENDIF
+			ENDIF
+		;촉수의 아이를 임신했다
+		ELSEIF LOCAL:6 == -10
+			;PRINTFORMW 
+		;다른 사관인 아이를 임신했다
+		ELSE
+			;PRINTFORMW 
+		ENDIF
+	;포로 조교 이외
+	ELSE
+		;종 친불명
+		IF CFLAG:23 == 0
+			IF ABL:출산 >= 3
+				;PRINTFORMW 
+			ELSE
+				;PRINTFORMW 
+			ENDIF
+		;주인공인 아이를 임신했다
+		ELSEIF CFLAG:23 == GET_ID(MASTER)
+			IF TALENT:연모 || TALENT:복종 || TALENT:친구
+				;PRINTFORMW 
+			ELSEIF TALENT:연인 || TALENT:낙인
+				;PRINTFORMW 
+			ELSE
+				;PRINTFORMW 
+			ENDIF
+		;촉수의 아이를 임신했다
+		ELSEIF CFLAG:23 == -10
+			;PRINTFORMW 
+		;다른 사관인 아이를 임신했다
+		ELSE
+			;PRINTFORMW 
+		ENDIF
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;임월에 접어들었다
+;-------------------------------------------------
+IF ARG == 41
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;아이를 출산했다
+;-------------------------------------------------
+IF ARG == 42
+	;부친의 캐릭터 번호를 LOCAL:0에 취득
+	LOCAL:0 = ID_TO_CHARA(CFLAG:23)
+
+	;주인공의 아이의 경우
+	IF LOCAL:0 == MASTER
+		IF TALENT:연모 || TALENT:복종 || TALENT:친구
+			;PRINTFORMW 
+		ELSEIF TALENT:연인 || TALENT:낙인
+			;PRINTFORMW 
+		ELSE
+			;PRINTFORMW 
+		ENDIF
+	;종 친불명의 경우
+	ELSEIF CFLAG:23 == 0
+		;PRINTFORMW 
+	;다른 관직에 오름의 아이의 경우
+	ELSE
+		;PRINTFORMW 
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;주인공에게 자신의 자식을 낳게 했다
+;-------------------------------------------------
+IF ARG == 43
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;촉수의 아이를 출산했다
+;-------------------------------------------------
+IF ARG == 44
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;충성을 맹세하게 한다/성공
+;-------------------------------------------------
+IF ARG == 50
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;충성을 맹세하게 한다/실패
+;-------------------------------------------------
+IF ARG == 51
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;자국으로 이끈다/성공
+;-------------------------------------------------
+IF ARG == 52
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;자국으로 이끈다/실패
+;-------------------------------------------------
+IF ARG == 53
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;연모를 취득
+;-------------------------------------------------
+IF ARG == 60
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;친구를 취득
+;-------------------------------------------------
+IF ARG == 61
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;친애를 취득
+;-------------------------------------------------
+IF ARG == 62
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;복종을 취득
+;-------------------------------------------------
+IF ARG == 63
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;예속을 취득
+;-------------------------------------------------
+IF ARG == 64
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;음란을 취득
+;-------------------------------------------------
+IF ARG == 65
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;혼인의식(선택시)
+;-------------------------------------------------
+IF ARG == 90
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;혼인의식(이벤트시)
+;-------------------------------------------------
+IF ARG == 91
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;조교 후 자위(Ｃ)
+;-------------------------------------------------
+IF ARG == 100
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;조교 후 자위(Ａ)
+;-------------------------------------------------
+IF ARG == 101
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;조교 후 성교
+;-------------------------------------------------
+IF ARG == 102
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;조르기에게 「보류」를 선택
+;-------------------------------------------------
+IF ARG == 103
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;유혹 성공(취한 기세·합의는 얻을 수 없다)
+;-------------------------------------------------
+IF ARG == 104
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;유혹 성공(합의를 취득)
+;-------------------------------------------------
+IF ARG == 105
+	;연모 or 복종
+	IF TALENT:연모 || TALENT:복종
+		;PRINTFORMW 
+	;그 이외
+	ELSE
+		;PRINTFORMW 
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;유혹 실패
+;-------------------------------------------------
+IF ARG == 106
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;유혹 성공(이미 합의 있어)
+;-------------------------------------------------
+IF ARG == 107
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;취해 무너진 곳에서 장난
+;-------------------------------------------------
+IF ARG == 110
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;주인공이 실신해도 조교 계속
+;-------------------------------------------------
+IF ARG == 111
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;주인공이 피로해도 조교 계속
+;-------------------------------------------------
+IF ARG == 112
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;커맨드 실행 실패
+;-------------------------------------------------
+IF ARG == 150
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;관장＆플러그를 실행 후, 플러그를 뽑아 낸다
+;-------------------------------------------------
+IF ARG == 151
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;밤이벤트/일반
+;-------------------------------------------------
+;곁잠
+IF ARG == 200
+	;PRINTFORMW 
+	RETURN 0
+;저녁 반주
+ELSEIF ARG == 201
+	;PRINTFORMW 
+	RETURN 0
+;담소
+ELSEIF ARG == 202
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;밤이벤트/애무
+;-------------------------------------------------
+;꾸짖고(통상)
+IF ARG == 210
+	;PRINTFORMW 
+	RETURN 0
+;꾸짖고(가학)
+ELSEIF ARG == 211
+	;PRINTFORMW 
+	RETURN 0
+;받고(통상)
+ELSEIF ARG == 212
+	;PRINTFORMW 
+	RETURN 0
+;받고(피학)
+ELSEIF ARG == 213
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;밤이벤트/성교
+;-------------------------------------------------
+;주인공이 이 캐릭터의Ｖ에 삽입
+IF ARG == 220
+	;PRINTFORMW 
+	RETURN 0
+;주인공이 이 캐릭터의Ａ에 삽입
+ELSEIF ARG == 221
+	;PRINTFORMW 
+	RETURN 0
+;이 캐릭터가 주인공의Ｖ에 삽입
+ELSEIF ARG == 222
+	;PRINTFORMW 
+	RETURN 0
+;이 캐릭터가 주인공의Ａ에 삽입
+ELSEIF ARG == 223
+	;PRINTFORMW 
+	RETURN 0
+;레즈 관련
+ELSEIF ARG == 224
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;아침 이벤트/스스로 성지식을 배운다
+;-------------------------------------------------
+IF ARG == 240
+	;PRINTFORMW 
+	RETURN 0
+
+;-------------------------------------------------
+;아침 이벤트/스스로 성지식을 배운다(역조교)
+;-------------------------------------------------
+ELSEIF ARG == 241
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;전투 개시
+;-------------------------------------------------
+;야전
+IF ARG == 300
+	;PRINTFORMW 
+	RETURN 0
+;방위전(침공측)
+ELSEIF ARG == 301
+	;PRINTFORMW 
+	RETURN 0
+;방위전(방위측)
+ELSEIF ARG == 302
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;특수 전술
+;-------------------------------------------------
+;계략 발동
+IF ARG == 310
+	;PRINTFORMW 
+	RETURN 0
+;반계
+ELSEIF ARG == 311
+	;PRINTFORMW 
+	RETURN 0
+;관계(무력)
+ELSEIF ARG == 312
+	;PRINTFORMW 
+	RETURN 0
+;관계(호감도)
+ELSEIF ARG == 313
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;주인공 세력에 포박 된다(부대 괴멸시)
+;-------------------------------------------------
+IF ARG == 330
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;주인공 세력에 포박 된다(멸망시)
+;-------------------------------------------------
+IF ARG == 331
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;주인공 세력에 포박 되었을 때의 리액션
+;-------------------------------------------------
+;등용에 응한다
+IF ARG == 332
+	;PRINTFORMW 
+	RETURN 0
+;등용을거부한다
+ELSEIF ARG == 333
+	;PRINTFORMW 
+	RETURN 0
+;해방된다
+ELSEIF ARG == 334
+	;PRINTFORMW 
+	RETURN 0
+;투옥된다
+ELSEIF ARG == 335
+	;PRINTFORMW 
+	RETURN 0
+;처형된다
+ELSEIF ARG == 336
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;전사시
+;-------------------------------------------------
+IF ARG == 337
+	;주인공과 동일 세력에 소속
+	IF CFLAG:1 >= 1 && CFLAG:1 == CFLAG:MASTER:1
+		IF TALENT:연모 || TALENT:복종 || TALENT:친구
+			;PRINTFORMW 
+		ELSE
+			;PRINTFORMW 
+		ENDIF
+	;주인공과 다른 세력에 소속
+	ELSE
+		;PRINTFORMW 
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;포로 조교의 메뉴
+;-------------------------------------------------
+;해방된다
+IF ARG == 340
+	;PRINTFORMW 
+	RETURN 0
+;처형된다
+ELSEIF ARG == 341
+	;PRINTFORMW 
+	RETURN 0
+;성 노예화 된다
+ELSEIF ARG == 342
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;방랑 이벤트
+;-------------------------------------------------
+;등용에 응한다
+IF ARG == 350
+	;PRINTFORMW 
+	RETURN 0
+;등용을거부한다
+ELSEIF ARG == 351
+	;PRINTFORMW 
+	RETURN 0
+;투옥된다
+ELSEIF ARG == 352
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;단칼·카린 관계
+;-------------------------------------------------
+;[단칼에 연모]를 취득
+IF ARG == 400
+	;PRINTFORMW 
+	RETURN 0
+;[단칼의 연인]를 취득
+ELSEIF ARG == 401
+	;PRINTFORMW 
+	RETURN 0
+;[단칼에 연모]를 상실
+ELSEIF ARG == 402
+	;PRINTFORMW 
+	RETURN 0
+;단칼과 헤어지게 하는 것을 성공
+ELSEIF ARG == 403
+	;PRINTFORMW 
+	RETURN 0
+;단칼과 헤어지게 하는 것을 실패
+ELSEIF ARG == 404
+	;PRINTFORMW 
+	RETURN 0
+;[조조에게 연모]를 취득
+ELSEIF ARG == 410
+	;PRINTFORMW 
+	RETURN 0
+;[조조의 연인]를 취득
+ELSEIF ARG == 411
+	;PRINTFORMW 
+	RETURN 0
+;[조조에게 연모]를 상실
+ELSEIF ARG == 412
+	;PRINTFORMW 
+	RETURN 0
+;조조와 헤어지게 하는 것을 성공
+ELSEIF ARG == 413
+	;PRINTFORMW 
+	RETURN 0
+;조조와 헤어지게 하는 것을 실패
+ELSEIF ARG == 414
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;역조교시
+;-------------------------------------------------
+;주인공에게 충성을 맹세하게 한다
+IF ARG == 450
+	;PRINTFORMW 
+	RETURN 0
+;주인공에게 충성을 맹세하게 한다/성공
+ELSEIF ARG == 451
+	;PRINTFORMW 
+	RETURN 0
+;주인공에게 충성을 맹세하게 한다/실패
+ELSEIF ARG == 452
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;의상/악세서리 관련 470 ~ 500?
+;플레이어와 1명의 대상으로 제한됨
+; 470 추가 선택지
+; 471/472 성공/실패
+;-------------------------------------------------
+;악세서리 벗기기 추가 선택지
+IF ARG == 470
+	IF CLOTH:TARGET:의상부위_악세서리 == 4
+		; 마스크 용
+		PRINTL
+		PRINTFORML 「⠑⠠⠪⠋⠪⠦」%CFLAG:300 == 1 ? "(마스크?)" # ""%
+		
+		IF TALENT:TARGET:연모 || TALENT:TARGET:친구
+			PRINTFORMW 「⠘⠎⠄⠎⠌⠪⠑⠡⠀⠨⠥⠴⠈⠝⠌⠎⠦」%CFLAG:300 == 1 ? "(벗었으면 좋겠어?)" # ""%
+		ELSE
+			PRINTFORMW 「⠪⠢⠲⠀⠣⠒⠊⠧⠗」%CFLAG:300 == 1 ? "(음. 안돼)" # ""%
+		ENDIF
+
+		FIRST_LINE = LINECOUNT
+		$INPUT_LOOP_470_0
+		CLEARLINE LINECOUNT - FIRST_LINE
+		
+		PRINTL 
+		; 0 번은 CFLAG:400 때문에 건너뜀
+		PRINTBUTTON "[응? 뭐라고?]", 1 ;친밀함: 대화후 통과, 나머지: 실망 -10
+		PRINTL 
+		PRINTBUTTON "[어... 응]", 2 ;친밀함: 통과, 나머지: (음. 안돼) 동의 -40 + 환락+
+		PRINTL 
+		IF CFLAG:300 && (TALENT:TARGET:연모 || TALENT:TARGET:친구)
+			PRINTBUTTON "[응]", 5 ;통과
+			PRINTL
+			PRINTBUTTON "[「⠪⠶⠐⠀⠘⠍⠓⠁⠚⠗」(응, 부탁해)]", 6 ;수화 보너스
+			PRINTL
+		ELSEIF CFLAG:300
+			PRINTBUTTON "[진짜 안돼?]", 7 ;고민 보너스
+			PRINTL
+			PRINTBUTTON "[「⠨⠟⠠⠨⠀⠣⠒⠊⠧⠗⠦」(진짜 안돼?)]", 8 ;수화 보너스
+			PRINTL
+		ENDIF
+		IF TALENT:TARGET:복종 || TALENT:TARGET:낙인
+			; LOCALS:0 = [%CFLAG:300 == 1 ? "" # "뭐라는 거야, "%벗어]
+			PRINTBUTTON @"[%CFLAG:300 == 1 ? "" # "뭐라는 거야, "%벗어]", 10 ;환락 0, 공포 + 불안
+			PRINTL
+		ENDIF
+		IF TALENT:MASTER:Ｓ기질 || (ABL:MASTER:새드 > 3)
+			PRINTBUTTON "[강압적인 방법을 쓴다]", 80
+			PRINTL
+		ENDIF
+		; PRINTBUTTON "[돌아온다]", 100
+
+		INPUT
+		LOCAL:1 = RESULT
+		CFLAG:400 = RESULT ;선택지 기록
+		SELECTCASE LOCAL:1
+			CASE 1
+				IF TALENT:TARGET:연모 || TALENT:TARGET:친구
+					PRINTFORMW 「아... 미안. 깜빡했어」
+				ELSE
+					PRINTFORMW 「아...」
+					CALL COM_ORDER_ELEMENT(TARGET, "실망", -10)
+					SOURCE:TARGET:환락 -= 10
+				ENDIF
+			CASE 2
+				IF !(TALENT:TARGET:연모 || TALENT:TARGET:친구)
+					PRINTFORMW 「⠕⠚⠗⠚⠗⠀⠨⠏⠠⠎⠀⠈⠥⠑⠣⠏」%CFLAG:300 == 1 ? "(이해해 줘서 고마워)" # ""%
+					CALL COM_ORDER_ELEMENT(TARGET, "???", -40)
+					SOURCE:TARGET:환락 += 20
+				ENDIF
+			CASE 5
+				SOURCE:TARGET:환락 += 5
+			CASE 6
+				PRINTFORMW 얼굴은 안 보이지만 %타겟은% 기뻐 보이는 것 같다
+				CALL COM_ORDER_ELEMENT(TARGET, "수화중", 20)
+				; CFLAG:301 = 1 ;수화 중 기록, 성공/실패 용
+				SOURCE:TARGET:환락 += 20
+				TIMES SOURCE:TARGET:애정, 1.10
+			CASE 7
+				PRINTFORMW %타겟은% 고민하는 것처럼 보인다
+				CALL COM_ORDER_ELEMENT(TARGET, "고민중", 5)
+			CASE 8
+				PRINTFORMW 마스크 너머로 조용히 웃는 소리가 들린다
+				CALL COM_ORDER_ELEMENT(TARGET, "수화중", 10)
+				; CFLAG:301 = 1 ;수화 중 기록, 성공/실패 용
+				SOURCE:TARGET:환락 += 15
+				TIMES SOURCE:TARGET:애정, 1.1
+			CASE 10
+				PRINTFORMW 「...」
+				CALL COM_ORDER_ELEMENT(TARGET, "명령", 10)
+				SOURCE:TARGET:환락 = 0
+				SOURCE:TARGET:애정 = 0
+				SOURCE:TARGET:반감 += 20
+			CASE 80
+				PRINTL
+				PRINTBUTTON "[힘으로 때어낸다]", 1
+				PRINTL
+				PRINTBUTTON "[돌아온다]", 99
+				PRINTL
+				INPUT
+				SELECTCASE RESULT
+					CASE 1
+						PRINTW 「?!」
+						; 힘 차이가 충분히 크면 가능하도록
+						LOCAL:2 = (ABL:MASTER:무투 + ABL:MASTER:방위) - (ABL:TARGET:무투 + ABL:TARGET:방위)
+						TIMES LOCAL:2, 1.2 ;아츠코 기본 무투(57) 방위(90) 높기 때문에 조정
+						LOCAL:3 = 100 ;최소 최대 제한값
+						; DEBUGPRINTFORML Compare before clamp: {LOCAL:2}
+						LOCAL:2 = LIMIT(LOCAL:2, (LOCAL:3 * -1), LOCAL:3)
+						CALL COM_ORDER_ELEMENT(TARGET, "무투·방위 비교", LOCAL:2)
+
+						; 강제시 고정 반감
+						SOURCE:TARGET:반감 += 100
+						SOURCE:TARGET:환락 = 0 ;이미 0 이겠지만...
+						SOURCE:TARGET:애정 = 0
+						SOURCE:TARGET:고통 += 20
+					CASEELSE
+						GOTO INPUT_LOOP_470_0
+				ENDSELECT
+		ENDSELECT
+	ENDIF
+	RETURN 1
+ENDIF
+
+;악세서리 벗기기 성공
+IF ARG == 471
+	IF CLOTH:TARGET:의상부위_악세서리 == 4
+		SELECTCASE CFLAG:400
+			CASE 1
+				IF TALENT:TARGET:연모 || TALENT:TARGET:친구
+					PRINTW 「없는 게 편하겠지」
+				ELSE
+					PRINTW 「음. 알았어」
+				ENDIF
+			CASE 2
+				IF !(TALENT:TARGET:연모 || TALENT:TARGET:친구)
+					PRINTW 「하지만 지금은 벗어둘까?」
+				ENDIF
+			CASE 6
+				PRINTW 「⠕⠐⠎⠴⠈⠝⠦」 (이렇게?)
+				TIMES SOURCE:TARGET:환락, 1.2
+				TIMES SOURCE:TARGET:애정, 1.1
+			CASE 7
+				PRINTW 「음. 알았어」
+				SOURCE:TARGET:주도 -= 5
+				SOURCE:MASTER:주도 += 5
+			CASE 8
+				PRINTL 「후후」
+				PRINTW 「⠕⠐⠎⠴⠈⠝⠦」 (이번만이야?)
+				TIMES SOURCE:TARGET:환락, 1.2
+			CASE 10
+				PRINTFORMW %타겟은% 조용히 %조사처리(RESULTS,"을")% 벗었다
+				SOURCE:TARGET:공포 += 50
+				SOURCE:TARGET:불안 += 50
+				RETURN 1 ;기본 메세지 숨기기
+			CASE 80
+				PRINTL 「읏...」
+				PRINTFORMW %플레이어는% %타겟의% %조사처리(RESULTS,"을")% 벗겻다
+				SOURCE:TARGET:공포 += 10
+				IF TALENT:TARGET:Ｍ기질 || ABL:TARGET:마조 > 9
+					TIMES SOURCE:TARGET:반감, 0.3
+				ELSEIF TALENT:TARGET:연모 || TALENT:TARGET:친구
+					TIMES SOURCE:TARGET:반감, 0.6
+					TIMES SOURCE:TARGET:공포, 5
+				ELSE
+					TIMES SOURCE:TARGET:반감, 0.8
+					TIMES SOURCE:TARGET:공포, 9
+				ENDIF
+				RETURN 1 ;기본 메세지 숨기기
+		ENDSELECT
+	ENDIF
+	; 기본 메세지 띄우기
+	RETURN 0
+ENDIF
+
+;악세서리 벗기기 실패
+IF ARG == 472
+	IF CLOTH:TARGET:의상부위_악세서리 == 4
+		SELECTCASE CFLAG:400
+			CASE 1, 5
+				PRINTW 「미안. 이 상태로 있고 싶어」
+			CASE 2
+				IF TALENT:TARGET:연모 || TALENT:TARGET:친구
+					PRINTFORMW 「⠑⠕⠣⠒⠲⠀⠱⠁⠠⠕⠀⠈⠎⠨⠞⠚⠂⠈⠝」%CFLAG:300 == 1 ? "(미안. 역시 거절할게)" # ""%
+				ENDIF
+			CASE 6
+				PRINTW 「⠘⠍⠓⠁⠚⠃⠉⠕⠊⠲⠀⠈⠗⠌⠨⠕⠦」(부탁합니다. 갰지?)
+				; note. 부정적 source 있으면 0 으로
+				; comf 에서 환락/애정 수정 대비용으로
+				SOURCE:TARGET:환락 = MAX(SOURCE:TARGET:환락, 15)
+				SOURCE:TARGET:애정 = MAX(SOURCE:TARGET:애정, 15)
+				TIMES SOURCE:TARGET:환락, 1.1
+				TIMES SOURCE:TARGET:애정, 1.1
+				SOURCE:TARGET:주도 += 5
+				SOURCE:MASTER:주도 -= 5
+			CASE 7
+				PRINTW 「⠑⠕⠣⠒」(미안)
+			CASE 8
+				PRINTL 「후후」
+				PRINTW 「⠑⠕⠣⠒⠲⠀⠉⠨⠍⠶⠝」(미안. 나중에)
+				; note. 부정적 source 있으면 0 으로
+				; comf 에서 환락/애정 수정 대비용으로
+				SOURCE:TARGET:환락 = MAX(SOURCE:TARGET:환락, 10)
+				TIMES SOURCE:TARGET:환락, 1.2
+				; +다음 시도가 쉬워지게 다른 보너스?
+			CASE 10
+				PRINTFORMW %CFLAG:300 == 1 ? "「⠠⠕⠂⠴⠎」(싫어)" # "「싫어」"%
+				TIMES SOURCE:TARGET:반감, 1.5
+			CASE 80
+				PRINTFORMW 「하지마」
+				TIMES SOURCE:TARGET:반감, 2
+				SOURCE:TARGET:주도 += 15
+				SOURCE:MASTER:주도 -= 10
+		ENDSELECT
+	ENDIF
+	; 기본 메세지 띄우기
+	RETURN 0
+ENDIF
