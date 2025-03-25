@@ -423,7 +423,9 @@ IF FLAG:화상설정
 	HTML_PRINT "<br>"
 
 	;공격자 표시
-	CALL PRINT_IMAGE_CHARA(VS_1, "스탠딩", "통상")
+	; try call print vs potrait
+	; CALL PRINT_IMAGE_CHARA(VS_1, "스탠딩", "통상")
+	CALL GET_IMAGE_BATTLE_DEFAULT(VS_1, "스탠딩")
 	sPrint_Text:0 = <p align='left'>
 	sPrint_Text:0 += @"<shape type='space' param='0'><img src='%RESULTS%' height='1000' ypos='-400'>"
 	HTML_PRINT sPrint_Text:0
@@ -434,7 +436,9 @@ IF FLAG:화상설정
 	HTML_PRINT sPrint_Text:1
 
 	;방어자 표시
-	CALL PRINT_IMAGE_CHARA(VS_2, "스탠딩", "통상")
+	; try call print vs potrait
+	; CALL PRINT_IMAGE_CHARA(VS_2, "스탠딩", "통상")
+	CALL GET_IMAGE_BATTLE_DEFAULT(VS_2, "스탠딩")
 	sPrint_Text:2 = <p align='left'>
 	sPrint_Text:2 += @"<shape type='space' param='1350'><img src='%RESULTS%' height='1000' ypos='-600'>"
 	HTML_PRINT sPrint_Text:2
@@ -521,6 +525,84 @@ ENDIF
 RETURNF sName
 
 ;-------------------------------------------------------------
+;	전투 화상 이미지 이름
+;	VS 화면과 총력전 용
+;	teams: 아군 (team:0, team:1...)
+;	enemies: 적군 (enemies:0, enemy:1...)
+;	종류: 스탠딩 혹은 얼굴 (지도자 캐릭터 스탠딩)
+;
+;	화상 없는 캐릭터면 GET_IMAGE_NAME
+;
+;	Battle_IMAGE.ERB 에서 없으면
+;	CHARA_Battle.csv 에서 전투_B{무작위}_{NO:iID} (showDefault 이면 B0 으로 고정)
+;	없으면 %종류%_의복_통상_{NO:iID}
+;-------------------------------------------------------------
+@GET_IMAGE_BATTLE(iID, teams, enemies, 종류 = "얼굴", showDefault = 0)
+#DIM iID
+#DIM REF teams, 0
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+#DIM DYNAMIC showDefault ; 1 이면 무작위 무시
+
+#DIM CONST MAX_BATTLE_IMG = 20 ; 다른 곳도 battle.csv 쓰기 시작 하면 .ERH 로 이동
+#DIM image_counter
+#DIMS DYNAMIC sName
+#DIM DYNAMIC temp ; LOCAL 대신
+
+; 화상 없는 캐릭터면 GET_IMAGE_NAME 로
+IF !EXIST_PICTURE(iID)
+	RESULTS = %GET_IMAGE_NAME(iID)%
+	RETURN
+ENDIF
+
+; showDefault 면 무시하고 전투_B0_{NO:iID}, 없으면 GET_IMAGE_NAME 로
+IF showDefault
+	sName = %종류%_전투_B0_{NO:iID}
+	IF SPRITECREATED(sName)
+		RESULTS = %sName%
+		RETURN
+	ELSE
+		GOTO IMAGE_BATTLE_FALLBACK
+	ENDIF
+ENDIF
+
+; BATTLE_IMAGE_{NO:iID} 있는지, 없으면 BATTLE 무작위
+TRYCCALLFORM BATTLE_IMAGE_{NO:iID}(teams, enemies, 종류)
+	RETURN
+CATCH
+	sName = %종류%_전투_B0_{NO:iID}
+	IF SPRITECREATED(sName)
+		FOR temp, 1, MAX_BATTLE_IMG
+			sName = %종류%_전투_B{temp}_{NO:iID}
+			IF !SPRITECREATED(sName)
+				image_counter = temp
+				BREAK
+			ENDIF
+		NEXT
+		RESULTS = %종류%_전투_B{RAND:image_counter}_{NO:iID}
+		RETURN
+	ELSE
+		GOTO IMAGE_BATTLE_FALLBACK
+	ENDIF
+ENDCATCH
+
+$IMAGE_BATTLE_FALLBACK
+RESULTS = %종류%_의복_통상_{NO:iID}
+RETURN
+
+;편의성 함수
+@GET_IMAGE_BATTLE_DEFAULT(iID, 종류 = "얼굴")
+#DIM iID
+#DIMS DYNAMIC 종류
+
+; #DIMS sName
+#DIM CONST empty = -1
+
+CALL GET_IMAGE_BATTLE(iID, empty, empty, 종류, 1)
+; DEBUGPRINTFORML AFTER Function %RESULTS%
+RETURN
+
+;-------------------------------------------------------------
 ;화상이 있는 캐릭터
 ;-------------------------------------------------------------
 @EXIST_PICTURE(ID)
@@ -537,6 +619,7 @@ ENDSELECT
 ;-------------------------------------------------------------
 ;PRINT COMMANDER
 ;전투시 지휘관 얼굴을 출력하는 함수
+; change to get commander and other side in array
 ;-------------------------------------------------------------
 @PRINT_COMMANDER(COMMANDER:0, COMMANDER:1, COMMANDER:2)
 #DIM COMMANDER, MAX_UNIT_COMMANDER
