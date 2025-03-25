@@ -588,7 +588,7 @@ RETURN
 #DIMS DYNAMIC 종류
 
 ; #DIMS sName
-#DIM CONST empty = -1
+#DIM empty = -1
 
 CALL GET_IMAGE_BATTLE(iID, empty, empty, 종류, 1)
 ; DEBUGPRINTFORML AFTER Function %RESULTS%
@@ -613,8 +613,10 @@ ENDSELECT
 ;전투시 지휘관 얼굴을 출력하는 함수
 ; change to get commander and other side in array
 ;-------------------------------------------------------------
-@PRINT_COMMANDER(COMMANDER:0, COMMANDER:1, COMMANDER:2)
-#DIM COMMANDER, MAX_UNIT_COMMANDER
+@PRINT_COMMANDER(teams, enemies)
+#DIM REF teams, 0
+#DIM REF enemies, 0
+
 #DIMS IMAGE, MAX_UNIT_COMMANDER
 #DIM iSize
 #DIM iSpace
@@ -623,13 +625,15 @@ ENDSELECT
 
 iSize = 6
 CALL PRINT_ENTER(iSize - MAX_UNIT_COMMANDER)
-
 FOR iVar, 0, MAX_UNIT_COMMANDER
-	IF COMMANDER:iVar < 0
+	VARSIZE teams
+	IF  iVar >= RESULT || teams:iVar < 0
 		PRINTL
 		CONTINUE
 	ENDIF
-	IMAGE:iVar = %GET_IMAGE_NAME(COMMANDER:iVar)%
+	; IMAGE:iVar = %GET_IMAGE_NAME(COMMANDER:iVar)%
+	CALL GET_IMAGE_BATTLE(teams:iVar, teams, enemies)
+	IMAGE:iVar = %RESULTS%
 
 	iSpace = iSize * iVar
 	iPadding = iSize - MAX_UNIT_COMMANDER + iVar
