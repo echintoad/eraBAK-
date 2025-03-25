@@ -501,6 +501,9 @@ RETURN
 #DIM iID
 #DIMS sName
 
+SIF iID < 0
+	RETURNF
+
 IF TALENT:(iID):커스텀페이스 > 0
 	sName = 커스텀
 	;성별전환 커스텀페이스
@@ -566,6 +569,12 @@ IF showDefault
 	ENDIF
 ENDIF
 
+; DEBUGPRINTFORM teams:
+; VARSIZE teams
+; FOR LOCAL:0, 0, RESULT
+; 	DEBUGPRINTFORM %LOCAL:0 == 0 ? "" # "/"% {teams:(LOCAL:0)}
+; NEXT
+; DEBUGPRINTL
 ; BATTLE_IMAGE_{NO:iID} 있는지, 없으면 BATTLE 무작위
 TRYCCALLFORM BATTLE_IMAGE_{NO:iID}(teams, enemies, 종류)
 	RETURN
