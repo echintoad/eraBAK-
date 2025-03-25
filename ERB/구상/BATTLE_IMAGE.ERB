@@ -1,0 +1,66 @@
+﻿;===========================================================================
+; 전투 화상 이미지 이름
+; 지휘관/총력전 화상
+; 
+; 참여하는 캐릭터에 따라 변경 가능
+; 여기에 함수가 없어도 CHARA_Battle.csv 중 무작위로 선택하게 되있어서
+; 모든 캐릭터 전용 함수가 없어도 됨
+; 
+; 작동하려면 3개의 매개변수(parameter/argument) 필요 
+; BATTLE_IMAGE_{번호}(teams, enemies, 종류)
+; #DIM REF teams
+; #DIM REF enemies
+; #DIMS DYNAMIC 종류
+;===========================================================================
+
+; 네루
+@BATTLE_IMAGE_41(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+#DIM DYNAMIC pickFrom, 20 ; 무작위 결과물을 위한 배열
+#DIM DYNAMIC cnt, 2 ; 0:무작위 옶션 카운터, 1: FOR LOOP 카운터
+
+DEBUGPRINTL reached custom check
+
+; 기본 표정 추가
+pickFrom:0 = 0
+cnt:0 ++
+
+; 팀에 C&C 멤버가 있을시 B2 추가 (75%)
+; 아니면 B1 추가 (50%)
+; teams 는 ID 라 NO:{teams:0} 랑 다를수 있지만...
+IF MATCH(teams, 42) || MATCH(teams, 43) || MATCH(teams, 44) || MATCH(teams, 45)
+	VARSET pickFrom, 2, cnt, (cnt + 3)
+	cnt += 3
+ELSE
+	pickFrom:(cnt:0) = 1
+	cnt:0 ++
+ENDIF
+
+; debug show result
+; DEBUGPRINTFORML counter = {cnt:0}
+; FOR cnt:1, 0, cnt:0
+; 	DEBUGPRINTFORML pickFrom:{cnt:1} = {pickFrom:(cnt:1)}
+; NEXT
+
+RESULTS = %종류%_전투_B{pickFrom:(RAND:cnt)}_41
+DEBUGPRINTFORML %RESULTS%
+RETURN
+
+; 토키
+; 낮은 확률로 아비 에슈흐 모드로 전환
+@BATTLE_IMAGE_45(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+SELECTCASE RAND:20
+	CASE 0
+		RESULTS = %종류%_전투_B1_45
+	CASE 1
+		RESULTS = %종류%_전투_B2_45
+	CASEELSE
+		RESULTS = %종류%_전투_B0_45
+ENDSELECT
