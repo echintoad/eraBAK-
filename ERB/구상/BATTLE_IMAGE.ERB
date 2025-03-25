@@ -13,41 +13,230 @@
 ; #DIMS DYNAMIC 종류
 ;===========================================================================
 
+; 시로코
+@BATTLE_IMAGE_1(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 최적화 문제가 있을수 있는데 확률 계산 하기 쉽게
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 2
+#DIM DYNAMIC pickMax
+
+pickFrom:0 = 1 ; 통상 확률
+pickFrom:1 = 1 ; 복면 확률
+; 다른 아비도스에 맞춰서 복면 확률 올림
+SIF MATCH(teams, 2) || MATCH(teams, 3) || MATCH(teams, 4) || MATCH(teams, 5) || MATCH(teams, 142)
+	pickFrom:1 += 2
+
+; 결과
+; array.sum() 같은건 era 로 가능한가?
+pickMax = pickFrom:0 + pickFrom:1
+SELECTCASE RAND:pickMax
+	CASE IS < pickFrom:1
+		RESULTS = %종류%_전투_B1_1
+	CASEELSE
+		RESULTS = %종류%_전투_B0_1
+ENDSELECT
+
+
+; 호시노
+@BATTLE_IMAGE_2(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 3
+#DIM DYNAMIC pickMax
+
+; 확률
+; 기본은 = 통상:무장:복면 = 3:3:0
+pickFrom:0 = 3 ; 통상 확률
+pickFrom:1 = 3 ; 무장 확률
+; 시로코/쿠로코가 있으면 복면 확률 UP,
+; 아비도스 있으면 복면 확률 1, 아니면 0
+IF MATCH(teams, 1) || MATCH(teams, 142)
+	pickFrom:2 = 8
+ELSEIF MATCH(teams, 3) || MATCH(teams, 4) || MATCH(teams, 5)
+	pickFrom:2 = 1
+ENDIF
+
+; 결과
+; array.sum() 같은건 era 로 가능한가?
+pickMax = pickFrom:0 + pickFrom:1 + pickFrom:2
+; select case 를 위한 정리
+SIF pickFrom:2 > 0
+	pickFrom:2 += pickFrom:1
+SELECTCASE RAND:pickMax
+	CASE IS < pickFrom:1
+		RESULTS = %종류%_전투_B1_2
+	CASE IS < pickFrom:2
+		RESULTS = %종류%_전투_B2_2
+	CASEELSE
+		RESULTS = %종류%_전투_B0_2
+ENDSELECT
+
+
+; 세리카
+@BATTLE_IMAGE_3(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 2
+#DIM DYNAMIC pickMax
+
+; 기본은 = 통상:복면 = 2:0
+; 잘 휩쓸리느 거 나타내기
+pickFrom:0 = 2 ; 통상 확률
+; 시로코/쿠로코가 있으면 복면 확률 UP,
+; 아비도스 있으면 복면 확률 1, 아니면 0
+IF MATCH(teams, 1) || MATCH(teams, 142)
+	pickFrom:1 = 6
+ELSEIF MATCH(teams, 2) || MATCH(teams, 4) || MATCH(teams, 5)
+	pickFrom:1 = 1
+ENDIF
+
+; 결과
+; array.sum() 같은건 era 로 가능한가?
+pickMax = pickFrom:0 + pickFrom:1
+SELECTCASE RAND:pickMax
+	CASE IS < pickFrom:1
+		RESULTS = %종류%_전투_B1_3
+	CASEELSE
+		RESULTS = %종류%_전투_B0_3
+ENDSELECT
+
+
+; 노노미
+@BATTLE_IMAGE_4(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 2
+#DIM DYNAMIC pickMax
+
+; 확률
+pickFrom:0 = 2 ; 통상 확률
+pickFrom:1 = 2 ; 복면 확률
+; 시로코/쿠로코가 있으면 복면 확률 UP,
+; 아비도스 있으면 복면 확률 1, 아니면 0
+IF MATCH(teams, 1) || MATCH(teams, 142)
+	pickFrom:1 += 3
+ELSEIF MATCH(teams, 2) || MATCH(teams, 3) || MATCH(teams, 5)
+	pickFrom:1 += 1
+ENDIF
+
+; 결과
+; array.sum() 같은건 era 로 가능한가?
+pickMax = pickFrom:0 + pickFrom:1
+SELECTCASE RAND:pickMax
+	CASE IS < pickFrom:1
+		RESULTS = %종류%_전투_B1_4
+	CASEELSE
+		RESULTS = %종류%_전투_B0_4
+ENDSELECT
+
+
+; 아야네
+@BATTLE_IMAGE_5(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 2
+#DIM DYNAMIC pickMax
+
+; 확률
+; 아야네는 복면 확률 낮음
+pickFrom:0 = 3 ; 통상 확률
+; 시로코/쿠로코가 있으면 복면 확률 UP,
+; 아비도스 있으면 복면 확률 1, 아니면 0
+IF MATCH(teams, 1) || MATCH(teams, 142)
+	pickFrom:1 += 3
+ELSEIF MATCH(teams, 2) || MATCH(teams, 3) || MATCH(teams, 5)
+	pickFrom:1 += 1
+ENDIF
+
+; 결과
+; array.sum() 같은건 era 로 가능한가?
+pickMax = pickFrom:0 + pickFrom:1
+SELECTCASE RAND:pickMax
+	CASE IS < pickFrom:1
+		RESULTS = %종류%_전투_B1_5
+	CASEELSE
+		RESULTS = %종류%_전투_B0_5
+ENDSELECT
+
+
+; 쿠로코
+@BATTLE_IMAGE_142(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 최적화 문제가 있을수 있는데 확률 계산 하기 쉽게
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 2
+#DIM DYNAMIC pickMax
+
+pickFrom:0 = 1 ; 통상 확률
+pickFrom:1 = 1 ; 복면 확률
+; 다른 아비도스에 맞춰서 복면 확률 올림
+SIF MATCH(teams, 1) || MATCH(teams, 2) || MATCH(teams, 3) || MATCH(teams, 4) || MATCH(teams, 5)
+	pickFrom:1 += 2
+
+; 결과
+; array.sum() 같은건 era 로 가능한가?
+pickMax = pickFrom:0 + pickFrom:1
+SELECTCASE RAND:pickMax
+	CASE IS < pickFrom:1
+		RESULTS = %종류%_전투_B1_142
+	CASEELSE
+		RESULTS = %종류%_전투_B0_142
+ENDSELECT
+
 ; 네루
 @BATTLE_IMAGE_41(teams, enemies, 종류 = "얼굴")
 #DIM REF teams, 0 
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
-#DIM DYNAMIC pickFrom, 20 ; 무작위 결과물을 위한 배열
-#DIM DYNAMIC cnt, 2 ; 0:무작위 옶션 카운터, 1: FOR LOOP 카운터
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 3
+#DIM DYNAMIC pickMax
 
-DEBUGPRINTL reached custom check
-
-; 기본 표정 추가
-pickFrom:0 = 0
-cnt:0 ++
-
-; 팀에 C&C 멤버가 있을시 B2 추가 (75%)
+; 확률
+pickFrom:0 = 1 ; 통상 확률
+; 팀에 C&C 멤버가 있을시 B2 추가 (높음)
 ; 아니면 B1 추가 (50%)
 ; teams 는 ID 라 NO:{teams:0} 랑 다를수 있지만...
 IF MATCH(teams, 42) || MATCH(teams, 43) || MATCH(teams, 44) || MATCH(teams, 45)
-	VARSET pickFrom, 2, cnt, (cnt + 3)
-	cnt += 3
+	pickFrom:2 = 2
 ELSE
-	pickFrom:(cnt:0) = 1
-	cnt:0 ++
+	pickFrom:1 = 1
 ENDIF
 
-; debug show result
-; DEBUGPRINTFORML counter = {cnt:0}
-; FOR cnt:1, 0, cnt:0
-; 	DEBUGPRINTFORML pickFrom:{cnt:1} = {pickFrom:(cnt:1)}
-; NEXT
+; 결과
+; array.sum() 같은건 era 로 가능한가?
+pickMax = pickFrom:0 + pickFrom:1 + pickFrom:2
+; DEBUGPRINTFORML neru max = {pickMax}
+; DEBUGPRINTFORML {pickFrom:0} : {pickFrom:1} : {pickFrom:2}
+SELECTCASE RAND:pickMax
+	CASE IS < pickFrom:1
+		RESULTS = %종류%_전투_B1_41
+	CASE IS < pickFrom:2
+		RESULTS = %종류%_전투_B2_41
+	CASEELSE
+		RESULTS = %종류%_전투_B0_41
+ENDSELECT
 
-RESULTS = %종류%_전투_B{pickFrom:(RAND:cnt)}_41
-DEBUGPRINTFORML %RESULTS%
-RETURN
 
 ; 토키
 ; 낮은 확률로 아비 에슈흐 모드로 전환
@@ -56,11 +245,29 @@ RETURN
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
-SELECTCASE RAND:20
+SELECTCASE RAND:15
 	CASE 0
 		RESULTS = %종류%_전투_B1_45
 	CASE 1
 		RESULTS = %종류%_전투_B2_45
 	CASEELSE
 		RESULTS = %종류%_전투_B0_45
+ENDSELECT
+
+
+; 히후미
+; 의복 > 복면, 낮은 확률로 복면 분노
+; B0: 의복, B1: 복면, B2: 복면 분노
+@BATTLE_IMAGE_53(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+SELECTCASE RAND:45
+	CASE 0 TO 20
+		RESULTS = %종류%_전투_B1_53
+	CASE 21
+		RESULTS = %종류%_전투_B2_53
+	CASEELSE
+		RESULTS = %종류%_전투_B0_53
 ENDSELECT
