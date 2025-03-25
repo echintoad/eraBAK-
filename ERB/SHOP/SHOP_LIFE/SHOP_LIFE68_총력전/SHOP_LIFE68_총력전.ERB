@@ -457,7 +457,8 @@ LOCALS = "   |                    |                    |                     |  
 FOR LOCAL, 0, 5
 	SIF 총력전_파티_캐릭터:LOCAL < 0
 		CONTINUE
-	IMAGE:LOCAL = %GET_IMAGE_NAME(총력전_파티_캐릭터:LOCAL)%
+	CALL GET_IMAGE_BATTLE_DEFAULT(총력전_파티_캐릭터:LOCAL)
+	IMAGE:LOCAL = %RESULTS%
 	iFont_Hei_mag = GETCONFIG("一行の高さ") * (iSize * 100 - iCorrection) * 10 / GETCONFIG("フォントサイズ")
 	iFont_Hei_mag = (iFont_Hei_mag / 10) + (iFont_Hei_mag % 10 >= 5 ? 1 # 0)
 	
