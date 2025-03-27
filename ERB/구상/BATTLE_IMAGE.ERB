@@ -51,7 +51,6 @@ DEBUGPRINT BATTLE_IMAGE 계산 실수...
 ; 최적화 문제가 있을수 있는데 확률 계산 하기 쉽게
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 2
-#DIM DYNAMIC pickMax
 
 pickFrom:0 = 1 ; 통상 확률
 pickFrom:1 = 1 ; 복면 확률
@@ -72,7 +71,6 @@ RESULTS = %종류%_전투_B{RESULT}_1
 
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 3
-#DIM DYNAMIC pickMax
 
 ; 확률
 ; 기본은 = 통상:무장:복면 = 3:3:0
@@ -99,7 +97,6 @@ RESULTS = %종류%_전투_B{RESULT}_2
 
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 2
-#DIM DYNAMIC pickMax
 
 ; 기본은 = 통상:복면 = 2:0
 ; 잘 휩쓸리느 거 나타내기
@@ -125,7 +122,6 @@ RESULTS = %종류%_전투_B{RESULT}_3
 
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 2
-#DIM DYNAMIC pickMax
 
 ; 확률
 pickFrom:0 = 2 ; 통상 확률
@@ -151,7 +147,6 @@ RESULTS = %종류%_전투_B{RESULT}_4
 
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 2
-#DIM DYNAMIC pickMax
 
 ; 확률
 ; 아야네는 복면 확률 낮음
@@ -177,7 +172,6 @@ RESULTS = %종류%_전투_B{RESULT}_5
 
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 2
-#DIM DYNAMIC pickMax
 
 pickFrom:0 = 1 ; 통상 확률
 pickFrom:1 = 1 ; 복면 확률
@@ -212,7 +206,6 @@ ENDIF
 
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 3
-#DIM DYNAMIC pickMax
 
 ; 이부키 있으면 B1, 마코토 있으면 B2 확률 추가, 아님 B0 고정
 SIF MATCH(teams, 6)
@@ -250,7 +243,6 @@ ENDIF
 
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 5
-#DIM DYNAMIC pickMax
 
 ; 확률
 ; 기본은 B0 ~ B2, 메구가 팀에 있으면 B0 제외, 히나가 있으면 B3/B4
@@ -284,6 +276,7 @@ ELSE
 	RESULTS = %종류%_전투_B0_25
 ENDIF
 
+
 ; 네루
 @BATTLE_IMAGE_41(teams, enemies, 종류 = "얼굴")
 #DIM REF teams, 0 
@@ -292,7 +285,6 @@ ENDIF
 
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 3
-#DIM DYNAMIC pickMax
 
 ; 확률
 pickFrom:0 = 1 ; 통상 확률
@@ -328,18 +320,21 @@ ENDSELECT
 
 
 ; 히후미
-; 의복 > 복면, 낮은 확률로 복면 분노
+; 통상/당황 > 복면 >>> 복면 분노
 ; B0: 의복, B1: 복면, B2: 복면 분노
 @BATTLE_IMAGE_53(teams, enemies, 종류 = "얼굴")
 #DIM REF teams, 0 
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
-SELECTCASE RAND:45
-	CASE 0 TO 20
-		RESULTS = %종류%_전투_B1_53
-	CASE 21
-		RESULTS = %종류%_전투_B2_53
-	CASEELSE
-		RESULTS = %종류%_전투_B0_53
-ENDSELECT
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 4
+
+pickFrom:0 = 10 ; 통상 확률 10
+pickFrom:3 = 10 ; 당황 확률 10
+pickFrom:1 = 5 ; 복면 확률 5
+pickFrom:2 = 1 ; 복면 분노 확률 1
+
+; 결과
+CALL BATTLE_IMAGE_CHANCE(pickFrom)
+RESULTS = %종류%_전투_B{RESULT}_53
