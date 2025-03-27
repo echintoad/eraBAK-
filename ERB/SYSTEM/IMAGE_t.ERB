@@ -501,8 +501,10 @@ RETURN
 #DIM iID
 #DIMS sName
 
-SIF iID < 0
-	RETURNF
+IF iID < 0
+	sName = 더미캐릭터
+	RETURNF sName
+ENDIF
 
 IF TALENT:(iID):커스텀페이스 > 0
 	sName = 커스텀
@@ -522,7 +524,7 @@ ELSEIF IS_MALE(iID)
 ELSEIF IS_FEMALE(iID)
 	sName = F_여
 ELSE
-	sName = F_DUMMY
+	sName = 더미캐릭터
 ENDIF
 
 RETURNF sName
@@ -554,6 +556,7 @@ RETURNF sName
 
 ; 화상 없는 캐릭터면 GET_IMAGE_NAME 로
 IF !EXIST_PICTURE(iID)
+	; DEBUGPRINTL getting GET_IMAGE_NAME
 	RESULTS = %GET_IMAGE_NAME(iID)%
 	RETURN
 ENDIF
