@@ -48,6 +48,9 @@ BREAK
 총력전_파티_캐릭터수 ++
 NEXT
 
+;총력전 이미지 고정
+CALL 총력전_파티_이미지_고정
+
 ;캐릭터 스킬 이름 받아오는 부분
 FOR LOCAL, 0, 총력전_파티_캐릭터수
 	SIF 총력전_파티_캐릭터:LOCAL < 0
@@ -152,8 +155,17 @@ IF 소환물유무 == 1
 	PRINTFORML |
 ENDIF
 
+@총력전_파티_이미지_고정
+#DIM emptyAry, 1 = -1
+#DIM temp
+
+FOR temp, 0, 총력전_파티_캐릭터_MAX_NUM
+	CALL GET_IMAGE_BATTLE(총력전_파티_캐릭터:temp, 총력전_파티_캐릭터, emptyAry)
+	총력전_파티_이미지:temp = %RESULTS%
+NEXT
+
 @총력전_파티_이미지(iSize = 8)
-#DIMS IMAGE, 5
+#DIMS IMAGE, 5 ; 무기 이미지 아직 쓰임
 #DIM iEnter_Con
 #DIM iFont_Hei_mag
 #DIM iSize
@@ -202,15 +214,16 @@ LOCALS = "   |                    |                    |                     |  
 FOR LOCAL, 0, 5
 	SIF 총력전_파티_캐릭터:LOCAL < 0
 		CONTINUE
-	IMAGE:LOCAL = %GET_IMAGE_NAME(총력전_파티_캐릭터:LOCAL)%
+	; CALL GET_IMAGE_BATTLE(총력전_파티_캐릭터:LOCAL, 총력전_파티_캐릭터, emptyAry)
+	; IMAGE:LOCAL = %RESULTS%
 	iFont_Hei_mag = GETCONFIG("一行の高さ") * (iSize * 100 - iCorrection) * 10 / GETCONFIG("フォントサイズ")
 	iFont_Hei_mag = (iFont_Hei_mag / 10) + (iFont_Hei_mag % 10 >= 5 ? 1 # 0)
 	
 	iYpos = -(iEnter_Con * 100)
 	IF LOCAL < 3
-		sHtml = <p align='left'>%SUBSTRING(LOCALS, 0, 8 + (21 * LOCAL))%<img src='%IMAGE:LOCAL%' height='{iFont_Hei_mag}' ypos='{iYpos}'>%SUBSTRING(LOCALS, 21 + (21 * LOCAL), STRLENS(LOCALS))%
+		sHtml = <p align='left'>%SUBSTRING(LOCALS, 0, 8 + (21 * LOCAL))%<img src='%총력전_파티_이미지:LOCAL%' height='{iFont_Hei_mag}' ypos='{iYpos}'>%SUBSTRING(LOCALS, 21 + (21 * LOCAL), STRLENS(LOCALS))%
 	ELSE
-		sHtml = <p align='left'>%SUBSTRING(LOCALS, 0, 9 + (21 * LOCAL))%<img src='%IMAGE:LOCAL%' height='{iFont_Hei_mag}' ypos='{iYpos}'>%SUBSTRING(LOCALS, 22 + (21 * LOCAL), STRLENS(LOCALS))%
+		sHtml = <p align='left'>%SUBSTRING(LOCALS, 0, 9 + (21 * LOCAL))%<img src='%총력전_파티_이미지:LOCAL%' height='{iFont_Hei_mag}' ypos='{iYpos}'>%SUBSTRING(LOCALS, 22 + (21 * LOCAL), STRLENS(LOCALS))%
 	ENDIF
 	sHtml = %REPLACE(sHtml, "\"", "")%
 	HTML_PRINT sHtml
@@ -2997,6 +3010,7 @@ NEXT
 FOR LOCAL, 0, 5
 	;캐릭터에 관련된 변수 초기화
 	총력전_파티_캐릭터:LOCAL = -1
+	총력전_파티_이미지:LOCAL = 
 	가변스킬관리:LOCAL = 0
 	가변스킬횟수관리:LOCAL = 0
 	;이거 생각해보니 안넣어도 되는데 걍 안지움
