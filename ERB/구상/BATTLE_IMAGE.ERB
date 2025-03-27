@@ -1,0 +1,340 @@
+﻿;===========================================================================
+; 전투 화상 이미지 이름
+; 지휘관/총력전 화상
+; 
+; 참여하는 캐릭터에 따라 변경 가능
+; 여기에 함수가 없어도 CHARA_Battle.csv 중 무작위로 선택하게 되있어서
+; 모든 캐릭터 전용 함수가 없어도 됨
+; 
+; 작동하려면 3개의 매개변수(parameter/argument) 필요 
+; BATTLE_IMAGE_{번호}(teams, enemies, 종류)
+; #DIM REF teams
+; #DIM REF enemies
+; #DIMS DYNAMIC 종류
+;===========================================================================
+
+; 확률 배열 계산
+@BATTLE_IMAGE_CHANCE(pickFrom)
+#DIM REF pickFrom, 0
+
+#DIM DYNAMIC pickMax
+#DIM DYNAMIC iTemp, 2
+; array.sum() 같은건 era 로 가능한가?
+VARSIZE pickFrom
+FOR iTemp, 0, RESULT
+	pickMax += pickFrom:iTemp
+NEXT
+iTemp = RAND:pickMax
+; DEBUGPRINTL ---확률 계산---
+; DEBUGPRINTFORML RAND = {iTemp}/{pickMax - 1}
+; FOR iTemp:1, 0, RESULT
+; 	DEBUGPRINTFORML {iTemp:1}:{pickFrom:(iTemp:1)}
+; NEXT
+; DEBUGPRINTL --------------
+; iTemp:1 = 0
+WHILE iTemp >= 0
+	; DEBUGPRINTFORML iTemp = {iTemp} < pickFrom:{iTemp:1} = {pickFrom:(iTemp:1)}
+	SIF iTemp < pickFrom:(iTemp:1)
+		RETURN iTemp:1
+	iTemp -= pickFrom:(iTemp:1)
+	iTemp:1 ++ ; index 카운터
+WEND
+DEBUGPRINT BATTLE_IMAGE 계산 실수...
+
+
+; 시로코
+@BATTLE_IMAGE_1(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 최적화 문제가 있을수 있는데 확률 계산 하기 쉽게
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 2
+
+pickFrom:0 = 1 ; 통상 확률
+pickFrom:1 = 1 ; 복면 확률
+; 다른 아비도스에 맞춰서 복면 확률 올림
+SIF MATCH(teams, 2) || MATCH(teams, 3) || MATCH(teams, 4) || MATCH(teams, 5) || MATCH(teams, 142)
+	pickFrom:1 += 2
+
+; 결과
+CALL BATTLE_IMAGE_CHANCE(pickFrom)
+RESULTS = %종류%_전투_B{RESULT}_1
+
+
+; 호시노
+@BATTLE_IMAGE_2(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 3
+
+; 확률
+; 기본은 = 통상:무장:복면 = 3:3:0
+pickFrom:0 = 3 ; 통상 확률
+pickFrom:1 = 3 ; 무장 확률
+; 시로코/쿠로코가 있으면 복면 확률 UP,
+; 아비도스 있으면 복면 확률 1, 아니면 0
+IF MATCH(teams, 1) || MATCH(teams, 142)
+	pickFrom:2 = 8
+ELSEIF MATCH(teams, 3) || MATCH(teams, 4) || MATCH(teams, 5)
+	pickFrom:2 = 1
+ENDIF
+
+; 결과
+CALL BATTLE_IMAGE_CHANCE(pickFrom)
+RESULTS = %종류%_전투_B{RESULT}_2
+
+
+; 세리카
+@BATTLE_IMAGE_3(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 2
+
+; 기본은 = 통상:복면 = 2:0
+; 잘 휩쓸리느 거 나타내기
+pickFrom:0 = 2 ; 통상 확률
+; 시로코/쿠로코가 있으면 복면 확률 UP,
+; 아비도스 있으면 복면 확률 1, 아니면 0
+IF MATCH(teams, 1) || MATCH(teams, 142)
+	pickFrom:1 = 6
+ELSEIF MATCH(teams, 2) || MATCH(teams, 4) || MATCH(teams, 5)
+	pickFrom:1 = 1
+ENDIF
+
+; 결과
+CALL BATTLE_IMAGE_CHANCE(pickFrom)
+RESULTS = %종류%_전투_B{RESULT}_3
+
+
+; 노노미
+@BATTLE_IMAGE_4(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 2
+
+; 확률
+pickFrom:0 = 2 ; 통상 확률
+pickFrom:1 = 2 ; 복면 확률
+; 시로코/쿠로코가 있으면 복면 확률 UP,
+; 아비도스 있으면 복면 확률 1, 아니면 0
+IF MATCH(teams, 1) || MATCH(teams, 142)
+	pickFrom:1 += 3
+ELSEIF MATCH(teams, 2) || MATCH(teams, 3) || MATCH(teams, 5)
+	pickFrom:1 += 1
+ENDIF
+
+; 결과
+CALL BATTLE_IMAGE_CHANCE(pickFrom)
+RESULTS = %종류%_전투_B{RESULT}_4
+
+
+; 아야네
+@BATTLE_IMAGE_5(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 2
+
+; 확률
+; 아야네는 복면 확률 낮음
+pickFrom:0 = 3 ; 통상 확률
+; 시로코/쿠로코가 있으면 복면 확률 UP,
+; 아비도스 있으면 복면 확률 1, 아니면 0
+IF MATCH(teams, 1) || MATCH(teams, 142)
+	pickFrom:1 += 3
+ELSEIF MATCH(teams, 2) || MATCH(teams, 3) || MATCH(teams, 5)
+	pickFrom:1 += 1
+ENDIF
+
+; 결과
+CALL BATTLE_IMAGE_CHANCE(pickFrom)
+RESULTS = %종류%_전투_B{RESULT}_5
+
+
+; 쿠로코
+@BATTLE_IMAGE_142(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 2
+
+pickFrom:0 = 1 ; 통상 확률
+pickFrom:1 = 1 ; 복면 확률
+; 다른 아비도스에 맞춰서 복면 확률 올림
+SIF MATCH(teams, 1) || MATCH(teams, 2) || MATCH(teams, 3) || MATCH(teams, 4) || MATCH(teams, 5)
+	pickFrom:1 += 2
+
+; 결과
+CALL BATTLE_IMAGE_CHANCE(pickFrom)
+RESULTS = %종류%_전투_B{RESULT}_142
+
+
+; 마코토
+@BATTLE_IMAGE_6(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 판데모니엄 있으면 B1, 아님 B0 고정
+IF MATCH(teams, 7) || MATCH(teams, 8) || MATCH(teams, 130) || MATCH(teams, 137)
+	RESULTS = %종류%_전투_B1_6
+ELSE
+	RESULTS = %종류%_전투_B0_6
+ENDIF
+
+
+; 이로하
+@BATTLE_IMAGE_7(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 3
+
+; 이부키 있으면 B1, 마코토 있으면 B2 확률 추가, 아님 B0 고정
+SIF MATCH(teams, 6)
+	pickFrom:2 = 1
+IF MATCH(teams, 8)
+	pickFrom:1 = 1
+ELSE
+	pickFrom:0 = 1
+ENDIF
+
+; 결과
+CALL BATTLE_IMAGE_CHANCE(pickFrom)
+RESULTS = %종류%_전투_B{RESULT}_7
+
+
+; 이부키
+@BATTLE_IMAGE_8(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 이로하 있으면 B1, 아님 B0 고정
+IF MATCH(teams, 7)
+	RESULTS = %종류%_전투_B1_8
+ELSE
+	RESULTS = %종류%_전투_B0_8
+ENDIF
+
+
+; 카스미
+@BATTLE_IMAGE_24(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 5
+
+; 확률
+; 기본은 B0 ~ B2, 메구가 팀에 있으면 B0 제외, 히나가 있으면 B3/B4
+IF MATCH(teams, 13) || MATCH(enemies, 13)
+	pickFrom:3 = 1
+	pickFrom:4 = 1
+ELSE
+	SIF !MATCH(teams, 25)
+		pickFrom:0 = 1
+	pickFrom:1 = 1
+	pickFrom:2 = 1
+ENDIF
+
+; 결과
+CALL BATTLE_IMAGE_CHANCE(pickFrom)
+RESULTS = %종류%_전투_B{RESULT}_24
+
+
+; 메구
+@BATTLE_IMAGE_25(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 기본 B0, 카스미가 팀에 있으면 B1, 카스미가 팀에 있고 히나가 있으면 B2
+IF MATCH(teams, 24) && (MATCH(teams, 13) || MATCH(enemies, 13))
+	RESULTS = %종류%_전투_B2_25
+ELSEIF MATCH(teams, 24)
+	RESULTS = %종류%_전투_B1_25
+ELSE
+	RESULTS = %종류%_전투_B0_25
+ENDIF
+
+
+; 네루
+@BATTLE_IMAGE_41(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 3
+
+; 확률
+pickFrom:0 = 1 ; 통상 확률
+; 팀에 C&C 멤버가 있을시 B2 추가 (높음)
+; 아니면 B1 추가 (50%)
+; teams 는 ID 라 NO:{teams:0} 랑 다를수 있지만...
+IF MATCH(teams, 42) || MATCH(teams, 43) || MATCH(teams, 44) || MATCH(teams, 45)
+	pickFrom:2 = 2
+ELSE
+	pickFrom:1 = 1
+ENDIF
+
+; 결과
+CALL BATTLE_IMAGE_CHANCE(pickFrom)
+RESULTS = %종류%_전투_B{RESULT}_41
+
+
+; 토키
+; 낮은 확률로 아비 에슈흐 모드로 전환
+@BATTLE_IMAGE_45(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+SELECTCASE RAND:15
+	CASE 0
+		RESULTS = %종류%_전투_B1_45
+	CASE 1
+		RESULTS = %종류%_전투_B2_45
+	CASEELSE
+		RESULTS = %종류%_전투_B0_45
+ENDSELECT
+
+
+; 히후미
+; 통상/당황 > 복면 >>> 복면 분노
+; B0: 의복, B1: 복면, B2: 복면 분노
+@BATTLE_IMAGE_53(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 4
+
+pickFrom:0 = 10 ; 통상 확률 10
+pickFrom:3 = 10 ; 당황 확률 10
+pickFrom:1 = 5 ; 복면 확률 5
+pickFrom:2 = 1 ; 복면 분노 확률 1
+
+; 결과
+CALL BATTLE_IMAGE_CHANCE(pickFrom)
+RESULTS = %종류%_전투_B{RESULT}_53
