@@ -4,7 +4,7 @@
 ;타이틀 화면
 ;-------------------------
 @SYSTEM_TITLE
-#DIM STARTA
+; #DIM STARTA
 #DIM LCOUNT,2
 #DIMS sPrint_Text
 RESETDATA
@@ -48,43 +48,7 @@ ALIGNMENT CENTER
 PRINTFORML
 PRINTFORML EraBlueArchiveK
 PRINTFORML
-sPrint_Text = <p align='center'>
-sPrint_Text += @"<img src='TITLE' height='2000'>"
-HTML_PRINT sPrint_Text
-PRINTFORML
-[SKIPSTART]
-PRINTFORML 　　　　　　　　　　　　　　　　　　　　　　 ,ll'''''''ll　　,.|''''''''ll　　　　　　　　　　　　　　
-PRINTFORML 　　　　　　　　　　　　　　　　　　　　　　,ll'　　　lll,l'''　　　,,,l''　　　　　　　　　　　　　　
-PRINTFORML 　　　　　　　　　　　　　　　　　　　　 　,ll'　　　ll''　　　,,,ll''　　　　　　　　　　　　　　　　
-PRINTFORML 　　　　　　　　　　　　　　　　　　　　　,ll'　　　　　　,,,ll''　　　　　　　　 　　　　　　　　　　
-PRINTFORML 　　　　　　　　　　　　　　　　　　　　　ll　　　　　 ,,ll'''　　　　　　　　　　　　　　　　　　　　
-PRINTFORML 　　　　　　　　　　　　　　　　　　　 　l'　　　　　　ll,　　　　　　　　　　　　　　　　　　　　　　
-PRINTFORML 　　　　　　　　　　　　　　　　　　　　l'　　　, 　　　ll　　　　　　　　　　　　　　　　　　　　　　
-PRINTFORML 　　　　　　　　　　　　　　　　　　　 ll 　　　lll,　　　ll　　　　　　　　　　　　　　　　　　　　　
-PRINTFORML 　　　　　　　　　　　　　　　　　　　ll 　　　ll' l, 　 　'll　　　　　　　　　　　　　　　　　　　　
-PRINTFORML 　　　　　　　　　　　　　　　　　　 ll　　　 ,l'　　ll　　 　ll　　　　　　　　　　　　　　　　　　　
-PRINTFORML 　　　　　　　　　　　　　　　　　 ,ll　　 　,l' 　　'll　　　　ll　　　　　　　　　　　　　　　　　　
-PRINTFORML 　　　　　　　　　　　　　　　　　 '''''''''　　　　　　'''''''''''　　　　　　　　　　　　　　　　　 
-[SKIPEND]
-PRINTFORML 
-PRINTFORML 
-PRINTFORML 
-PRINTFORML 
-PRINTFORML 
-PRINTFORML 
-PRINTFORML 
-PRINTFORML 
-PRINTFORML 
-PRINTFORML 
-PRINTFORML 
-PRINTFORML 
-PRINTFORML 
-PRINTFORML 
-PRINTFORML 
-PRINTFORML 
-PRINTFORML 
-PRINTFORML 
-PRINTFORML 
+CALL SYSTEM_TITLE_BANNER(0)
 PRINTFORML %GAMEBASE_AUTHOR%
 PRINTFORML Ver%GET_VERSION_STRING(GAMEBASE_VERSION)%
 PRINTFORML %GAMEBASE_INFO%
@@ -124,6 +88,48 @@ ELSEIF RESULT == 99
 	[ENDIF]
 ENDIF
 GOTO INPUT_LOOP
+
+;-------------------------------------------------
+;타이틀 화면 이미지 정리
+; + 특별 날짜시 바꾸기
+; + num 으로 특정 title 부르기?
+;-------------------------------------------------
+@SYSTEM_TITLE_BANNER(num)
+#DIM DYNAMIC num
+
+#DIM DYNAMIC date
+#DIM DYNAMIC size = 20
+#DIMS DYNAMIC sHTML
+
+sHTML = <p align='center'>
+
+GETTIME
+date = (RESULT / 1000000000) % 10000 ; MMDD, 1203 12월 3일, 401 4월 1일
+DEBUGPRINTFORML 날짜(MMDD): {date}
+IF date == 401 ; Title그림판01
+	; DEBUGPRINTL FOOL!
+	sHTML += @"<img src='Title그림판01' height='{size * 100}'>"
+ELSEIF num == 1 ; 설마 모르닌까 정장해둠
+	PRINTFORML 　　　　　　　　　　　　　　　　　　　　　　 ,ll'''''''ll　　,.|''''''''ll　　　　　　　　　　　　　　
+	PRINTFORML 　　　　　　　　　　　　　　　　　　　　　　,ll'　　　lll,l'''　　　,,,l''　　　　　　　　　　　　　　
+	PRINTFORML 　　　　　　　　　　　　　　　　　　　　 　,ll'　　　ll''　　　,,,ll''　　　　　　　　　　　　　　　　
+	PRINTFORML 　　　　　　　　　　　　　　　　　　　　　,ll'　　　　　　,,,ll''　　　　　　　　 　　　　　　　　　　
+	PRINTFORML 　　　　　　　　　　　　　　　　　　　　　ll　　　　　 ,,ll'''　　　　　　　　　　　　　　　　　　　　
+	PRINTFORML 　　　　　　　　　　　　　　　　　　　 　l'　　　　　　ll,　　　　　　　　　　　　　　　　　　　　　　
+	PRINTFORML 　　　　　　　　　　　　　　　　　　　　l'　　　, 　　　ll　　　　　　　　　　　　　　　　　　　　　　
+	PRINTFORML 　　　　　　　　　　　　　　　　　　　 ll 　　　lll,　　　ll　　　　　　　　　　　　　　　　　　　　　
+	PRINTFORML 　　　　　　　　　　　　　　　　　　　ll 　　　ll' l, 　 　'll　　　　　　　　　　　　　　　　　　　　
+	PRINTFORML 　　　　　　　　　　　　　　　　　　 ll　　　 ,l'　　ll　　 　ll　　　　　　　　　　　　　　　　　　　
+	PRINTFORML 　　　　　　　　　　　　　　　　　 ,ll　　 　,l' 　　'll　　　　ll　　　　　　　　　　　　　　　　　　
+	PRINTFORML 　　　　　　　　　　　　　　　　　 '''''''''　　　　　　'''''''''''　　　　　　　　　　　　　　　　　 
+	PRINTL
+	RETURN
+ELSE ; 기본 타이틀
+	sHTML += @"<img src='Title_1' height='{size * 100}'>"
+ENDIF
+
+HTML_PRINT sHTML
+CALL PRINT_ENTER(size) ; IMAGE_t 에 있는걸 NEWGAME 에서 부르는게 마음에 걸리지만;;;
 
 ;-------------------------------------------------
 ;뉴 게임
