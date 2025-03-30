@@ -194,7 +194,7 @@ iEnter_Con = 1
 
 IF FLAG:화상범위표시
 	sPrint_Text =  <p align='left'><nobr>
-	sPrint_Text += @"<img src='프레임_%eText%' height='{iFont_Hei_mag}'"
+	sPrint_Text += @"<img src='프레임_1_%eText%' height='{iFont_Hei_mag}'"
 	sPrint_Text += @"ypos='-{(iEnter_Con) * iFont_Hei_mag / 10+1}'>"
 	HTML_PRINT sPrint_Text
 	iEnter_Con++
@@ -271,12 +271,12 @@ FOR iID, 0, CHARANUM
 		iEnter_Con++
 		IF FLAG:화상범위표시
 			sPrint_Text =  <p align='left'><nobr><shape type = 'space'param = '{1000 * (iEnter_Wid)}'>
-			sPrint_Text += @"<img src='프레임_%sTemp:1%' height='{iFont_Hei_mag}'"
+			sPrint_Text += @"<img src='프레임_1_%sTemp:1%' height='{iFont_Hei_mag}'"
 			sPrint_Text += @"ypos='-{(iEnter_Con) * iFont_Hei_mag / 10+1}'>"
 			HTML_PRINT sPrint_Text
 		ELSE
 			sPrint_Text =  <p align='left'><nobr><shape type = 'space'param = '{1000 * (iEnter_Wid)}'>
-			sPrint_Text += @"<img src='프레임_공백' height='{iFont_Hei_mag}'"
+			sPrint_Text += @"<img src='프레임_무' height='{iFont_Hei_mag}'"
 			sPrint_Text += @"ypos='-{(iEnter_Con) * iFont_Hei_mag / 10+1}'>"
 			HTML_PRINT sPrint_Text
 		ENDIF
@@ -332,7 +332,7 @@ iEnter_Con++
 
 IF FLAG:화상범위표시
 	sPrint_Text =  <p align='%sAlign%'><nobr>
-	sPrint_Text += @"<img src='프레임_통상' height='{iFont_Hei_mag}'"
+	sPrint_Text += @"<img src='프레임_1_통상' height='{iFont_Hei_mag}'"
 	sPrint_Text += @"ypos='-{iEnter_Con * iFont_Hei_mag / 10+1}'>"
 	HTML_PRINT sPrint_Text
 	iEnter_Con++
@@ -456,7 +456,7 @@ RETURN
 #DIM iChk
 
 sImageName = %GET_IMAGE_NAME(ARG)%
-sFrame = Frame_1
+sFrame = 프레임_1_공백
 sWeapon = 웨폰_{TALENT:ARG:웨폰}
 
 iPadding = iSize - 3
