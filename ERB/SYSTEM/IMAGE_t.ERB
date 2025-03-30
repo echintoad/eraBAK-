@@ -194,7 +194,7 @@ iEnter_Con = 1
 
 IF FLAG:화상범위표시
 	sPrint_Text =  <p align='left'><nobr>
-	sPrint_Text += @"<img src='프레임_1_%eText%' height='{iFont_Hei_mag}'"
+	sPrint_Text += @"<img src='프레임_{FLAG:화상범위표시}_%eText%' height='{iFont_Hei_mag}'"
 	sPrint_Text += @"ypos='-{(iEnter_Con) * iFont_Hei_mag / 10+1}'>"
 	HTML_PRINT sPrint_Text
 	iEnter_Con++
@@ -271,7 +271,7 @@ FOR iID, 0, CHARANUM
 		iEnter_Con++
 		IF FLAG:화상범위표시
 			sPrint_Text =  <p align='left'><nobr><shape type = 'space'param = '{1000 * (iEnter_Wid)}'>
-			sPrint_Text += @"<img src='프레임_1_%sTemp:1%' height='{iFont_Hei_mag}'"
+			sPrint_Text += @"<img src='프레임_{FLAG:화상범위표시}_%sTemp:1%' height='{iFont_Hei_mag}'"
 			sPrint_Text += @"ypos='-{(iEnter_Con) * iFont_Hei_mag / 10+1}'>"
 			HTML_PRINT sPrint_Text
 		ELSE
@@ -332,7 +332,7 @@ iEnter_Con++
 
 IF FLAG:화상범위표시
 	sPrint_Text =  <p align='%sAlign%'><nobr>
-	sPrint_Text += @"<img src='프레임_1_통상' height='{iFont_Hei_mag}'"
+	sPrint_Text += @"<img src='프레임_{FLAG:화상범위표시}_통상' height='{iFont_Hei_mag}'"
 	sPrint_Text += @"ypos='-{iEnter_Con * iFont_Hei_mag / 10+1}'>"
 	HTML_PRINT sPrint_Text
 	iEnter_Con++
