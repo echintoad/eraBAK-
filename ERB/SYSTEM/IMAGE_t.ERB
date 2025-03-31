@@ -643,6 +643,10 @@ ENDSELECT
 #DIM iPadding
 #DIM iVar
 
+; 화상 옵션 적용
+SIF !FLAG:화상설정
+	RETURN
+
 iSize = 6
 CALL PRINT_ENTER(iSize - MAX_UNIT_COMMANDER)
 FOR iVar, 0, MAX_UNIT_COMMANDER
