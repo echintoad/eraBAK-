@@ -581,9 +581,16 @@ IF FLAG:화상설정
 	PRINT  　　　　　　　　　
 	PRINTFORML 포로:%String%
 	
+	; 나중에 IMAGE_t 에 있는 함수로 변경
 	iEnter_Con = 6
 	sHtml =  <p align='left'><nobr>
-	sHtml += @"<shape type='space' param='{iSpace}'><img src='프레임_1_공백' height='{iFont_Hei_mag}' ypos='-{iEnter_Con * 100}'>"
+	sHtml += @"<shape type='space' param='{iSpace}'>"
+	IF FLAG:화상범위표시
+		sHtml += @"<img src='프레임_1_공백' "
+	ELSE
+		sHtml += @"<img src='프레임_무' "
+	ENDIF
+	sHtml += @"height='{iFont_Hei_mag}' ypos='-{iEnter_Con * 100}'>"
 	HTML_PRINT sHtml
 	
 	IF HAS_TAG(iID, 태그_게헨나)
