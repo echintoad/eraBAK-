@@ -444,7 +444,7 @@ ELSE
 ENDIF
 RETURN
 
-
+; 수정? 프레임_무 로 고정 해도 됄듯? 
 @FACE_IMAGE(ARG, iSize, iSpace = 0, iChk = 0)
 #DIMS sImageName
 #DIMS sFrame
@@ -456,7 +456,11 @@ RETURN
 #DIM iChk
 
 sImageName = %GET_IMAGE_NAME(ARG)%
-sFrame = 프레임_1_공백
+IF FLAG:화상범위표시
+	sFrame = 프레임_1_공백
+ELSE
+	sFrame = 프레임_무
+ENDIF
 sWeapon = 웨폰_{TALENT:ARG:웨폰}
 
 iPadding = iSize - 3
