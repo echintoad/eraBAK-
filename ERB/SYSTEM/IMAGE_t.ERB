@@ -553,6 +553,10 @@ IF !EXIST_PICTURE(iID)
 	RETURN
 ENDIF
 
+; 전투 화상 무작위화 옵션 적용
+SIF !FLAG:전투화상무작위화
+	showDefault = 1
+
 ; showDefault 면 무시하고 전투_B0_{NO:iID}, 없으면 GET_IMAGE_NAME 로
 IF showDefault
 	sName = %종류%_전투_B0_{NO:iID}

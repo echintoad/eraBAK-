@@ -21,6 +21,8 @@ IF FLAG:화상설정
 	PRINTL
 	PRINTBUTTON @"  4[%@"조교화면에서 의복을 표시 : \@ FLAG:의복표시 ? 의복 # 알몸 \@", 30, RIGHT%]", 4
 	PRINTL
+	PRINTBUTTON @"  5[%@"전투 무작위화 : \@ FLAG:전투화상무작위화 ? ON # OFF \@", 30, RIGHT%]", 5
+	PRINTL
 ;	PRINTBUTTON @"4[삽화를 표시 : \@ FLAG:삽화표시 ? ON # OFF \@]", 4
 ;	PRINTL
 ;	IF FLAG:삽화표시
@@ -65,6 +67,8 @@ ELSEIF RESULT == 3
 	FLAG:스탠딩종류 = !FLAG:스탠딩종류
 ELSEIF RESULT == 4
 	FLAG:의복표시 = !FLAG:의복표시
+ELSEIF RESULT == 5
+	FLAG:전투화상무작위화 = !FLAG:전투화상무작위화
 ;ELSEIF RESULT == 4
 ;	FLAG:삽화표시 = !FLAG:삽화표시
 ;ELSEIF RESULT == 5 && FLAG:삽화표시
