@@ -671,13 +671,13 @@ CALL RANDOM_CHARA_HIPSIZE
 SELECTCASE RAND:100
 	CASE 0 TO 60
 		TALENT:체격 = 체격_보통
-	CASE 61 TO 70
+	CASE 61 TO 71
 		TALENT:체격 = 체격_작은체형
-	CASE 71 TO 80
+	CASE 72 TO 82
 		TALENT:체격 = 체격_장신
-	CASE 81 TO 87
+	CASE 83 TO 89
 		TALENT:체격 = 체격_아이
-	CASE 88 TO 94
+	CASE 90 TO 96
 		TALENT:체격 = 체격_큰몸집
 	CASEELSE
 		TALENT:체격 = 체격_거대
@@ -835,59 +835,149 @@ ENDIF
 ;-------------------------
 @RANDOM_CHARA_FACE_SETTING
 IF IS_FEMALE(TARGET)
-	IF HAS_TAG(TARGET, 태그_게헨나)
-		SELECTCASE RAND:5
-			CASE 0
-				TALENT:TARGET:커스텀페이스 = 5
-			CASE 1
-				TALENT:TARGET:커스텀페이스 = 6
-			CASE 2
-				TALENT:TARGET:커스텀페이스 = 7
-			CASE 3
-				TALENT:TARGET:커스텀페이스 = 14
-			CASE 4
-				TALENT:TARGET:커스텀페이스 = 21
-		ENDSELECT
+	IF HAS_TAG(TARGET, 태그_게헨나) ; 5, 6, 7, 14, 21
+		IF TALENT:TARGET:체격 == 체격_작은체형 || TALENT:TARGET:체격 == 체격_아이
+			SELECTCASE RAND:2
+				CASE 0
+					TALENT:TARGET:커스텀페이스 = 5
+				CASEELSE
+					TALENT:TARGET:커스텀페이스 = 14
+			ENDSELECT
+		ELSEIF TALENT:TARGET:체격 == 체격_큰몸집 || TALENT:TARGET:체격 == 체격_거대
+			TALENT:TARGET:커스텀페이스 = 6
+		ELSE
+			SELECTCASE RAND:20 ; 불필요?
+				CASE 0
+					TALENT:TARGET:커스텀페이스 = 6
+				CASE IS <= 2
+					TALENT:TARGET:커스텀페이스 = 5
+				CASE IS <= 4
+					TALENT:TARGET:커스텀페이스 = 14
+				CASE IS <= 12
+					TALENT:TARGET:커스텀페이스 = 7
+				CASEELSE
+					TALENT:TARGET:커스텀페이스 = 21
+			ENDSELECT
+		ENDIF
 
-	ELSEIF HAS_TAG(TARGET, 태그_밀레니엄)
-		TALENT:TARGET:커스텀페이스 = 8
-
-	ELSEIF HAS_TAG(TARGET, 태그_트리니티)
-		SELECTCASE RAND:5
-			CASE 0
-				TALENT:TARGET:커스텀페이스 = 9
-			CASE 1
-				TALENT:TARGET:커스텀페이스 = 10
-			CASE 2
-				TALENT:TARGET:커스텀페이스 = 11
-			CASE 3
-				TALENT:TARGET:커스텀페이스 = 12
-			CASE 4
-				TALENT:TARGET:커스텀페이스 = 13
-		ENDSELECT
-
-	ELSEIF HAS_TAG(TARGET, 태그_백귀야행)
+	ELSEIF HAS_TAG(TARGET, 태그_밀레니엄) ; 8, 32
 		SELECTCASE RAND:2
 			CASE 0
-				TALENT:TARGET:커스텀페이스 = 5
-			CASE 1
-				TALENT:TARGET:커스텀페이스 = 22
+				TALENT:TARGET:커스텀페이스 = 8
+			CASEELSE
+				TALENT:TARGET:커스텀페이스 = 32
 		ENDSELECT
-	ELSEIF HAS_TAG(TARGET, 태그_산해경)
-		TALENT:TARGET:커스텀페이스 = 15
-	ELSEIF HAS_TAG(TARGET, 태그_붉은겨울)
-		TALENT:TARGET:커스텀페이스 = 16
 
-	ELSEIF HAS_TAG(TARGET, 태그_발키리)
-		TALENT:TARGET:커스텀페이스 = 18
+	ELSEIF HAS_TAG(TARGET, 태그_트리니티) ; 9, 10, 11, (12, 33), 13
+		IF TALENT:TARGET:체격 == 체격_작은체형 || TALENT:TARGET:체격 == 체격_아이
+			SELECTCASE RAND:2
+				CASE 0
+					TALENT:TARGET:커스텀페이스 = 12
+				CASEELSE
+					TALENT:TARGET:커스텀페이스 = 33
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:4
+				CASE 0
+					TALENT:TARGET:커스텀페이스 = 9
+				CASE 1
+					TALENT:TARGET:커스텀페이스 = 10
+				CASE 2
+					TALENT:TARGET:커스텀페이스 = 11
+				CASEELSE
+					TALENT:TARGET:커스텀페이스 = 13
+			ENDSELECT
+		ENDIF
 
-	ELSEIF HAS_TAG(TARGET, 태그_아리우스)
+	ELSEIF HAS_TAG(TARGET, 태그_백귀야행) ; 20, 22, 40, 41, 42
+		IF TALENT:TARGET:체격 == 체격_아이
+			TALENT:TARGET:커스텀페이스 = 40
+		ELSEIF TALENT:TARGET:체격 == 체격_작은체형
+			SELECTCASE RAND:2
+				CASE 0
+					TALENT:TARGET:커스텀페이스 = 20
+				CASEELSE
+					TALENT:TARGET:커스텀페이스 = 40
+			ENDSELECT
+		ELSEIF TALENT:TARGET:체격 == 체격_거대
+			TALENT:TARGET:커스텀페이스 = 42
+		ELSEIF TALENT:TARGET:체격 == 체격_큰몸집 || TALENT:TARGET:체격 == 체격_장신
+			SELECTCASE RAND:3
+				CASE 0
+					TALENT:TARGET:커스텀페이스 = 22
+				CASE 1
+					TALENT:TARGET:커스텀페이스 = 41
+				CASEELSE
+					TALENT:TARGET:커스텀페이스 = 42
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:3
+				CASE 0
+					TALENT:TARGET:커스텀페이스 = 20
+				CASE 1
+					TALENT:TARGET:커스텀페이스 = 22
+				CASEELSE
+					TALENT:TARGET:커스텀페이스 = 41
+			ENDSELECT
+		ENDIF
+
+	ELSEIF HAS_TAG(TARGET, 태그_산해경) ; 15, 34, 35, 36, 37, 38
+		IF TALENT:TARGET:체격 == 체격_작은체형 || TALENT:TARGET:체격 == 체격_아이
+			SELECTCASE RAND:2
+				CASE 0
+					TALENT:TARGET:커스텀페이스 = 34
+				CASEELSE
+					TALENT:TARGET:커스텀페이스 = 38
+			ENDSELECT
+		ELSEIF TALENT:TARGET:체격 == 체격_큰몸집 || TALENT:TARGET:체격 == 체격_거대
+			SELECTCASE RAND:3
+				CASE 0
+					TALENT:TARGET:커스텀페이스 = 15
+				CASE 1
+					TALENT:TARGET:커스텀페이스 = 35
+				CASEELSE
+					TALENT:TARGET:커스텀페이스 = 37
+			ENDSELECT
+		ELSE
+			SELECTCASE RAND:6
+				CASE 0
+					TALENT:TARGET:커스텀페이스 = 15
+				CASE 1
+					TALENT:TARGET:커스텀페이스 = 34
+				CASE 2
+					TALENT:TARGET:커스텀페이스 = 35
+				CASE 3
+					TALENT:TARGET:커스텀페이스 = 36
+				CASE 4
+					TALENT:TARGET:커스텀페이스 = 37
+				CASEELSE
+					TALENT:TARGET:커스텀페이스 = 38
+			ENDSELECT
+		ENDIF
+
+	ELSEIF HAS_TAG(TARGET, 태그_붉은겨울) ; 16, 17
+		SELECTCASE RAND:2
+			CASE 0
+				TALENT:TARGET:커스텀페이스 = 16
+			CASEELSE
+				TALENT:TARGET:커스텀페이스 = 17
+		ENDSELECT
+
+	ELSEIF HAS_TAG(TARGET, 태그_발키리) ; 18, 39
+		SELECTCASE RAND:2
+			CASE 0
+				TALENT:TARGET:커스텀페이스 = 18
+			CASEELSE
+				TALENT:TARGET:커스텀페이스 = 39
+		ENDSELECT
+
+	ELSEIF HAS_TAG(TARGET, 태그_아리우스) ; 19
 		TALENT:TARGET:커스텀페이스 = 19
 
-	ELSEIF HAS_TAG(TARGET, 태그_오디세이)
+	ELSEIF HAS_TAG(TARGET, 태그_오디세이) ; 3
 		TALENT:TARGET:커스텀페이스 = 3
 
-	ELSEIF HAS_TAG(TARGET, 태그_총학생회)
+	ELSEIF HAS_TAG(TARGET, 태그_총학생회) ; 1, 2
 		SELECTCASE RAND:2
 			CASE 0
 				TALENT:TARGET:커스텀페이스 = 1
@@ -895,16 +985,18 @@ IF IS_FEMALE(TARGET)
 				TALENT:TARGET:커스텀페이스 = 2
 		ENDSELECT
 
-	ELSEIF HAS_TAG(TARGET, 태그_용역)
-		TALENT:TARGET:커스텀페이스 = 17
-	ELSEIF HAS_TAG(TARGET, 태그_헬멧단)
-		SELECTCASE RAND:2
+	ELSEIF HAS_TAG(TARGET, 태그_용역) ; 4
+		TALENT:TARGET:커스텀페이스 = 4
+	ELSEIF HAS_TAG(TARGET, 태그_헬멧단) ; 25, 26, 44
+		SELECTCASE RAND:3
 			CASE 0
 				TALENT:TARGET:커스텀페이스 = 25
 			CASE 1
 				TALENT:TARGET:커스텀페이스 = 26
+			CASEELSE
+				TALENT:TARGET:커스텀페이스 = 44
 		ENDSELECT
-	ELSEIF HAS_TAG(TARGET, 태그_불량배)
+	ELSEIF HAS_TAG(TARGET, 태그_불량배) ; 27, 28, 29, 30, 31
 		SELECTCASE RAND:5
 			CASE 0
 				TALENT:TARGET:커스텀페이스 = 27
@@ -914,19 +1006,46 @@ IF IS_FEMALE(TARGET)
 				TALENT:TARGET:커스텀페이스 = 29
 			CASE 3
 				TALENT:TARGET:커스텀페이스 = 30
-			CASE 4
+			CASEELSE
 				TALENT:TARGET:커스텀페이스 = 31
 		ENDSELECT
 	ELSE
-		SELECTCASE RAND:2
+		SELECTCASE RAND:4 ; 23, 24, 43, 45
 			CASE 0
 				TALENT:TARGET:커스텀페이스 = 23
 			CASE 1
 				TALENT:TARGET:커스텀페이스 = 24
+			CASE 2
+				TALENT:TARGET:커스텀페이스 = 43
+			CASEELSE
+				TALENT:TARGET:커스텀페이스 = 45
 		ENDSELECT
 	ENDIF
 ELSE
-	TALENT:TARGET:커스텀페이스 = RAND:3 + 1
+	SELECTCASE RAND:10
+		CASE 0
+			TALENT:TARGET:커스텀페이스 = 1
+		CASE 1
+			TALENT:TARGET:커스텀페이스 = 2
+		CASE 2
+			TALENT:TARGET:커스텀페이스 = 3
+		CASE 3
+			TALENT:TARGET:커스텀페이스 = 4
+		CASE 4
+			TALENT:TARGET:커스텀페이스 = 5
+		CASE 5
+			TALENT:TARGET:커스텀페이스 = 6
+		CASE 6
+			TALENT:TARGET:커스텀페이스 = 7
+		CASE 7
+			TALENT:TARGET:커스텀페이스 = 10
+		CASE 8
+			TALENT:TARGET:커스텀페이스 = 11
+		CASE 9
+			TALENT:TARGET:커스텀페이스 = 12
+		CASEELSE
+			TALENT:TARGET:커스텀페이스 = 4 ; fallback
+	ENDSELECT
 ENDIF
 
 ;-------------------------
