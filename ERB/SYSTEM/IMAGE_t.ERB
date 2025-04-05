@@ -266,8 +266,19 @@ FOR iID, 0, CHARANUM
 		;화상표시 함수
 		CALL PRINT_IMAGE_CHARA(iID, sTemp:2, sTemp:1)
 		sPrint_Text += @"<img src='%RESULTS%' height='{iFont_Hei_mag}' ypos='-{(iEnter_Con) * iFont_Hei_mag / 10+1}'>"
-
 		HTML_PRINT sPrint_Text
+
+		; 프레임 용 표정색 추가
+		IF GROUPMATCH(eMotion_Text, "암울", "슬픔", "우울")
+			sTemp:1 = 슬픔
+		ELSEIF GROUPMATCH(eMotion_Text, "공포", "겁냄")
+			sTemp:1 = 공포
+		ELSEIF GROUPMATCH(eMotion_Text, "광기")
+			sTemp:1 = 광기
+		ELSEIF GROUPMATCH(eMotion_Text, "최면", "공허", "붕괴")
+			sTemp:1 = 공허
+		ENDIF
+
 		iEnter_Con++
 		IF FLAG:화상범위표시
 			sPrint_Text =  <p align='left'><nobr><shape type = 'space'param = '{1000 * (iEnter_Wid)}'>
