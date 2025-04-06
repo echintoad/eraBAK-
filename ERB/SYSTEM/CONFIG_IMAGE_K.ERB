@@ -2,24 +2,28 @@
 ;그림의 표시에 관한 설정
 ;-------------------------------------------------
 @COMFIG_IMAGE_K
-#DIM FIRST_LINE
+#DIM DYNAMIC FIRST_LINE
+#DIM DYNAMIC ButtonSize = 32
+
 FIRST_LINE = LINECOUNT
 CALL SINGLE_DRAWLINE
 PRINTL ●캐릭터 그림의 표시에 관한 설정●
 CALL SINGLE_DRAWLINE
 
 ;CALL ASK_MULTI("캐릭터 그림의 상세설정", "그림을 표시하지 않는다", "돌아온다")
-PRINTBUTTON @"  0[%@"캐릭터 그림을 \@FLAG:화상설정 ? 표시한다 # 표시하지 않는다\@", 30, RIGHT%]", 0
+PRINTBUTTON @"  0[%@"캐릭터 그림을 \@FLAG:화상설정 ? 표시한다 # 표시하지 않는다\@", ButtonSize, RIGHT%]", 0
 PRINTL
 IF FLAG:화상설정
-	PRINTFORML  *[%@"현재의 \@ FLAG:스탠딩종류 ? 페이스 # 스탠딩 \@ 표시 인원수 {FLAG:그림표시}인", 30, RIGHT%]
-	PRINTBUTTON @"  1[%"늘린다", 30, RIGHT%]", 1
+	PRINTFORML   *[%@"현재의 \@ FLAG:스탠딩종류 ? 페이스 # 스탠딩 \@ 표시 인원수 {FLAG:그림표시}인", ButtonSize, RIGHT%]
+	PRINTBUTTON @"  1[%"늘린다", ButtonSize, RIGHT%]", 1
 	PRINTL
-	PRINTBUTTON @"  2[%"줄인다", 30, RIGHT%]", 2
+	PRINTBUTTON @"  2[%"줄인다", ButtonSize, RIGHT%]", 2
 	PRINTL
-	PRINTBUTTON @"  3[%@"캐릭터 그림의 타입 : \@ FLAG:스탠딩종류 ? 페이스 # 스탠딩 \@", 30, RIGHT%]", 3
+	PRINTBUTTON @"  3[%@"캐릭터 그림의 타입 : \@ FLAG:스탠딩종류 ? 페이스 # 스탠딩 \@", ButtonSize, RIGHT%]", 3
 	PRINTL
-	PRINTBUTTON @"  4[%@"조교화면에서 의복을 표시 : \@ FLAG:의복표시 ? 의복 # 알몸 \@", 30, RIGHT%]", 4
+	PRINTBUTTON @"  4[%@"조교화면에서 의복을 표시 : \@ FLAG:의복표시 ? 의복 # 알몸 \@", ButtonSize, RIGHT%]", 4
+	PRINTL
+	PRINTBUTTON @"  5[%@"전투 무작위화 : \@ FLAG:전투화상무작위화 ? ON # OFF \@", ButtonSize, RIGHT%]", 5
 	PRINTL
 ;	PRINTBUTTON @"4[삽화를 표시 : \@ FLAG:삽화표시 ? ON # OFF \@]", 4
 ;	PRINTL
@@ -40,12 +44,12 @@ IF FLAG:화상설정
 ;		PRINTBUTTON @"7[삽입중에는 매턴 애니메이션 표시：\@FLAG:삽입애니메이션필터 & 아니메필터_삽입 ? X # O\@]", 7
 ;		PRINTL
 ;	ENDIF
-	PRINTBUTTON @"  8[%@"그림 표시에 테두리를 친다 : \@ FLAG:화상범위표시 ? %" ON"% # OFF \@", 30, RIGHT%]", 8
+	PRINTBUTTON @"  8[%@"그림 표시에 테두리 : \@ FLAG:화상범위표시 ? {FLAG:화상범위표시} # 없음 \@", ButtonSize, RIGHT%]", 8
 PRINTL
 ENDIF
-PRINTBUTTON @"  10[%@"이벤트 화상을 \@FLAG:이벤트화상 ? 표시한다 # 표시하지 않는다\@", 30, RIGHT%]", 10
+PRINTBUTTON @" 10[%@"이벤트 화상을 \@FLAG:이벤트화상 ? 표시한다 # 표시하지 않는다\@", ButtonSize, RIGHT%]", 10
 PRINTL
-PRINTBUTTON @"999[%"돌아온다", 30, RIGHT%]", 999
+PRINTBUTTON @"999[%"돌아온다", ButtonSize, RIGHT%]", 999
 PRINTL
 
 INPUT
@@ -65,6 +69,8 @@ ELSEIF RESULT == 3
 	FLAG:스탠딩종류 = !FLAG:스탠딩종류
 ELSEIF RESULT == 4
 	FLAG:의복표시 = !FLAG:의복표시
+ELSEIF RESULT == 5
+	FLAG:전투화상무작위화 = !FLAG:전투화상무작위화
 ;ELSEIF RESULT == 4
 ;	FLAG:삽화표시 = !FLAG:삽화표시
 ;ELSEIF RESULT == 5 && FLAG:삽화표시
@@ -78,7 +84,7 @@ ELSEIF RESULT == 4
 ;ELSEIF RESULT == 7
 ;	INVERTBIT FLAG:삽입애니메이션필터, 0
 ELSEIF RESULT == 8
-	FLAG:화상범위표시 = !FLAG:화상범위표시
+	FLAG:화상범위표시 = (FLAG:화상범위표시 + 1) % 3
 ELSEIF RESULT == 10
 	FLAG:이벤트화상 = !FLAG:이벤트화상
 ENDIF
