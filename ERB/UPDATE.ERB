@@ -84,8 +84,8 @@ ENDIF
 
 IF CHECK_UPDATE("0.3.9");의상 리셋
 	{
-		PRINTFORML \n0.3.9 버전에 의상 이름, 번호가 바뀌었습니다
-		\n의상을 초기화 합니까?\n
+PRINTFORML \n== 0.3.9 버전에 의상 이름, 번호가 바뀌었습니다 ==
+\n의상을 초기화 합니까?\n
 	}
 	PRINTBUTTON "0[예(추천)]", 0
 	PRINTL
@@ -101,6 +101,15 @@ IF CHECK_UPDATE("0.3.9");의상 리셋
 		CASE 1
 			PRINTL 의상 초기화를 건너뜁니다
 	ENDSELECT
+ENDIF
+
+IF CHECK_UPDATE("0.5.2");전투 화상 무작위 설정
+	{
+PRINTFORMW \n== 0.5.2 버전에 전투 화상 무작위 설정이 가능하게 되었습니다 ==
+\n"전투 무작위화: ON" 으로 합니다
+\n캐릭터 그림 설정 에서 변경 가능 합니다
+	}
+	FLAG:전투화상무작위화 = 1
 ENDIF
 
 IF 강제인계플래그
