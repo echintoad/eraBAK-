@@ -55,6 +55,7 @@ DEBUGPRINT BATTLE_IMAGE 계산 실수...
 pickFrom:0 = 1 ; 통상 확률
 pickFrom:1 = 1 ; 복면 확률
 ; 다른 아비도스에 맞춰서 복면 확률 올림
+; GROUPMATCH? prob not since teams is an array?
 SIF MATCH(teams, 2) || MATCH(teams, 3) || MATCH(teams, 4) || MATCH(teams, 5) || MATCH(teams, 142)
 	pickFrom:1 += 2
 
@@ -275,6 +276,57 @@ ELSEIF MATCH(teams, 24)
 ELSE
 	RESULTS = %종류%_전투_B0_25
 ENDIF
+
+
+; 노아
+@BATTLE_IMAGE_29(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 3
+
+; 확률
+; 1,2 1:1, 코유키 팀 3^, 코유키 적 3 100%
+pickFrom:0 = 1
+pickFrom:1 = 1
+IF MATCH(teams, 31)
+	pickFrom:2 = 4
+ELSEIF MATCH(enemies, 31)
+	pickFrom:0 = 0
+	pickFrom:1 = 0
+	pickFrom:2 = 1
+ENDIF
+
+; 결과
+CALL BATTLE_IMAGE_CHANCE(pickFrom)
+RESULTS = %종류%_전투_B{RESULT}_29
+
+
+; 코유키
+@BATTLE_IMAGE_31(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 4
+
+; 확률
+; 0, 2 세미나, C&C 있으면 1,3
+; MATCH NO function은 나중에 만들 예정
+IF MATCH(teams, 29) || MATCH(teams, 30) || MATCH(teams, 41) || MATCH(teams, 42) || MATCH(teams, 43) || MATCH(teams, 44) || MATCH(teams, 45) || MATCH(enemies, 29) || MATCH(enemies, 30) || MATCH(enemies, 41) || MATCH(enemies, 42) || MATCH(enemies, 43) || MATCH(enemies, 44) || MATCH(enemies, 45)
+	pickFrom:1 = 1
+	pickFrom:3 = 1
+ELSE
+	pickFrom:0 = 1
+	pickFrom:2 = 1
+ENDIF
+
+; 결과
+CALL BATTLE_IMAGE_CHANCE(pickFrom)
+RESULTS = %종류%_전투_B{RESULT}_31
 
 
 ; 네루
