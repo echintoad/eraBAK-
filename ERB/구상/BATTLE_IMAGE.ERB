@@ -320,6 +320,38 @@ ELSE
 ENDIF
 
 
+; 아코
+@BATTLE_IMAGE_14(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+#DIM DYNAMIC teamCSV, 20
+; #DIM DYNAMIC enemyCSV, 20
+; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
+#DIM DYNAMIC pickFrom, 3
+
+VARSET teamCSV, -1
+; VARSET enemyCSV, -1
+CALL BATTLE_IMAGE_IDtoCSV(teams, teamCSV)
+; CALL BATTLE_IMAGE_IDtoCSV(enemies, enemyCSV)
+
+; 통상, 미소 표정 1:1
+pickFrom:0 = 1
+pickFrom:1 = 1
+; 마코토 있을시 B2 추가 미소-, 히나 있으면 미소+
+IF MATCH(teamCSV, 6)
+	pickFrom:2 = 4
+	pickFrom:1 = 0
+ENDIF
+SIF MATCH(teamCSV, 13)
+	pickFrom:1 += 2
+
+; 결과
+CALL BATTLE_IMAGE_CHANCE(pickFrom)
+RESULTS = %종류%_전투_B{RESULT}_14
+
+
 ; 카스미
 @BATTLE_IMAGE_24(teams, enemies, 종류 = "얼굴")
 #DIM REF teams, 0 
