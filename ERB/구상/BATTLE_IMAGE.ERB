@@ -84,7 +84,6 @@ pickFrom:1 = 1 ; 복면 확률
 ; 다른 아비도스에 맞춰서 복면 확률 올림
 SIF MATCH(teamCSV, 2) || MATCH(teamCSV, 3) || MATCH(teamCSV, 4) || MATCH(teamCSV, 5) || MATCH(teamCSV, 142)
 	pickFrom:1 += 2
-DEBUGPRINTFORML pick = {pickFrom:1}
 
 ; 결과
 CALL BATTLE_IMAGE_CHANCE(pickFrom)
