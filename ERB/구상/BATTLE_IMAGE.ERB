@@ -39,8 +39,28 @@ WHILE iTemp >= 0
 	iTemp -= pickFrom:(iTemp:1)
 	iTemp:1 ++ ; index 카운터
 WEND
-DEBUGPRINT BATTLE_IMAGE 계산 실수...
+DEBUGPRINTL BATTLE_IMAGE 계산 실수...
 
+; 배열 변경 ID -> CSV번호
+; 예. 호시노로 플래이시 (inAry:{id} = 0, outAry:{id} = 2)
+@BATTLE_IMAGE_IDtoCSV(inAry, outAry)
+#DIM REF inAry, 0
+#DIM REF outAry, 0
+
+#DIM DYNAMIC iTemp
+
+VARSIZE inAry
+FOR iTemp, 0, RESULT
+	IF inAry:iTemp == MASTER
+		outAry:iTemp = NO:MASTER
+		CONTINUE
+	ENDIF
+	SIF inAry:iTemp < 0
+		CONTINUE
+	; outAry:iTemp = ID_TO_CHARA(inAry:iTemp)
+	outAry:iTemp = NO:(inAry:iTemp)
+NEXT
+; RETURN
 
 ; 시로코
 @BATTLE_IMAGE_1(teams, enemies, 종류 = "얼굴")
@@ -48,16 +68,23 @@ DEBUGPRINT BATTLE_IMAGE 계산 실수...
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
+#DIM DYNAMIC teamCSV, 20 ; NO:{id} 가치
+; #DIM DYNAMIC enemyCSV, 20 ; 5~10 정도면 되겠지만...
 ; 최적화 문제가 있을수 있는데 확률 계산 하기 쉽게
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 2
 
+VARSET teamCSV, -1
+; VARSET enemyCSV, -1
+CALL BATTLE_IMAGE_IDtoCSV(teams, teamCSV)
+; CALL BATTLE_IMAGE_IDtoCSV(enemies, enemyCSV)
+
 pickFrom:0 = 1 ; 통상 확률
 pickFrom:1 = 1 ; 복면 확률
 ; 다른 아비도스에 맞춰서 복면 확률 올림
-; GROUPMATCH? prob not since teams is an array?
-SIF MATCH(teams, 2) || MATCH(teams, 3) || MATCH(teams, 4) || MATCH(teams, 5) || MATCH(teams, 142)
+SIF MATCH(teamCSV, 2) || MATCH(teamCSV, 3) || MATCH(teamCSV, 4) || MATCH(teamCSV, 5) || MATCH(teamCSV, 142)
 	pickFrom:1 += 2
+DEBUGPRINTFORML pick = {pickFrom:1}
 
 ; 결과
 CALL BATTLE_IMAGE_CHANCE(pickFrom)
@@ -70,8 +97,15 @@ RESULTS = %종류%_전투_B{RESULT}_1
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
+#DIM DYNAMIC teamCSV, 20
+; #DIM DYNAMIC enemyCSV, 20
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 3
+
+VARSET teamCSV, -1
+; VARSET enemyCSV, -1
+CALL BATTLE_IMAGE_IDtoCSV(teams, teamCSV)
+; CALL BATTLE_IMAGE_IDtoCSV(enemies, enemyCSV)
 
 ; 확률
 ; 기본은 = 통상:무장:복면 = 3:3:0
@@ -79,9 +113,9 @@ pickFrom:0 = 3 ; 통상 확률
 pickFrom:1 = 3 ; 무장 확률
 ; 시로코/쿠로코가 있으면 복면 확률 UP,
 ; 아비도스 있으면 복면 확률 1, 아니면 0
-IF MATCH(teams, 1) || MATCH(teams, 142)
+IF MATCH(teamCSV, 1) || MATCH(teamCSV, 142)
 	pickFrom:2 = 8
-ELSEIF MATCH(teams, 3) || MATCH(teams, 4) || MATCH(teams, 5)
+ELSEIF MATCH(teamCSV, 3) || MATCH(teamCSV, 4) || MATCH(teamCSV, 5)
 	pickFrom:2 = 1
 ENDIF
 
@@ -96,17 +130,24 @@ RESULTS = %종류%_전투_B{RESULT}_2
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
+#DIM DYNAMIC teamCSV, 20
+; #DIM DYNAMIC enemyCSV, 20
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 2
+
+VARSET teamCSV, -1
+; VARSET enemyCSV, -1
+CALL BATTLE_IMAGE_IDtoCSV(teams, teamCSV)
+; CALL BATTLE_IMAGE_IDtoCSV(enemies, enemyCSV)
 
 ; 기본은 = 통상:복면 = 2:0
 ; 잘 휩쓸리느 거 나타내기
 pickFrom:0 = 2 ; 통상 확률
 ; 시로코/쿠로코가 있으면 복면 확률 UP,
 ; 아비도스 있으면 복면 확률 1, 아니면 0
-IF MATCH(teams, 1) || MATCH(teams, 142)
+IF MATCH(teamCSV, 1) || MATCH(teamCSV, 142)
 	pickFrom:1 = 6
-ELSEIF MATCH(teams, 2) || MATCH(teams, 4) || MATCH(teams, 5)
+ELSEIF MATCH(teamCSV, 2) || MATCH(teamCSV, 4) || MATCH(teamCSV, 5)
 	pickFrom:1 = 1
 ENDIF
 
@@ -121,17 +162,24 @@ RESULTS = %종류%_전투_B{RESULT}_3
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
+#DIM DYNAMIC teamCSV, 20
+; #DIM DYNAMIC enemyCSV, 20
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 2
+
+VARSET teamCSV, -1
+; VARSET enemyCSV, -1
+CALL BATTLE_IMAGE_IDtoCSV(teams, teamCSV)
+; CALL BATTLE_IMAGE_IDtoCSV(enemies, enemyCSV)
 
 ; 확률
 pickFrom:0 = 2 ; 통상 확률
 pickFrom:1 = 2 ; 복면 확률
 ; 시로코/쿠로코가 있으면 복면 확률 UP,
 ; 아비도스 있으면 복면 확률 1, 아니면 0
-IF MATCH(teams, 1) || MATCH(teams, 142)
+IF MATCH(teamCSV, 1) || MATCH(teamCSV, 142)
 	pickFrom:1 += 3
-ELSEIF MATCH(teams, 2) || MATCH(teams, 3) || MATCH(teams, 5)
+ELSEIF MATCH(teamCSV, 2) || MATCH(teamCSV, 3) || MATCH(teamCSV, 5)
 	pickFrom:1 += 1
 ENDIF
 
@@ -146,17 +194,24 @@ RESULTS = %종류%_전투_B{RESULT}_4
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
+#DIM DYNAMIC teamCSV, 20
+; #DIM DYNAMIC enemyCSV, 20
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 2
+
+VARSET teamCSV, -1
+; VARSET enemyCSV, -1
+CALL BATTLE_IMAGE_IDtoCSV(teams, teamCSV)
+; CALL BATTLE_IMAGE_IDtoCSV(enemies, enemyCSV)
 
 ; 확률
 ; 아야네는 복면 확률 낮음
 pickFrom:0 = 3 ; 통상 확률
 ; 시로코/쿠로코가 있으면 복면 확률 UP,
 ; 아비도스 있으면 복면 확률 1, 아니면 0
-IF MATCH(teams, 1) || MATCH(teams, 142)
+IF MATCH(teamCSV, 1) || MATCH(teamCSV, 142)
 	pickFrom:1 += 3
-ELSEIF MATCH(teams, 2) || MATCH(teams, 3) || MATCH(teams, 5)
+ELSEIF MATCH(teamCSV, 2) || MATCH(teamCSV, 3) || MATCH(teamCSV, 5)
 	pickFrom:1 += 1
 ENDIF
 
@@ -171,13 +226,20 @@ RESULTS = %종류%_전투_B{RESULT}_5
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
+#DIM DYNAMIC teamCSV, 20
+; #DIM DYNAMIC enemyCSV, 20
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 2
+
+VARSET teamCSV, -1
+; VARSET enemyCSV, -1
+CALL BATTLE_IMAGE_IDtoCSV(teams, teamCSV)
+; CALL BATTLE_IMAGE_IDtoCSV(enemies, enemyCSV)
 
 pickFrom:0 = 1 ; 통상 확률
 pickFrom:1 = 1 ; 복면 확률
 ; 다른 아비도스에 맞춰서 복면 확률 올림
-SIF MATCH(teams, 1) || MATCH(teams, 2) || MATCH(teams, 3) || MATCH(teams, 4) || MATCH(teams, 5)
+SIF MATCH(teamCSV, 1) || MATCH(teamCSV, 2) || MATCH(teamCSV, 3) || MATCH(teamCSV, 4) || MATCH(teamCSV, 5)
 	pickFrom:1 += 2
 
 ; 결과
@@ -191,8 +253,16 @@ RESULTS = %종류%_전투_B{RESULT}_142
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
+#DIM DYNAMIC teamCSV, 20
+; #DIM DYNAMIC enemyCSV, 20
+
+VARSET teamCSV, -1
+; VARSET enemyCSV, -1
+CALL BATTLE_IMAGE_IDtoCSV(teams, teamCSV)
+; CALL BATTLE_IMAGE_IDtoCSV(enemies, enemyCSV)
+
 ; 판데모니엄 있으면 B1, 아님 B0 고정
-IF MATCH(teams, 7) || MATCH(teams, 8) || MATCH(teams, 130) || MATCH(teams, 137)
+IF MATCH(teamCSV, 7) || MATCH(teamCSV, 8) || MATCH(teamCSV, 130) || MATCH(teamCSV, 137)
 	RESULTS = %종류%_전투_B1_6
 ELSE
 	RESULTS = %종류%_전투_B0_6
@@ -205,13 +275,20 @@ ENDIF
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
+#DIM DYNAMIC teamCSV, 20
+; #DIM DYNAMIC enemyCSV, 20
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 3
 
+VARSET teamCSV, -1
+; VARSET enemyCSV, -1
+CALL BATTLE_IMAGE_IDtoCSV(teams, teamCSV)
+; CALL BATTLE_IMAGE_IDtoCSV(enemies, enemyCSV)
+
 ; 이부키 있으면 B1, 마코토 있으면 B2 확률 추가, 아님 B0 고정
-SIF MATCH(teams, 6)
+SIF MATCH(teamCSV, 6)
 	pickFrom:2 = 1
-IF MATCH(teams, 8)
+IF MATCH(teamCSV, 8)
 	pickFrom:1 = 1
 ELSE
 	pickFrom:0 = 1
@@ -228,8 +305,16 @@ RESULTS = %종류%_전투_B{RESULT}_7
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
+#DIM DYNAMIC teamCSV, 20
+; #DIM DYNAMIC enemyCSV, 20
+
+VARSET teamCSV, -1
+; VARSET enemyCSV, -1
+CALL BATTLE_IMAGE_IDtoCSV(teams, teamCSV)
+; CALL BATTLE_IMAGE_IDtoCSV(enemies, enemyCSV)
+
 ; 이로하 있으면 B1, 아님 B0 고정
-IF MATCH(teams, 7)
+IF MATCH(teamCSV, 7)
 	RESULTS = %종류%_전투_B1_8
 ELSE
 	RESULTS = %종류%_전투_B0_8
@@ -242,16 +327,23 @@ ENDIF
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
+#DIM DYNAMIC teamCSV, 20
+#DIM DYNAMIC enemyCSV, 20
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 5
 
+VARSET teamCSV, -1
+VARSET enemyCSV, -1
+CALL BATTLE_IMAGE_IDtoCSV(teams, teamCSV)
+CALL BATTLE_IMAGE_IDtoCSV(enemies, enemyCSV)
+
 ; 확률
 ; 기본은 B0 ~ B2, 메구가 팀에 있으면 B0 제외, 히나가 있으면 B3/B4
-IF MATCH(teams, 13) || MATCH(enemies, 13)
+IF MATCH(teamCSV, 13) || MATCH(enemyCSV, 13)
 	pickFrom:3 = 1
 	pickFrom:4 = 1
 ELSE
-	SIF !MATCH(teams, 25)
+	SIF !MATCH(teamCSV, 25)
 		pickFrom:0 = 1
 	pickFrom:1 = 1
 	pickFrom:2 = 1
@@ -268,10 +360,18 @@ RESULTS = %종류%_전투_B{RESULT}_24
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
+#DIM DYNAMIC teamCSV, 20
+#DIM DYNAMIC enemyCSV, 20
+
+VARSET teamCSV, -1
+VARSET enemyCSV, -1
+CALL BATTLE_IMAGE_IDtoCSV(teams, teamCSV)
+CALL BATTLE_IMAGE_IDtoCSV(enemies, enemyCSV)
+
 ; 기본 B0, 카스미가 팀에 있으면 B1, 카스미가 팀에 있고 히나가 있으면 B2
-IF MATCH(teams, 24) && (MATCH(teams, 13) || MATCH(enemies, 13))
+IF MATCH(teamCSV, 24) && (MATCH(teamCSV, 13) || MATCH(enemyCSV, 13))
 	RESULTS = %종류%_전투_B2_25
-ELSEIF MATCH(teams, 24)
+ELSEIF MATCH(teamCSV, 24)
 	RESULTS = %종류%_전투_B1_25
 ELSE
 	RESULTS = %종류%_전투_B0_25
@@ -284,16 +384,23 @@ ENDIF
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
+#DIM DYNAMIC teamCSV, 20
+#DIM DYNAMIC enemyCSV, 20
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 3
 
+VARSET teamCSV, -1
+VARSET enemyCSV, -1
+CALL BATTLE_IMAGE_IDtoCSV(teams, teamCSV)
+CALL BATTLE_IMAGE_IDtoCSV(enemies, enemyCSV)
+
 ; 확률
-; 1,2 1:1, 코유키 팀 3^, 코유키 적 3 100%
+; 0,1 1:1, 코유키 팀 2+, 코유키 적 2 100%
 pickFrom:0 = 1
 pickFrom:1 = 1
-IF MATCH(teams, 31)
+IF MATCH(teamCSV, 31)
 	pickFrom:2 = 4
-ELSEIF MATCH(enemies, 31)
+ELSEIF MATCH(enemyCSV, 31)
 	pickFrom:0 = 0
 	pickFrom:1 = 0
 	pickFrom:2 = 1
@@ -310,13 +417,20 @@ RESULTS = %종류%_전투_B{RESULT}_29
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
+#DIM DYNAMIC teamCSV, 20
+#DIM DYNAMIC enemyCSV, 20
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 4
+
+VARSET teamCSV, -1
+VARSET enemyCSV, -1
+CALL BATTLE_IMAGE_IDtoCSV(teams, teamCSV)
+CALL BATTLE_IMAGE_IDtoCSV(enemies, enemyCSV)
 
 ; 확률
 ; 0, 2 세미나, C&C 있으면 1,3
 ; MATCH NO function은 나중에 만들 예정
-IF MATCH(teams, 29) || MATCH(teams, 30) || MATCH(teams, 41) || MATCH(teams, 42) || MATCH(teams, 43) || MATCH(teams, 44) || MATCH(teams, 45) || MATCH(enemies, 29) || MATCH(enemies, 30) || MATCH(enemies, 41) || MATCH(enemies, 42) || MATCH(enemies, 43) || MATCH(enemies, 44) || MATCH(enemies, 45)
+IF MATCH(teamCSV, 29) || MATCH(teamCSV, 30) || MATCH(teamCSV, 41) || MATCH(teamCSV, 42) || MATCH(teamCSV, 43) || MATCH(teamCSV, 44) || MATCH(teamCSV, 45) || MATCH(enemyCSV, 29) || MATCH(enemyCSV, 30) || MATCH(enemyCSV, 41) || MATCH(enemyCSV, 42) || MATCH(enemyCSV, 43) || MATCH(enemyCSV, 44) || MATCH(enemyCSV, 45)
 	pickFrom:1 = 1
 	pickFrom:3 = 1
 ELSE
@@ -335,15 +449,22 @@ RESULTS = %종류%_전투_B{RESULT}_31
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
+#DIM DYNAMIC teamCSV, 20
+; #DIM DYNAMIC enemyCSV, 20
 ; 무작위 확률을 위한 배열, 크기는 화상 숫자에 맞춰서
 #DIM DYNAMIC pickFrom, 3
+
+VARSET teamCSV, -1
+; VARSET enemyCSV, -1
+CALL BATTLE_IMAGE_IDtoCSV(teams, teamCSV)
+; CALL BATTLE_IMAGE_IDtoCSV(enemies, enemyCSV)
 
 ; 확률
 pickFrom:0 = 1 ; 통상 확률
 ; 팀에 C&C 멤버가 있을시 B2 추가 (높음)
 ; 아니면 B1 추가 (50%)
 ; teams 는 ID 라 NO:{teams:0} 랑 다를수 있지만...
-IF MATCH(teams, 42) || MATCH(teams, 43) || MATCH(teams, 44) || MATCH(teams, 45)
+IF MATCH(teamCSV, 42) || MATCH(teamCSV, 43) || MATCH(teamCSV, 44) || MATCH(teamCSV, 45)
 	pickFrom:2 = 2
 ELSE
 	pickFrom:1 = 1
