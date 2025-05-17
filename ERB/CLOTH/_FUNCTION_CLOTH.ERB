@@ -145,14 +145,12 @@ RESTART
 @CLOTH_CHANGE_MENU(대상, 부위)
 #DIM 대상
 #DIM 부위
-
 #DIM 이용가부, MAX_CLOTH_ID
 #DIM 의상수
 #DIM FIRST_LINE
 #DIM 페이지수
 #DIM 페이지
 #DIM CONST 페이지마다의상수 = 15
-
 VARSET 이용가부, 0
 이용가부:0 = 1
 의상수 = 1
@@ -161,11 +159,7 @@ FOR LOCAL, 1, MAX_CLOTH_ID
 	; 의상이 있는지 확인
 	TRYCCALLFORM CLOTH_NAME_%CLOTH_PART_NAME_ENG:부위%_{LOCAL}()
 		; 대상이 의상이 있는지 확인
-		IF 대상 == MASTER
-			CALL CLOTH_EXIST_CHARA(NO:MASTER, 부위, LOCAL)
-		ELSE
-			CALL CLOTH_EXIST_CHARA(대상, 부위, LOCAL)
-		ENDIF
+		CALL CLOTH_EXIST_CHARA(대상, 부위, LOCAL)
 		IF RESULT
 			이용가부:LOCAL = 1
 			의상수 ++
