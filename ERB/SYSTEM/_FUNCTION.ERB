@@ -3614,6 +3614,64 @@ RETURNF OPERAND
 MINUEND = MAX(MINUEND - SUBTRAHEND, MINVAL)
 
 RETURNF MINUEND
+
+;-------------------------------------------------
+; Value Remap
+;-------------------------------------------------
+@REMAP(VALUE, MIN_OLD, MAX_OLD, MIN_NEW, MAX_NEW)
+#FUNCTION
+#DIM VALUE
+#DIM MIN_OLD
+#DIM MAX_OLD
+#DIM MIN_NEW
+#DIM MAX_NEW
+
+#DIM RVAL
+
+; DEBUGPRINTFORML VALUE = {VALUE}
+RVAL = (VALUE - MIN_OLD) * (MAX_NEW - MIN_NEW)
+; DEBUGPRINTFORML = {RVAL}
+RVAL /= (MAX_OLD - MIN_OLD)
+; DEBUGPRINTFORML = {RVAL}
+RVAL += MIN_NEW
+; DEBUGPRINTFORML = {RVAL}
+
+RETURNF RVAL
+
+; Remap, 하고 LIMIT(VALUE, MIN_NEW, MAX_NEW)
+@REMAP_CLAMP(VALUE, MIN_OLD, MAX_OLD, MIN_NEW, MAX_NEW)
+#FUNCTION
+#DIM VALUE
+#DIM MIN_OLD
+#DIM MAX_OLD
+#DIM MIN_NEW
+#DIM MAX_NEW
+
+#DIM RVAL
+
+RVAL = REMAP(VALUE, MIN_OLD, MAX_OLD, MIN_NEW, MAX_NEW)
+RVAL = LIMIT(RVAL, MIN_NEW, MAX_NEW)
+; DEBUGPRINTFORML = {RVAL}
+
+RETURNF RVAL
+
+;-------------------------------------------------
+; 나누고 소수점 반올림하기
+;-------------------------------------------------
+@DIVIDE_ROUND(DIVIDEND, DIVISOR)
+#FUNCTION
+#DIM DIVIDEND
+#DIM DIVISOR
+
+#DIM RVAL
+
+; DEBUGPRINTFORML {DIVIDEND} * 10 / {DIVISOR}
+RVAL = DIVIDEND * 10 / DIVISOR
+; DEBUGPRINTFORML ({RVAL} / 10) + {RVAL % 10 >= 5 ? 1 # 0}
+RVAL = (RVAL / 10) + (RVAL % 10 >= 5 ? 1 # 0)
+
+RETURNF RVAL
+
 ;-------------------------------------------------
 ;대상의 소속을 변경시켜, 필요한 변수 조작을 실시하는 함수
 ;소속을 0으로 하면 방랑한다. 그 때, 사망 플래그를 지정했을 경우는 사망 취급이 된다
@@ -3812,6 +3870,42 @@ ENDIF
 
 SIF COLOR != -1
 	SETCOLOR COLOR_TMP
+
+;-------------------------------------------------
+; 주어진 공백 내에서 텍스트 정렬
+; CENTER 정렬 가능
+; %sText, iSpace, LEFT% 가 iSpace 넘어가서 추가로 만들어둠
+;-------------------------------------------------
+@ALIGN_TEXT(sText, iSpace, direction)
+#FUNCTIONS
+#DIMS sText
+#DIM iSpace
+#DIMS direction
+
+#DIM DYNAMIC iTmp
+
+; iTmp = STRLENS(sText)
+; iSpace 에 맞춰서 길이 제한
+IF STRLENS(sText) > iSpace
+	sText = %SUBSTRING(sText, 0, iSpace)%
+	; 마지막 글자가 한글이라서 넘어 가면
+	IF STRLENS(sText) > iSpace
+		sText = %SUBSTRING(sText, 0, iSpace - 1)%
+	ENDIF
+ENDIF
+
+; 방향 이름은 필요에 따라 더하기
+SELECTCASE direction
+	CASE "LEFT", "L","left", "좌"
+		sText = %sText, iSpace, LEFT%
+	CASE "RIGHT", "R", "right", "우"
+		sText = %sText, iSpace, RIGHT%
+	CASE "CENTER", "C", "center", "중"
+		iTmp = (iSpace - STRLENS(sText)) / 2
+		sText = %TOSTR_SPACE(iTmp)%%sText%
+		sText = %sText, iSpace, LEFT%
+ENDSELECT
+RETURNF sText
 
 ;-------------------------------------------------
 ;간단하고 쉬운 능력표시를 실시한다
