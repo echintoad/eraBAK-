@@ -18,9 +18,9 @@ RETURN 1
 @SHOP_LIFE_CHECKCHARA68(ARG:0)
 ;비주인공, 동일 세력, 포로가 아닌, 동물이 아닌, 통상 상태 또는 육아중
 SIF CFLAG:(ARG:0):특수상태 == 특수상태_방랑
-RETURN TALENT:(ARG:0):연모 || TALENT:(ARG:0):복종
+	RETURN TALENT:(ARG:0):연모 || TALENT:(ARG:0):복종
 SIF CFLAG:(ARG:0):특수상태 == 특수상태_미등장 || CFLAG:(ARG:0):특수상태 == 특수상태_사망
-RETURN 0
+	RETURN 0
 RETURN CFLAG:(ARG:0):소속 == CFLAG:MASTER:소속 && CFLAG:(ARG:0):포로처 == 0 && !IS_ANIMAL(ARG:0) && GROUPMATCH(CFLAG:(ARG:0):행동불능상태, 0, 2) || TALENT:ARG:연모 || TALENT:ARG:복종
 
 ;-------------------------------------------------
@@ -119,18 +119,69 @@ RETURN 0
 #DIM FIRST_LINE
 #DIM 보스
 
+#DIM 보스수
+#DIM 페이지
+#DIM iTmp
+
+CALL 총력전_해제
+
 FIRST_LINE = LINECOUNT
+
+; 보스 리스트 설정
+; 임시
+VARSET 총력전_보스_활동, -1
+총력전_보스_활동:0 = 0
+
+; 보스 활동 에서 찾기
+FOR iTmp, 0, 20
+	IF 총력전_보스_활동:iTmp == -1
+		BREAK
+	ENDIF
+	; 임시로 총력전 창에 추가
+	; UI 프레임에 나오고 버튼 활성화
+	총력전_상태:iTmp = 1
+	총력전_ID:iTmp = 총력전_보스_활동:iTmp
+	CALLFORM 총력전_보스_이름_{총력전_보스_활동:iTmp}
+	총력전_이름:iTmp = %RESULTS%
+	CALLFORM 총력전_보스_이미지_{총력전_보스_활동:iTmp}
+	총력전_이미지:iTmp = %RESULTS%
+NEXT
+
+; 보스가 있는지 확인, 없으면 메세지(키보토스는 평?화로운 상태)
+; 아님 총력전 클리어 플레그?
+
+; 디버그용 TEST CODE
+; 총력전_상태:1 = 1
+; 총력전_ID:1 = 0
+; 총력전_이름:1 = 몰?루
+; 총력전_이미지:1 = 얼굴_의복_통상_22
+
+; inputloop
+$INPUTLOOP
 CALL SINGLE_DRAWLINE
 PRINTL 토벌할 대상을 선택하세요
-CALL SINGLE_DRAWLINE 
+CALL SINGLE_DRAWLINE
 PRINTL
-CALL 보스_선택_이미지
+CALL 총력전_UI_프레임_0(3, 0, 0, 총력전_선택_캐릭터)
+; CALL 보스_선택_이미지
+PRINTBUTTON "[ 돌아간다 ]", -1
+PRINTL
 INPUT
+
+IF RESULT == -1
+	CALL 총력전_해제
+	RETURN
+ENDIF
+
+DEBUGPRINTFORML selected boss id: {RESULT}
 보스 = RESULT
+; 총력전 창 정리
+CALL 총력전_해제_기본
 CLEARLINE LINECOUNT - FIRST_LINE
 CALL 난이도설정(보스)
 ;-------------------------------------------------
 ;「총력전」 난이도 설정
+;|  [    dr.Pepe    ]  |  [   사쿠라코    ]  |
 ;-------------------------------------------------
 @난이도설정(보스)
 #DIM FIRST_LINE
@@ -144,7 +195,7 @@ CALL SINGLE_DRAWLINE
 PRINTL 난이도를 선택하세요
 CALL SINGLE_DRAWLINE
 TRYCALLFORM 총력전_보스_이름_{보스}
-PRINTFORML [%RESULTS,17,LEFT%]
+PRINTFORML [%ALIGN_TEXT(RESULTS,14,"CENTER")%]
 PRINTL
 PRINT 선택한 난이도 : 
 SELECTCASE 총력전_보스_난이도
@@ -223,180 +274,134 @@ ENDIF
 ;-------------------------------------------------
 @총력전_멤버_선택(보스)
 #DIM 보스
-#DIM FIRST_LINE
-#DIM 파티인원수
-#DIM 배치인원수
-#DIM 배치완료
+
+#DIM DYNAMIC FIRST_LINE
+#DIM DYNAMIC 파티인원수
+#DIM DYNAMIC 배치인원수
+#DIM DYNAMIC 배치완료
+#DIM DYNAMIC 배치변경 = -1 ; 위치(총력전번호) 변경중인 캐릭터 
 
 FIRST_LINE = LINECOUNT
 배치인원수 = 0
 배치완료 = 0
 ;파티원 초기화
-LOCAL:2 = 0
-FOR LOCAL, 0, 5
-	총력전_파티_캐릭터:LOCAL = -1
-NEXT
+LOCAL:1 = 0
 FOR LOCAL, 0, CHARANUM
 	IF CFLAG:LOCAL:총력전선택중
-		LOCAL:2 ++
+		LOCAL:1 ++
 	ENDIF
 NEXT
-파티인원수 = LOCAL:2
+파티인원수 = LOCAL:1
+
+[IF_DEBUG]
+; 총력전_ID:5 = 2
+; 총력전_ID:7 = 20
+; 총력전_ID:11 = 14
+; 총력전_ID:12 = 113
+; 총력전_ID:13 = 123
+[ENDIF]
 
 $캐릭터선택루프
 CLEARLINE LINECOUNT - FIRST_LINE
 FIRST_LINE = LINECOUNT
-PRINTFORML %TOSTR_SPACE(3)%|---------------------------------------------------------------------------------------------------------|
-CALL 총력전_파티선택_이미지
+CALL 총력전_초기화_파티선택
+CALL 총력전_초기화_스탯_전
+CALL 총력전_처리_스탯_전
+CALL 총력전_UI_프레임_0(5, 0, 1, 배치인원수 >= 2 ? 총력전_선택_캐릭터 # -1)
+; CALL 총력전_파티선택_이미지
 PRINTL
 CALL SINGLE_DRAWLINE
-PRINTL 배치 할 캐릭터를 선택해 주세요
+IF 배치변경 == -1
+	PRINTL 배치 할 캐릭터를 선택해 주세요
+ELSE
+	PRINTL 위치를 바꿀 캐릭터를 선택해 주세요
+ENDIF
 CALL SINGLE_DRAWLINE
 PRINTL
 LOCAL:1 = 1
 FOR LOCAL, 0, CHARANUM
 	IF CFLAG:LOCAL:총력전선택중
 		LOCALS = %ANAME(LOCAL)%
-		PRINTBUTTON @"[%LOCALS, 10, LEFT%]",LOCAL
+		; 이미 배치 되 있으면/위치 변경 중 이면 비활성화
+		IF MATCH(총력전_ID, LOCAL) || 배치변경 >= 0
+			SETCOLOR 칼라_선택불가
+			PRINTFORM [%LOCALS, 10, LEFT%]
+			RESETCOLOR
+		ELSE
+			; 파티 자리 이동 가능하게 ~5 정도만 있으면 되지만 나중에 파티 사이즈 바뀔수 있어서
+			PRINTBUTTON @"[%LOCALS, 10, LEFT%]",LOCAL + 총력전_캐릭터수
+		ENDIF
 		LOCAL:1 = 0
 	ENDIF
 NEXT
 PRINTFORM %TOSTR_SPACE(30)%
-PRINTBUTTON "[  리셋  ]",1000
+PRINTBUTTON "[  리셋  ]",-1
 PRINTFORM %TOSTR_SPACE(3)%
-PRINTBUTTON "[  돌아간다  ]",1001
+PRINTBUTTON "[  돌아간다  ]",-2
 PRINTFORM %TOSTR_SPACE(3)%
 PRINTL
 PRINTL
 PRINTL
-PRINTBUTTON "[  결정  ]",1002
+PRINTBUTTON "[  결정  ]",-3
 IF LOCAL:1
 	RETURN 0
 ENDIF
 INPUT
-IF RESULT == 1000
-	FOR LOCAL, 0, 5
-		총력전_파티_캐릭터:LOCAL = -1
-	NEXT
+DEBUGPRINTFORML 선택: {RESULT}
+IF RESULT == -1
+	; 리셋
+	CALL 총력전_해제_기본
 	배치인원수 = 0
+	배치완료 = 0
+	배치변경 = -1
 	GOTO 캐릭터선택루프
-ELSEIF RESULT == 1002
+ELSEIF RESULT == -2
+	; 돌아간다
+	CALL 총력전_해제
+	배치인원수 = 0
+	배치완료 = 0
+	RETURN 1
+ELSEIF RESULT == -3
+	; 결정
 	IF 배치완료 == 1
-	CALL 총력전_실행(보스)
-	CALL SYSTEM_AUTOSAVE
+		PRINTW 시작
+		총력전_보스 = 보스
+		CALL 총력전_실행 ;(보스)
+		; 리셋
+		CALL 총력전_해제
+		CALL SYSTEM_AUTOSAVE
 	RETURN
 	ELSE
-	PRINTW 편성을 끝내야 합니다.
-	GOTO 캐릭터선택루프
-	ENDIF
-ELSEIF RESULT == 1001
-FOR LOCAL, 0, 5
-	총력전_파티_캐릭터:LOCAL = -1
-NEXT
-배치인원수 = 0
-RETURN 1
-ELSE
-	IF 파티인원수 == 1
-		총력전_파티_캐릭터:0 = RESULT
-		배치완료 = 1
+		PRINTW 편성을 끝내야 합니다.
 		GOTO 캐릭터선택루프
 	ENDIF
-
-	IF 파티인원수 == 2
-		IF 배치인원수 == 0
-			총력전_파티_캐릭터:0 = RESULT
-			배치인원수 ++
-			GOTO 캐릭터선택루프
-		ELSEIF 배치인원수 == 1
-			IF 총력전_파티_캐릭터:0 != RESULT
-			총력전_파티_캐릭터:1 = RESULT
-			배치인원수 ++
-			배치완료 = 1
-			ENDIF
-			GOTO 캐릭터선택루프
-		ENDIF
+ELSEIF RESULT < 총력전_캐릭터수
+	; TEST CODE
+	IF 배치변경 == -1
+		배치변경 = RESULT
+	ELSEIF 배치변경 == RESULT
+		PRINTW 위치 변경 취소
+		배치변경 = -1
+	ELSE
+		SWAP 총력전_ID:RESULT, 총력전_ID:배치변경
+		; LOCAL:0 = 총력전_ID:RESULT
+		; LOCAL:1 = 총력전_ID:배치변경
+		; 총력전_ID:RESULT = LOCAL:1
+		; 총력전_ID:배치변경 = LOCAL:0
+		배치변경 = -1
+	ENDIF
+ELSE
+	; 배치완료 != 배치인원수
+	IF 배치인원수 < 파티인원수
+		총력전_ID:배치인원수 = RESULT - 총력전_캐릭터수
+		; 총력전_상태:배치인원수 = 총력전_상태_보통
+		배치인원수++
+	ENDIF
+	
+	IF 배치인원수 == 파티인원수
+		배치완료 = 1
 	ENDIF
 
-	IF 파티인원수 == 3
-		IF 배치인원수 == 0
-			총력전_파티_캐릭터:0 = RESULT
-			배치인원수 ++
-			GOTO 캐릭터선택루프
-		ELSEIF 배치인원수 == 1
-			IF 총력전_파티_캐릭터:0 != RESULT
-			총력전_파티_캐릭터:1 = RESULT
-			배치인원수 ++
-			ENDIF
-			GOTO 캐릭터선택루프
-		ELSEIF 배치인원수 == 2
-			IF 총력전_파티_캐릭터:0 != RESULT && 총력전_파티_캐릭터:1 != RESULT
-			총력전_파티_캐릭터:2 = RESULT
-			배치인원수 ++
-			배치완료 = 1
-			ENDIF
-			GOTO 캐릭터선택루프
-		ENDIF
-	ENDIF
-
-	IF 파티인원수 == 4
-		IF 배치인원수 == 0
-			총력전_파티_캐릭터:0 = RESULT
-			배치인원수 ++
-			GOTO 캐릭터선택루프
-		ELSEIF 배치인원수 == 1
-			IF 총력전_파티_캐릭터:0 != RESULT
-			총력전_파티_캐릭터:1 = RESULT
-			배치인원수 ++
-			ENDIF
-			GOTO 캐릭터선택루프
-		ELSEIF 배치인원수 == 2
-			IF 총력전_파티_캐릭터:0 != RESULT && 총력전_파티_캐릭터:1 != RESULT
-			총력전_파티_캐릭터:2 = RESULT
-			배치인원수 ++
-			ENDIF
-			GOTO 캐릭터선택루프
-		ELSEIF 배치인원수 == 3
-			IF 총력전_파티_캐릭터:0 != RESULT && 총력전_파티_캐릭터:1 != RESULT && 총력전_파티_캐릭터:2 != RESULT
-			총력전_파티_캐릭터:3 = RESULT
-			배치인원수 ++
-			배치완료 = 1
-			ENDIF
-			GOTO 캐릭터선택루프
-		ENDIF
-	ENDIF
-
-	IF 파티인원수 == 5
-		IF 배치인원수 == 0
-			총력전_파티_캐릭터:0 = RESULT
-			배치인원수 ++
-			GOTO 캐릭터선택루프
-		ELSEIF 배치인원수 == 1
-			IF 총력전_파티_캐릭터:0 != RESULT
-			총력전_파티_캐릭터:1 = RESULT
-			배치인원수 ++
-			ENDIF
-			GOTO 캐릭터선택루프
-		ELSEIF 배치인원수 == 2
-			IF 총력전_파티_캐릭터:0 != RESULT && 총력전_파티_캐릭터:1 != RESULT
-			총력전_파티_캐릭터:2 = RESULT
-			배치인원수 ++
-			ENDIF
-			GOTO 캐릭터선택루프
-		ELSEIF 배치인원수 == 3
-			IF 총력전_파티_캐릭터:0 != RESULT && 총력전_파티_캐릭터:1 != RESULT && 총력전_파티_캐릭터:2 != RESULT
-			총력전_파티_캐릭터:3 = RESULT
-			배치인원수 ++
-			ENDIF
-			GOTO 캐릭터선택루프
-		ELSEIF 배치인원수 == 4
-			IF 총력전_파티_캐릭터:0 != RESULT && 총력전_파티_캐릭터:1 != RESULT && 총력전_파티_캐릭터:2 != RESULT && 총력전_파티_캐릭터:3 != RESULT
-			총력전_파티_캐릭터:4 = RESULT
-			배치인원수 ++
-			배치완료 = 1
-			ENDIF
-			GOTO 캐릭터선택루프
-		ENDIF
-	ENDIF
 ENDIF
 GOTO 캐릭터선택루프
 ;행동 개시시의 공통 처리
@@ -414,137 +419,3 @@ FOR LOCAL, 0, CHARANUM
 	ENDIF
 NEXT
 RETURN 0
-
-;-------------------------------------------------
-;파티 선택의 이미지 관리
-;-------------------------------------------------
-@총력전_파티선택_이미지(iSize = 8)
-#DIMS IMAGE, 5
-#DIM iEnter_Con
-#DIM iFont_Hei_mag
-#DIM iSize
-#DIM iCorrection
-#DIMS sHtml
-#DIM iYpos
-iEnter_Con = 0
-
-IF GETCONFIGS("描画インターフェース") == "GRAPHICS"
-	iCorrection = 5
-ELSE
-	iCorrection = 25
-ENDIF
-
-PRINTFORM %TOSTR_SPACE(3)%
-FOR LOCAL:0, 0, 5
-	IF LOCAL:0 != 0
-		PRINTFORM  
-	ENDIF
-	PRINTFORM |
-	SIF 총력전_캐릭터상태:LOCAL == 총력전_캐릭터상태_행동불능
-	SETCOLOR 칼라_선택불가
-	SIF 총력전_캐릭터상태_대상지정:LOCAL == 1
-	SETCOLOR 칼라_빨강
-	PRINTFORM [%((총력전_파티_캐릭터:LOCAL != -1)?ANAME(총력전_파티_캐릭터:LOCAL)#""),17,LEFT%]
-	RESETCOLOR
-	SIF LOCAL:0 == 2
-		PRINTFORM  
-	RESETCOLOR
-NEXT
-PRINTFORML  |
-
-LOCALS = "   |                    |                    |                     |                    |                    |"
-
-FOR LOCAL, 0, 5
-	SIF 총력전_파티_캐릭터:LOCAL < 0
-		CONTINUE
-	CALL GET_IMAGE_BATTLE_DEFAULT(총력전_파티_캐릭터:LOCAL)
-	IMAGE:LOCAL = %RESULTS%
-	iFont_Hei_mag = GETCONFIG("一行の高さ") * (iSize * 100 - iCorrection) * 10 / GETCONFIG("フォントサイズ")
-	iFont_Hei_mag = (iFont_Hei_mag / 10) + (iFont_Hei_mag % 10 >= 5 ? 1 # 0)
-	
-	iYpos = -(iEnter_Con * 100)
-	IF LOCAL < 3
-		sHtml = <p align='left'>%SUBSTRING(LOCALS, 0, 8 + (21 * LOCAL))%<img src='%IMAGE:LOCAL%' height='{iFont_Hei_mag}' ypos='{iYpos}'>%SUBSTRING(LOCALS, 21 + (21 * LOCAL), STRLENS(LOCALS))%
-	ELSE
-		sHtml = <p align='left'>%SUBSTRING(LOCALS, 0, 9 + (21 * LOCAL))%<img src='%IMAGE:LOCAL%' height='{iFont_Hei_mag}' ypos='{iYpos}'>%SUBSTRING(LOCALS, 22 + (21 * LOCAL), STRLENS(LOCALS))%
-	ENDIF
-	sHtml = %REPLACE(sHtml, "\"", "")%
-	HTML_PRINT sHtml
-	iEnter_Con++
-NEXT
-
-FOR LOCAL, iEnter_Con, iSize
-	sHtml = %LOCALS%<br>
-	sHtml = %REPLACE(sHtml, "\"", "")%
-	HTML_PRINT sHtml
-NEXT
-
-PRINTFORM %TOSTR_SPACE(3)%
-
-FOR LOCAL:0, 0, 5
-	IF 총력전_파티_캐릭터:LOCAL < 0
-		PRINTFORM |%TOSTR_SPACE(20)%
-		SIF LOCAL:0 == 2
-			PRINTFORM  
-	ELSE
-		PRINTFORM |  
-		SIF 총력전_캐릭터상태:LOCAL == 총력전_캐릭터상태_행동불능
-		SETCOLOR 칼라_선택불가
-		CALL 총력전_캐릭터_체력(총력전_파티_캐릭터:LOCAL)
-		RESETCOLOR
-		PRINTFORM     
-		SIF LOCAL:0 == 2
-			PRINTFORM  
-	ENDIF
-NEXT
-PRINTFORML |
-
-PRINTFORML %TOSTR_SPACE(3)%|---------------------------------------------------------------------------------------------------------|
-
-@보스_선택_이미지
-#DIMS IMAGE, 5
-#DIM iEnter_Con
-#DIMS sHtml
-#DIM iYpos
-FOR LOCAL, 0, 100
-	TRYCALLFORM 총력전_보스_이름_{LOCAL}
-	보스_이름:LOCAL = %RESULTS%
-	RESULTS = 
-NEXT
-
-iEnter_Con = -1
-PRINTL    |--------------------------------------------------------------------------------------------------------|
-LOCALS = "   |                    |                    |                    |                    |                    |"
-FOR LOCAL, 0, 5
-	IF STRLENS(보스_이름:LOCAL) == 0
-	IMAGE:LOCAL = 보스_더미
-	ELSE
-	IMAGE:LOCAL = %보스_이름:LOCAL%_F
-	ENDIF
-	iYpos = -(iEnter_Con * 100)
-	sHtml = <p align='left'>%SUBSTRING(LOCALS, 1, 4 + (21 * LOCAL))%<img src='%IMAGE:LOCAL%' height='800' ypos='{iYpos-50}'>%SUBSTRING(LOCALS, 24 + (21 * LOCAL), STRLENS(LOCALS))%
-	sHtml = %REPLACE(sHtml, "\"", "")%
-	HTML_PRINT sHtml
-	iEnter_Con++
-NEXT
-
-FOR LOCAL, iEnter_Con, 7
-	sHtml = %LOCALS%<br>
-	sHtml = %REPLACE(sHtml, "\"", "")%
-	HTML_PRINT sHtml
-NEXT
-PRINTL    |--------------------------------------------------------------------------------------------------------|
-PRINTFORM %TOSTR_SPACE(3)%
-
-FOR LOCAL, 0, 5
-	IF STRLENS(보스_이름:LOCAL) == 0
-		PRINTFORM |%TOSTR_SPACE(20)%
-	ELSE
-		LOCALS = %보스_이름:LOCAL%
-		PRINTFORM |
-		PRINTBUTTON @"[%SUBSTRING(LOCALS, 0, 17), 18, LEFT%]",LOCAL
-	ENDIF
-NEXT
-
-PRINTFORML |
-PRINTL    |--------------------------------------------------------------------------------------------------------|

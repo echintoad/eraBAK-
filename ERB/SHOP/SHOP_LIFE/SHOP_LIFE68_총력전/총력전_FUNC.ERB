@@ -1,0 +1,473 @@
+﻿; ===== 임시 추가 함수 =====
+; _FUNCTION 에 더하기 애매한 총력전 함수 넣는곳 
+; ==========================
+; 다차원 ARRAYREMOVE 할 방법을 몰라서
+; 상태효과, 카운터, 엄폐물 용 ARRRAYREMOVE
+; DIMS 는 따로 만들어야됨
+@총력전_ARRAYREMOVE(ary, iFirstDim, iStart = 0, iClearCnt = 1)
+#DIM REF ary, 0, 0
+#DIM iFirstDim ; 첫번쩨 차원(총력전번호)
+#DIM iStart
+#DIM iClearCnt
+
+#DIM DYNAMIC iSize
+#DIM DYNAMIC iTmp
+
+iSize = VARSIZE("ary", 1)
+; DEBUGPRINTFORML ary size: {iSize}
+FOR iTmp, iStart, iSize
+	IF iTmp + iClearCnt < iSize
+		ary:iFirstDim:iTmp = ary:iFirstDim:(iTmp + iClearCnt)
+	ELSE
+		ary:iFirstDim:iTmp = 0
+	ENDIF
+NEXT
+
+; 나중에 총력전_ARRAYREMOVE 제거
+@총력전_ARRAYREMOVE_VAL(ary, iFirstDim, iStart = 0, iClearCnt = 1, replaceVal = 0)
+#DIM REF ary, 0, 0
+#DIM iFirstDim ; 첫번쩨 차원(총력전번호)
+#DIM DYNAMIC iStart
+#DIM DYNAMIC iClearCnt
+#DIM DYNAMIC replaceVal
+
+#DIM DYNAMIC iSize
+#DIM DYNAMIC iTmp
+
+iSize = VARSIZE("ary", 1)
+FOR iTmp, iStart, iSize
+	IF iTmp + iClearCnt < iSize
+		ary:iFirstDim:iTmp = ary:iFirstDim:(iTmp + iClearCnt)
+	ELSE
+		ary:iFirstDim:iTmp = replaceVal
+	ENDIF
+NEXT
+
+; GETVAR 가 안 먹히는거 같아서?
+@GETVAR_RAIDSTAT(캐릭터, 스탯이름)
+#FUNCTION
+#DIM 캐릭터 ; 총력전 번호
+#DIMS 스탯이름 ; 스탯 이름
+
+SELECTCASE 스탯이름
+	CASE "최대체력", "MAXHP"
+		RETURNF 총력전_최대체력:캐릭터
+	CASE "체력", "HP"
+		RETURNF 총력전_체력:캐릭터
+	CASE "공격력", "공격", "공"
+		RETURNF 총력전_공격력:캐릭터
+	CASE "방어력", "방어", "방"
+		RETURNF 총력전_방어력:캐릭터
+	CASE "명중률", "명중", "명"
+		RETURNF 총력전_명중률:캐릭터
+	CASE "회피율", "회피", "회"
+		RETURNF 총력전_회피율:캐릭터
+	CASE "치유력", "치유량", "치유"
+		RETURNF 총력전_치유력:캐릭터
+	CASE "치명타", "치명"
+		RETURNF 총력전_치명타:캐릭터
+	CASE "치명타저항", "치명저항", "치명저"
+		RETURNF 총력전_치명타_저항:캐릭터
+	CASE "치명타대미지", "치피"
+		RETURNF 총력전_치명타_대미지:캐릭터
+	CASE "치명타대미지저항", "치피저항", "치피저"
+		RETURNF 총력전_치명타_대미지_저항:캐릭터
+	CASE "군중제어한계", "군제최대", "CC최대"
+		RETURNF 총력전_군중제어_한계:캐릭터
+	CASE "군중제어강화", "군제강", "CC강"
+		RETURNF 총력전_군중제어_강화:캐릭터
+	CASE "군중제어저항", "군제저", "CC저"
+		RETURNF 총력전_군중제어_저항:캐릭터
+	CASEELSE
+		CALLF ERROR(@"%스탯이름% 은 GETVAR_STAT 에서 지원 안 되는 스탯입니다")
+ENDSELECT
+
+; _상효 스탯
+@GETVAR_RAIDSTAT_EFFECT(캐릭터, 스탯이름)
+#FUNCTION
+#DIM 캐릭터 ; 총력전 번호
+#DIMS 스탯이름 ; 스탯 이름
+
+SELECTCASE 스탯이름
+	CASE "최대체력", "MAXHP"
+		RETURNF 총력전_최대체력_상효:캐릭터
+	CASE "공격력", "공격", "공"
+		RETURNF 총력전_공격력_상효:캐릭터
+	CASE "방어력", "방어", "방"
+		RETURNF 총력전_방어력_상효:캐릭터
+	CASE "명중률", "명중", "명"
+		RETURNF 총력전_명중률_상효:캐릭터
+	CASE "회피율", "회피", "회"
+		RETURNF 총력전_회피율_상효:캐릭터
+	CASE "치유력", "치유량", "치유"
+		RETURNF 총력전_치유력_상효:캐릭터
+	CASE "치명타", "치명"
+		RETURNF 총력전_치명타_상효:캐릭터
+	CASE "치명타저항", "치명저항", "치명저"
+		RETURNF 총력전_치명타_저항_상효:캐릭터
+	CASE "치명타대미지", "치피"
+		RETURNF 총력전_치명타_대미지_상효:캐릭터
+	CASE "치명타대미지저항", "치피저항", "치피저"
+		RETURNF 총력전_치명타_대미지_저항_상효:캐릭터
+	CASE "군중제어한계", "군제최대", "CC최대"
+		RETURNF 총력전_군중제어_한계_상효:캐릭터
+	CASE "군중제어강화", "군제강", "CC강"
+		RETURNF 총력전_군중제어_강화_상효:캐릭터
+	CASE "군중제어저항", "군제저", "CC저"
+		RETURNF 총력전_군중제어_저항_상효:캐릭터
+	CASEELSE
+		CALLF ERROR(@"%스탯이름% 은 GETVAR_STAT_EFFECT 에서 지원 안 되는 스탯입니다")
+ENDSELECT
+
+; GETVAR_STAT 이랑 합춰도 괜찬을지도?
+@GETVAR_RAIDSTAT_INIT(캐릭터, 스탯이름)
+#FUNCTION
+#DIM 캐릭터 ; 총력전 번호
+#DIMS 스탯이름 ; 스탯 이름
+
+SELECTCASE 스탯이름
+	CASE "최대체력", "MAXHP"
+		RETURNF 총력전_최대체력_최초:캐릭터
+	CASE "체력", "HP"
+		RETURNF 총력전_체력:캐릭터
+	CASE "공격력", "공격", "공"
+		RETURNF 총력전_공격력_최초:캐릭터
+	CASE "방어력", "방어", "방"
+		RETURNF 총력전_방어력_최초:캐릭터
+	CASE "명중률", "명중", "명"
+		RETURNF 총력전_명중률_최초:캐릭터
+	CASE "회피율", "회피", "회"
+		RETURNF 총력전_회피율_최초:캐릭터
+	CASE "치유력", "치유량", "치유"
+		RETURNF 총력전_치유력_최초:캐릭터
+	CASE "치명타", "치명"
+		RETURNF 총력전_치명타_최초:캐릭터
+	CASE "치명타저항", "치명저항", "치명저"
+		RETURNF 총력전_치명타_저항_최초:캐릭터
+	CASE "치명타대미지", "치피"
+		RETURNF 총력전_치명타_대미지_최초:캐릭터
+	CASE "치명타대미지저항", "치피저항", "치피저"
+		RETURNF 총력전_치명타_대미지_저항_최초:캐릭터
+	CASE "군중제어한계", "군제최대", "CC최대"
+		RETURNF 총력전_군중제어_한계_최초:캐릭터
+	CASE "군중제어강화", "군제강", "CC강"
+		RETURNF 총력전_군중제어_강화_최초:캐릭터
+	CASE "군중제어저항", "군제저", "CC저"
+		RETURNF 총력전_군중제어_저항_최초:캐릭터
+	CASEELSE
+		CALLF ERROR(@"%스탯이름% 은 GETVAR_STAT_INIT 에서 지원 안 되는 스탯입니다")
+ENDSELECT
+
+; 백엔드에 놔도 되지만
+; 기본스탯 + 상효 (+추가 수정)
+; 기본 공격/스킬 용
+@GETVAR_RAIDSTAT_SUM(캐릭터, 스탯이름)
+#FUNCTION
+#DIM 캐릭터 ; 총력전 번호
+#DIMS 스탯이름 ; 스탯 이름
+
+SELECTCASE 스탯이름
+	CASE "최대체력", "MAXHP"
+		RETURNF MAX(총력전_최대체력:캐릭터 + 총력전_최대체력_상효:캐릭터, 1)
+	CASE "체력", "HP"
+		RETURNF 총력전_체력:캐릭터 ; + 총력전_체력_상효:캐릭터
+	CASE "공격력", "공격", "공"
+		; x2 은 공/방 스탯이 비슷할때 대미지 들어가게
+		; 느낌상 맞게 하기 위해서
+		; 나중에 대미지 계산식 변경 하면 제거
+		RETURNF MAX(총력전_공격력:캐릭터 + 총력전_공격력_상효:캐릭터, 0) ; * 2
+	CASE "방어력", "방어", "방"
+		RETURNF 총력전_방어력:캐릭터 + 총력전_방어력_상효:캐릭터
+		; RETURNF MAX(총력전_방어력:캐릭터 + 총력전_방어력_상효:캐릭터, 0)
+	CASE "명중률", "명중", "명"
+		RETURNF 총력전_명중률:캐릭터 + 총력전_명중률_상효:캐릭터
+	CASE "회피율", "회피", "회"
+		RETURNF 총력전_회피율:캐릭터 + 총력전_회피율_상효:캐릭터
+	CASE "치유력", "치유량", "치유"
+		RETURNF MAX(총력전_치유력:캐릭터 + 총력전_치유력_상효:캐릭터, 0)
+	CASE "치명타", "치명"
+		RETURNF 총력전_치명타:캐릭터 + 총력전_치명타_상효:캐릭터
+	CASE "치명타저항", "치명저항", "치명저"
+		RETURNF 총력전_치명타_저항:캐릭터 + 총력전_치명타_저항_상효:캐릭터
+	CASE "치명타대미지", "치피"
+		RETURNF 총력전_치명타_대미지:캐릭터 + 총력전_치명타_대미지_상효:캐릭터
+	CASE "치명타대미지저항", "치피저항", "치피저"
+		RETURNF 총력전_치명타_대미지_저항:캐릭터 + 총력전_치명타_대미지_저항_상효:캐릭터
+	CASE "군중제어한계", "군제최대", "CC최대"
+		RETURNF MAX(총력전_군중제어_한계:캐릭터 + 총력전_군중제어_한계_상효:캐릭터, 1)
+		; RETURNF 총력전_군중제어_한계:캐릭터 + 총력전_군중제어_한계_상효:캐릭터
+	CASE "군중제어강화", "군제강", "CC강"
+		; 수정 고려 중
+		RETURNF 총력전_군중제어_강화:캐릭터 + 총력전_군중제어_강화_상효:캐릭터 + 100
+	CASE "군중제어저항", "군제저", "CC저"
+		RETURNF 총력전_군중제어_저항:캐릭터 + 총력전_군중제어_저항_상효:캐릭터
+	CASEELSE
+		CALLF ERROR(@"%스탯이름% 은 GETVAR_RAIDSTAT_SUM 에서 지원 안 되는 스탯입니다")
+ENDSELECT
+
+; 종류 문자열을 돌려주는 함수, 전투 텍스트용
+@총력전_종류_ENUM(종류)
+#FUNCTIONS
+#DIM 종류
+; #DIMS sTmp
+
+SELECTCASE 종류
+	CASE 상효_종류_최대체력, 상효_종류_최대체력백분율
+		RETURNF "최대체력"
+	CASE 상효_종류_공격력, 상효_종류_공격력백분율
+		RETURNF "공격력"
+	; CASE 상효_종류_공격력백분율
+	; 	RETURNF "공격력(%)"
+	CASE 상효_종류_방어력, 상효_종류_방어력백분율
+		RETURNF "방어력"
+	; CASE 상효_종류_방어력백분율
+	; 	RETURNF "방어력(%)"
+	CASE 상효_종류_명중률, 상효_종류_명중률백분율
+		RETURNF "명중률"
+	; CASE 상효_종류_명중률백분율
+	; 	RETURNF "명중률(%)"
+	CASE 상효_종류_회피율, 상효_종류_회피율백분율
+		RETURNF "회피율"
+	; CASE 상효_종류_회피율백분율
+	; 	RETURNF "회피율(%)"
+	CASE 상효_종류_치유력, 상효_종류_치유력백분율
+		RETURNF "치유력"
+	; CASE 상효_종류_치유력백분율
+	; 	RETURNF "치유력(%)"
+	CASE 상효_종류_치명타
+		RETURNF "치명타"
+	CASE 상효_종류_치명타저항
+		RETURNF "치명 확률 저항"
+	CASE 상효_종류_치명타대미지
+		RETURNF "치명 대미지"
+	CASE 상효_종류_치명타대미지저항
+		RETURNF "치명 대미지 저항"
+	CASE 상효_종류_보호막
+		RETURNF "보호막"
+	CASE 상효_종류_침묵
+		RETURNF "침묵"
+	CASE 상효_종류_불사
+		RETURNF "불사"
+	CASE 상효_종류_보호막관통
+		RETURNF "보호막 관통"
+	CASE 상효_종류_피해감소, 상효_종류_피해감소백분율
+		RETURNF "받는 피해 감소"
+	CASE 상효_종류_치유강화
+		RETURNF "받는 회복 강화"
+	CASE 상효_종류_치유량
+		RETURNF "회복"
+	CASE 상효_종류_공격속도
+		RETURNF "공격 속도"
+	CASE 상효_종류_효과저항
+		RETURNF "디버프 저항"
+	CASE 상효_종류_군중제어강화
+		RETURNF "군중 제어 강화력"
+	CASE 상효_종류_군중제어저항
+		RETURNF "군중 제어 저항력"
+	CASE 상효_종류_군중제어회복
+		RETURNF "군중 제어 회복력"
+	CASE 상효_종류_코스트감소, 상효_종류_코스트감소백분율
+		RETURNF "코스트 감소"
+	CASE 상효_종류_코스트회복
+		RETURNF "코스트 회복력"
+	CASE 상효_종류_도발
+		RETURNF "도발"
+	CASE 상효_종류_대미지
+		RETURNF "피해"
+		; RETURNF "대미지"
+	CASE 상효_종류_군중제어
+		RETURNF "군중 제어"
+	; CASE 상효_종류_기절
+		; RETURNF "기절"
+	; CASE 상효_종류_공포
+		; RETURNF "공포"
+	CASE 상효_종류_혼란
+		RETURNF "혼란"
+	CASE 상효_종류_피해동기화
+		RETURNF "피해 동기화"
+	[IF_DEBUG]
+	CASEELSE
+		CALLF ERROR(@"총력전_종류_ENUM 과 총력전.ERH 에 {종류}번 있는지 확인")
+	[ENDIF]
+ENDSELECT
+
+; 이름 수정 필요...
+; is백분율 은 영+한 이라...
+; 거의 텍스트 용, 1 = 숫자뒤 ％ 붙이기
+; 일단 공격 속도도 포함
+@총력전_종류_백분율(종류)
+#FUNCTION
+#DIM 종류
+
+SELECTCASE 종류
+	CASE 상효_종류_최대체력백분율, 상효_종류_공격력백분율, 상효_종류_방어력백분율, 상효_종류_명중률백분율, 상효_종류_회피율백분율, 상효_종류_치유력백분율, 상효_종류_코스트감소백분율, 상효_종류_피해감소백분율, 상효_종류_공격속도
+		RETURNF 1
+	CASEELSE
+		RETURNF 0
+ENDSELECT
+
+@총력전_방식_ENUM(방식)
+#FUNCTIONS
+#DIM 방식
+; #DIMS sTmp
+SELECTCASE 방식
+	CASE 0
+		RETURNF ""
+	CASE 총력전_방식_지속
+		RETURNF "지속"
+	CASE 총력전_방식_턴
+		RETURNF "턴"
+	CASE 총력전_방식_공격
+		RETURNF "공격"
+		; RETURNF "기본공격"
+		; RETURNF "기본공격수"
+	CASE 총력전_방식_피격
+		RETURNF "피격"
+		; RETURNF "피격수"
+	CASE 총력전_방식_피격양
+		RETURNF "피격양"
+		; RETURNF "HP"
+		; RETURNF "MAXHP"
+	CASE 총력전_방식_회피
+		RETURNF "회피"
+		; RETURNF "회피수"
+	CASE 총력전_방식_스킬
+		RETURNF "스킬"
+		; RETURNF "스킬시전"
+	CASE 총력전_방식_치명타
+		RETURNF "치명타"
+	CASE 총력전_방식_치유
+		RETURNF "치유"
+		; RETURNF "치유회수"
+	CASE 총력전_방식_치유양
+		RETURNF "치유양"
+	[IF_DEBUG]
+	CASEELSE
+		CALLF ERROR(@"총력전_방식_ENUM 과 총력전.ERH 에 {방식}번 있는지 확인")
+	[ENDIF]
+ENDSELECT
+
+
+; html font color 가 문자열만 받아서
+@INT_TO_HEXSTR(num)
+#FUNCTIONS
+#DIM num
+#DIMS sHex, 6
+#DIM iTmp, 2
+
+REPEAT 6
+	iTmp = POWER(16, 5 - COUNT)
+	iTmp:1 = num / iTmp
+	num = num - iTmp:1 * iTmp
+	SELECTCASE iTmp:1
+		CASE 0
+			sHex:COUNT = 0
+		CASE 1
+			sHex:COUNT = 1
+		CASE 2
+			sHex:COUNT = 2
+		CASE 3
+			sHex:COUNT = 3
+		CASE 4
+			sHex:COUNT = 4
+		CASE 5
+			sHex:COUNT = 5
+		CASE 6
+			sHex:COUNT = 6
+		CASE 7
+			sHex:COUNT = 7
+		CASE 8
+			sHex:COUNT = 8
+		CASE 9
+			sHex:COUNT = 9
+		CASE 10
+			sHex:COUNT = A
+		CASE 11
+			sHex:COUNT = B
+		CASE 12
+			sHex:COUNT = C
+		CASE 13
+			sHex:COUNT = D
+		CASE 14
+			sHex:COUNT = E
+		CASE 15
+			sHex:COUNT = F
+	ENDSELECT
+REND
+
+sHex = #%sHex:0%%sHex:1%%sHex:2%%sHex:3%%sHex:4%%sHex:5%
+RETURNF sHex:0
+
+; ARRAYREMOVE 하고 0 으로 변할 갑을 replaceVal로
+; 나중에 clearCount -1 추가
+@ARRAYREMOVE_VAL(ary, startIndex, clearCount, replaceVal)
+#DIM REF ary
+#DIM startIndex
+#DIM clearCount
+#DIM replaceVal
+#DIM DYNAMIC iTmp, 2
+
+ARRAYREMOVE ary, startIndex, clearCount
+
+VARSIZE ary
+iTmp:1 = RESULT - clearCount
+; DEBUGPRINTFORML clearing from {iTmp:1} to {RESULT}
+FOR iTmp, iTmp:1, RESULT
+	ary:iTmp = replaceVal
+NEXT
+
+; STRING 버전
+@ARRAYREMOVE_SVAL(ary, startIndex, clearCount, replaceVal)
+#DIMS REF ary
+#DIM startIndex
+#DIM clearCount
+#DIMS replaceVal
+#DIM DYNAMIC iTmp, 2
+
+ARRAYREMOVE ary, startIndex, clearCount
+
+VARSIZE ary
+iTmp:1 = RESULT - clearCount
+FOR iTmp, iTmp:1, RESULT
+	ary:iTmp = replaceVal
+NEXT
+
+; 왼쪽 공백 제거
+; 이 버전엔 REGEXMATCH 가 없어서
+@STR_CLEAR_LEFT(sVal)
+#FUNCTIONS
+#DIMS sVal
+
+#DIM DYNAMIC iTmp
+
+; DEBUGPRINTFORML start string:"%sVal%"
+STRLENS sVal
+FOR iTmp, 0, RESULT
+	IF SUBSTRING(sVal, iTmp, 1) != " "
+		BREAK
+	ENDIF
+NEXT
+iTmp = MAX(iTmp - 1, 0)
+sVal = %SUBSTRING(sVal, iTmp, -1)%
+; DEBUGPRINTFORML end string:"%sVal%"
+RETURNF sVal
+
+; STR_FIND_REVERSE 같은게 없는듯?
+; 마지막 공백(space) 번호 찾기
+@STR_FINDBLANK_REVERSE(sVal)
+#FUNCTION
+#DIMS sVal
+#DIM DYNAMIC iTmp, 2
+#DIMS DYNAMIC sTmp
+
+STRLENS sVal
+FOR iTmp, RESULT, 0, -1
+	sTmp = %SUBSTRING(sVal, iTmp, -1)%
+	; DEBUGPRINTFORML checking iTmp:{iTmp} [%sTmp%]
+	iTmp:1 = STRFIND(sTmp, " ")
+	; DEBUGPRINTFORML blank at {iTmp:1}
+	IF iTmp:1 >= 0
+		RETURNF iTmp
+	ENDIF
+NEXT
+RETURNF -1

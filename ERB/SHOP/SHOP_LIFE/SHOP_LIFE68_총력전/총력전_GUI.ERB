@@ -1,0 +1,1690 @@
+﻿; ====================
+; 총력전용 GUI
+; 전체 너비는 ~120 정도로, 나누기 쉽게
+; 
+; 됄수있으면 보스.ERB 에서도 쓸수 있게
+; 
+; 작업노트
+; era 전체 너비는 124?
+; 한글 == 스페이스 * 2
+; 굴림체 비율 높이:너비 2:1? 100:50?
+; 모바일에선 GDRAW 관련 흰색 박스로 나옴
+; 
+; html center 해결법 알면 변경
+; _FUNCTION 에 textcenter 같은거 만들면/찾으면 사용
+; 
+; ERH 에 sHtml(sHtmlGrp) 저장? (+sHtml_cnt)
+; sHtmlGrp 세팅 -> CLEARLINE -> HTML_PRINT
+; 화면 깜빡임이 너무 심하면
+; 
+; 사용된 alt characters
+; ►◄♦ <- 모바일에서 사이즈 다름? 굴림체가 아닌가?
+; ====================
+; --- 파티 이미지 ID ---
+; 총력전:ID 에 따라 정리하는 1~6 + 8 명 용 프레임
+; 파티 선택용
+; -------------------------------
+
+; 주 총력전 화면
+; 어떤 타입이냐 따라 버튼을 어떻게 활성화 할지
+@총력전_UI_Main(선택종류, 선택모드 = 0) ; 줄강제 = 0,
+#DIM 선택종류
+; #DIM DYNAMIC 줄강제 ; 줄수 강제 세팅, 0 이면 자동 계산
+#DIM DYNAMIC 선택모드 ; (스킬)선택용 버튼으로 변경
+; #DIM DYNAMIC 종료 ; 아니면 총력전_전투단계 로 확인?
+
+#DIM DYNAMIC frame ; 애니메이션 포함 하고 싶으면
+#DIM DYNAMIC 시작위치_0 = -1 ; 한줄
+#DIM DYNAMIC 시작위치_1, 2 ; 두줄
+#DIM DYNAMIC 줄수 ; 몇줄이 필요한지
+; #DIMS DYNAMIC sHtml, 2 ; 임시
+#DIMS DYNAMIC sHtml_end ; 시작과 끝 부분
+#DIM DYNAMIC iTmp, 4
+#DIMS DYNAMIC sTmp, 2
+#DIM DYNAMIC iBlank
+
+CLEARLINE LINECOUNT
+
+; 보스.ERB 에 특수 UI 있는지 확인
+; RETURN 1 이면 보스 UI 에 자체 UI가 있다 가정
+RESULT = 0
+TRYCALLFORM 총력전_보스_UI_{총력전_보스}
+IF RESULT == 1
+	; 총려전_HTML 생기면 보스 UI 에서 설정, 여기서 HTML_PRINT 처리?
+	RETURN
+ENDIF
+
+sHtml_end = |%TOSTR_REPEAT("=",121)%|
+
+시작위치_1:0 = 0
+시작위치_1:1 = 5
+시작위치_0 = -1
+줄수 = 0
+; 팀 0 위치 확인
+FOR iTmp, 0, 5
+	; 위치에 있는 총력전 ID
+	iTmp:1 = FINDELEMENT(총력전_위치, iTmp)
+	; DEBUGPRINTFORML chk ID:{iTmp:1}, 상태:{총력전_상태:(iTmp:1)}, 팀:{총력전_팀:(iTmp:1)}
+	; 못찾으면 -1?
+	IF iTmp:1 >= 0 && 총력전_상태:(iTmp:1) && 총력전_팀:(iTmp:1) == 0
+		시작위치_0 = 0
+		줄수 ++
+		BREAK
+	ENDIF
+NEXT
+; 못 찾았으면 앞줄에 있다 가정
+SIF 시작위치_0 == -1
+	시작위치_0 = 5
+FOR iTmp, 5, 10
+	iTmp:1 = FINDELEMENT(총력전_위치, iTmp)
+	; DEBUGPRINTFORML chk ID:{iTmp:1}, 상태:{총력전_상태:(iTmp:1)}, 팀:{총력전_팀:(iTmp:1)}
+	IF iTmp:1 >= 0 && 총력전_상태:(iTmp:1) && 총력전_팀:(iTmp:1) == 0
+		줄수 ++
+		BREAK
+	ENDIF
+NEXT
+; SIF 줄강제 > 0
+; 	줄수 = 줄강제
+
+; 해더
+
+; 적 파티 프레임
+; IF 선택종류 == 총력전_선택_적군지역 || 선택종류 == 총력전_선택_전체
+; ELSEIF 선택종류 == 총력전_선택_적군
+; ELSEIF 선택종류 == 총력전_선택_빈적군지역
+; ENDIF
+; 임시로 그냥 팀1 수 만큼
+iTmp = MATCH(총력전_팀, 1)
+iBlank = 10
+HTML_PRINT sHtml_end
+CALL 총력전_UI_프레임_1(iTmp, iBlank, 2, -1)
+HTML_PRINT sHtml_end
+
+; 바: 턴수, 코스트, 게임 종료
+sTmp = | |
+sTmp:1 = 턴:{총력전_턴수}/{총력전_턴_종료}
+sTmp += @"  %ALIGN_TEXT(sTmp:1, 10, "LEFT")% |"
+sTmp:1 = 코스트:{총력전_코스트}/{총력전_코스트_최대}
+sTmp += @"  %ALIGN_TEXT(sTmp:1, 12, "LEFT")% |"
+iTmp = 123 - 3 - 14 - 16 - 10 - 3
+; 종료 버튼
+IF 총력전_전투단계 == 총력전_전투단계_종료
+	iTmp -= 10
+	sTmp += @"%TOSTR_SPACE(iTmp)%"
+	CALL 총력전_UI_버튼("취소", 10, 1, -98, 8)
+	sTmp += @"%RESULTS%"
+ELSE
+	sTmp += @"%TOSTR_SPACE(iTmp)%"
+ENDIF
+IF 총력전_전투단계 == 총력전_전투단계_종료 || 총력전_전투단계 == 총력전_전투단계_플레이어
+	CALL 총력전_UI_버튼("나가기", 10, 1, -99, 8)
+ELSE
+	CALL 총력전_UI_버튼("취소", 10, 1, -99, 8)
+ENDIF
+sTmp += @"%RESULTS%"
+sTmp += @"| |"
+HTML_PRINT sTmp
+HTML_PRINT sHtml_end
+
+; 전투 로그
+CALL 총력전_UI_텍스트(12, 115)
+; CALL 총력전_UI_텍스트(12, 115, 2)
+; CALL 총력전_UI_텍스트_단선(1, 115, "| ) ", " ( |")
+; HTML_PRINT RESULTS
+; CALL 총력전_UI_텍스트_단선(0, 115, "|) )", "( (|")
+; HTML_PRINT RESULTS
+
+; 바: 다음턴, 텍스트 컨트롤러
+HTML_PRINT sHtml_end
+sTmp = | |
+; 왼쪽
+; 양쪽 30
+VARSET iTmp, 0
+iTmp = 30
+IF 선택모드 == 1
+	iTmp:1 = 16
+	iTmp -= iTmp:1
+	CALL 총력전_UI_버튼("전 선택 취소", iTmp:1, 1, -2, 8)
+	sTmp += @"%RESULTS%"
+	iTmp:1 = 12
+	iTmp -= iTmp:1
+	CALL 총력전_UI_버튼("선택 리셋", iTmp:1, 1, -3, 8)
+	sTmp += @"%RESULTS%"
+	sTmp += @"%TOSTR_SPACE(iTmp)%"
+ELSE
+	; iTmp:2 = 10
+	; CALL 총력전_UI_버튼("이동", iTmp:2, 1, -2, 8)
+	; sTmp += @"%RESULTS%"
+	sTmp += @"%TOSTR_SPACE(iTmp)%"
+ENDIF
+; 중앙
+iTmp = 123 - 60 - 6
+; iTmp = 123 - 3 - iTmp:1 - iTmp:2 - iTmp:3 - (8 * 2) - 10 - 3
+IF 선택모드 == 1
+	CALL 총력전_UI_버튼("선택 종료", iTmp, 1, -1, 16)
+	sTmp += @"%RESULTS%"
+ELSE
+	CALL 총력전_UI_버튼("다음턴", iTmp, 1, -1, 16)
+	sTmp += @"%RESULTS%"
+	; sTmp += @"<font color='#CBCBA5'>%RESULTS%</font>"
+ENDIF
+; 오른쪽
+iTmp = 30 - 8 - 8 - 10
+sTmp += @"%TOSTR_SPACE(iTmp)%"
+CALL 총력전_UI_버튼("△", 8, 1, -5, 6)
+sTmp += @"%RESULTS%"
+CALL 총력전_UI_버튼("▽", 8, 1, -6, 6)
+sTmp += @"%RESULTS%"
+CALL 총력전_UI_버튼("최하단", 10, 1, -7, 6)
+sTmp += @"%RESULTS%"
+sTmp += @"| |"
+HTML_PRINT sTmp
+
+HTML_PRINT sHtml_end
+; 아군 파티 프레임
+; DEBUGPRINTFORML 줄수 = {줄수}, 선택종류 = {선택종류}
+; PRINTW
+IF 선택종류 == 총력전_선택_전체 || 선택종류 == 총력전_선택_아군지역
+	IF 총력전_캐릭터정보 == -1
+		CALL 총력전_UI_프레임_1(5, 시작위치_1, 1, 총력전_선택_전체)
+	ELSE
+		CALL 총력전_UI_프레임_1(5, 시작위치_1, 0, 총력전_선택_전체)
+		HTML_PRINT sHtml_end
+		CALL 총력전_UI_부품_캐릭터정보_0(총력전_캐릭터정보)
+	ENDIF
+ELSEIF 선택종류 == 총력전_선택_빈아군지역 || 선택종류 == 총력전_선택_빈공간
+	IF 총력전_캐릭터정보 == -1
+		CALL 총력전_UI_프레임_1(5, 시작위치_1, 1, 총력전_선택_빈공간)
+	ELSE
+		CALL 총력전_UI_프레임_1(5, 시작위치_1, 0, 총력전_선택_빈공간)
+		HTML_PRINT sHtml_end
+		CALL 총력전_UI_부품_캐릭터정보_0(총력전_캐릭터정보)
+	ENDIF
+ELSEIF 선택종류 == 총력전_선택_전체_엄폐물 || 선택종류 == 총력전_선택_아군지역_엄폐물
+	IF 총력전_캐릭터정보 == -1
+		CALL 총력전_UI_프레임_1(5, 시작위치_1, 1, 총력전_선택_전체_엄폐물)
+	ELSE
+		CALL 총력전_UI_프레임_1(5, 시작위치_1, 0, 총력전_선택_전체_엄폐물)
+		HTML_PRINT sHtml_end
+		CALL 총력전_UI_부품_캐릭터정보_0(총력전_캐릭터정보)
+	ENDIF
+ELSEIF 줄수 == 2
+	IF 총력전_캐릭터정보 == -1
+		CALL 총력전_UI_프레임_1(5, 시작위치_1, 1)
+	ELSE
+		CALL 총력전_UI_프레임_1(5, 시작위치_1, 0)
+		HTML_PRINT sHtml_end
+		CALL 총력전_UI_부품_캐릭터정보_0(총력전_캐릭터정보)
+	ENDIF
+ELSEIF 선택종류 == 총력전_선택_캐릭터 || 선택종류 == 총력전_선택_아군 ; 아마 줄수 1?
+	IF 총력전_캐릭터정보 == -1
+		CALL 총력전_UI_프레임_1(5, 시작위치_0, 3)
+	ELSE
+		CALL 총력전_UI_프레임_1(5, 시작위치_0, 2)
+		HTML_PRINT sHtml_end
+		CALL 총력전_UI_부품_캐릭터정보_0(총력전_캐릭터정보)
+	ENDIF
+ELSE ; 아마 선택종류 == 0? && 줄수 1
+	IF 총력전_캐릭터정보 == -1
+		CALL 총력전_UI_프레임_1(5, 시작위치_0, 3, -1) ; -1 칼라 없음
+	ELSE
+		CALL 총력전_UI_프레임_1(5, 시작위치_0, 2, -1)
+		HTML_PRINT sHtml_end
+		CALL 총력전_UI_부품_캐릭터정보_0(총력전_캐릭터정보)
+	ENDIF
+ENDIF
+HTML_PRINT sHtml_end
+; sTmp = <p align='right'><nobr>
+; CALL 총력전_UI_줄(1, 117, 1, 2, "최대체력_0", iTmp, sTmp, 0, "| |", "| |  ")
+; ; sTmp += @"|--| <font color='#FF0000'>test</font> |--|  "
+; sTmp += @"%RESULTS%</nobr>"
+; HTML_PRINT sTmp
+
+; #region == 프레임 0 ==
+; 총력전 번호에 따라 증분(?) 순서대로 기본정보 배치
+; ====================
+; 기본 프레임 옵션
+; 파티 선택용, 총력전 번호 기반
+@총력전_UI_프레임_0(인원수, 시작번호 = 0, 스탯표시 = 0, bBtn = 0)
+#DIM 인원수
+#DIM DYNAMIC 시작번호
+#DIM DYNAMIC 스탯표시
+#DIM DYNAMIC bBtn ; 버튼 작동 여부, 총력전_선택_ 참조
+
+; 전체너비를 스페이스바로
+; arg 로 가능하긴 하니까 따로 놔둠
+#DIM CONST iSpace = 120
+; 캐릭터 부분 너비
+#DIM DYNAMIC 너비
+#DIMS DYNAMIC sHtml_end ; 시작과 끝 부분
+#DIMS DYNAMIC sHtml_div ; 나누는 선
+#DIMS DYNAMIC sHtml_blank ; 캐릭터 사이 선 있는 부분
+#DIM DYNAMIC iTmp, 4
+#DIMS DYNAMIC sTmp, 3
+
+; 너비 계산
+; 전체너비 / 인원수 - 장식
+너비 = DIVIDE_ROUND(iSpace, 인원수) - 3
+; 스페이스바 너미 * 폰트 너비?
+
+; 라인 세팅
+sHtml_end = |%TOSTR_REPEAT("=",121)%|
+FOR iTmp, 0, 인원수
+	iTmp:1 = iTmp:0 + 시작번호 ; 총력전 번호
+	IF iTmp == 0
+		sHtml_blank += @"| "
+		sHtml_div += @"|-"
+	ENDIF 
+	sHtml_blank += @"|%TOSTR_SPACE(너비)%| "
+	IF 총력전_상태:(iTmp:1) == 0
+		sHtml_div += @"|%TOSTR_REPEAT("-",너비)%|-"
+	ELSE
+		iTmp:2 = 너비 / 4
+		iTmp:3 = 너비 - iTmp:2 * 2
+		sTmp = %TOSTR_REPEAT("-",iTmp:2)%%TOSTR_SPACE(iTmp:3)%%TOSTR_REPEAT("-",iTmp:2)%
+		sHtml_div += @"|%sTmp%|-" 
+	ENDIF
+	IF iTmp == 인원수 - 1
+		sHtml_blank += @"|"
+		sHtml_div += @"|"
+	ENDIF
+NEXT
+
+HTML_PRINT sHtml_end
+IF FLAG:화상설정
+	CALL 총력전_UI_줄(인원수, 너비, 0, 시작번호, "이름_0", iTmp, sTmp, bBtn)
+	HTML_PRINT RESULTS
+	; CALL 총력전_UI_프레임_0_이름(인원수, 너비, 0, 시작번호, bBtn)
+	IF 너비 < 10
+		CALL 총력전_UI_프레임_0_이미지(인원수, 너비, sHtml_blank, 0, 시작번호, 5)
+	ELSE
+		CALL 총력전_UI_프레임_0_이미지(인원수, 너비, sHtml_blank, 0, 시작번호, 9)
+	ENDIF
+ELSE
+	HTML_PRINT sHtml_blank
+	; CALL 총력전_UI_프레임_0_이름(인원수, 너비, 0, 시작번호, bBtn)
+	CALL 총력전_UI_줄(인원수, 너비, 0, 시작번호, "이름_0", iTmp, sTmp, bBtn)
+	HTML_PRINT RESULTS
+	HTML_PRINT sHtml_blank
+ENDIF
+IF 스탯표시 == 1
+	HTML_PRINT sHtml_div
+	CALL 총력전_UI_줄(인원수, 너비, 0, 시작번호, "최대체력_0", iTmp, sTmp)
+	HTML_PRINT RESULTS
+	CALL 총력전_UI_부품_스탯(인원수, 너비, 0, 시작번호, 4)
+ENDIF
+HTML_PRINT sHtml_end
+
+; 정리후 부품으로 이동
+@총력전_UI_프레임_0_이미지(인원수, 너비, sHtml_blank, 위치사용 = 0, 시작번호 = 0, iSize = 7)
+#DIM 인원수
+#DIM 너비 ; 셀 너비
+#DIMS sHtml_blank ; 공백선은 미리 세팅해놓고 받기
+#DIM DYNAMIC 위치사용
+#DIM DYNAMIC 시작번호
+; 사이즈 변화 원하면 활성화
+#DIM DYNAMIC iSize ; 라인 수, 4 ~ 
+
+#DIMS DYNAMIC sHtml_break ; sHtml_break 딴데도 필요하면 ARG 로 변경
+#DIMS DYNAMIC sHtml_img
+#DIMS DYNAMIC sHtml_frame
+#DIM DYNAMIC 캐릭터 ; 총력전 번호
+#DIM DYNAMIC iSizeIsOdd
+#DIM DYNAMIC iImgSize ; pixel
+#DIM DYNAMIC iImgYPos ; pixel
+#DIM DYNAMIC iFrameYPos ; pixel
+#DIM DYNAMIC 너비픽셀
+#DIM DYNAMIC iTmp, 3
+#DIMS DYNAMIC sTmp
+
+; 나중에 폰트 사이즈 비례계산 필요할 수도
+; 너비 (space) 를 픽셀로 계산
+너비픽셀 = 너비 * 50
+; iSize clamp
+iSize = MAX(iSize, 4)
+iSizeIsOdd = iSize % 2
+; 이미지 높이 + Y Pos 계산
+iImgSize = iSize * 100 - 50
+IF iSizeIsOdd
+	iImgYPos = (iSize * 100 - 300) / -2 + 30
+	iFrameYPos = iImgYPos - 200
+ELSE
+	iImgYPos = (iSize * 100 - 200) / -2 + 30
+	iFrameYPos = iImgYPos - 100
+ENDIF
+; iImgYPos = iSize * 100 - 50
+
+; 세팅
+CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "__", iTmp, sTmp, 0, "|=|", "|=|", "|=|")
+sHtml_break = %RESULTS%
+FOR iTmp, 0, 인원수
+	; 총력전 번호
+	캐릭터 = 총력전_UI_캐릭터번호(위치사용, iTmp + 시작번호)
+	IF iTmp == 0
+		sHtml_img += @"<shape type='space' param='10'>%TOSTR_SPACE(2)%"
+		sHtml_frame += @"<shape type='space' param='10'>%TOSTR_SPACE(2)%"
+	ENDIF
+	; 총력전 스프라이트 이름
+	IF 캐릭터 < 0
+		sTmp =
+	ELSE
+		sTmp = %총력전_이미지:(캐릭터)%
+	ENDIF
+	IF STRLENS(sTmp)
+		CALL 총력전_UI_이미지(sTmp, 너비픽셀, iImgSize, iImgYPos)
+		sHtml_img += @" %RESULTS%  "
+		; 이미지 사이즈가 맞으면 프레임 포함
+		IF SPRITEWIDTH(sTmp) == 200 && SPRITEHEIGHT(sTmp) == 240 && FLAG:화상범위표시
+			sTmp = 프레임_{FLAG:화상범위표시}_통상
+			CALL 총력전_UI_이미지(sTmp, 너비픽셀, iImgSize, iFrameYPos)
+			sHtml_frame += @" %RESULTS%  "
+		ELSE
+			sHtml_frame += @" %TOSTR_SPACE(너비)%  "
+		ENDIF
+	ELSE
+		sHtml_img += @" %TOSTR_SPACE(너비)%  "
+		sHtml_frame += @" %TOSTR_SPACE(너비)%  "
+	ENDIF
+NEXT
+
+; 프린트
+IF iSizeIsOdd
+	iTmp = (iSize - 5) / 2
+ELSE
+	iTmp = (iSize - 4) / 2
+ENDIF
+REPEAT iTmp
+	HTML_PRINT sHtml_blank
+REND
+IF iSizeIsOdd
+	HTML_PRINT sHtml_break
+	HTML_PRINT sHtml_img
+	HTML_PRINT sHtml_break
+	HTML_PRINT sHtml_frame
+	HTML_PRINT sHtml_break
+ELSE
+	HTML_PRINT sHtml_break
+	HTML_PRINT sHtml_img
+	HTML_PRINT sHtml_frame
+	HTML_PRINT sHtml_break
+ENDIF
+REPEAT iTmp
+	HTML_PRINT sHtml_blank
+REND
+
+; #endregion == 프레임 0 ==
+ 
+; #region == 프레임 1 ==
+; 기본 프레임 옵션
+; 전투용, 위치 기반
+; 위에서 아래로; 같은 줄에 있는 캐릭터가 엄폐물(+방어막)이 생기면 엄폐물을 안써도 같은줄은 빈칸으로 남김
+; if single character gets cover, other characters also leaves same line blank even if they don't use them
+@총력전_UI_프레임_1(인원수, 시작위치, heightType = 2, bBtn = 총력전_선택_캐릭터)
+#DIM 인원수 ; 한 줄당 인원수
+#DIM REF 시작위치, 0 ; 시작위치 번호
+#DIM DYNAMIC heightType ; 셀 사이즈 0=최소(6), 1=소(10), 2=중(13), 3=대(21)
+#DIM DYNAMIC bBtn ; 버튼 작동 여부, 총력전_선택_ 참조
+
+#DIM CONST iSpace = 120
+
+#DIMS DYNAMIC sHtml_end ; 캐릭터 라인 사이 브레이크
+#DIMS DYNAMIC sHtml_div, 5 ; 나누는 선, 필요하면 증가
+#DIMS DYNAMIC sHtml_blank ; 캐릭터 사이 선 있는 부분
+#DIMS DYNAMIC sHtml_name
+#DIM DYNAMIC 너비 ; 캐릭터 부분 너비
+#DIM DYNAMIC 캐릭터 ; 총력전 번호
+#DIM DYNAMIC 줄수 ; 시작위치 SIZE
+#DIM DYNAMIC 스탯수
+#DIM DYNAMIC 줄당스탯
+#DIM DYNAMIC iTmp, 4
+#DIMS DYNAMIC sTmp, 3
+
+; 너비 계산
+; 전체너비 / 인원수 - 장식
+너비 = DIVIDE_ROUND(iSpace, 인원수) - 3
+
+; 줄수
+VARSIZE 시작위치
+줄수 = RESULT
+
+; 라인 세팅
+; sHtml_end:0 = |%TOSTR_REPEAT("=",121)%|
+sHtml_end = |-|%TOSTR_REPEAT("-",117)%|-|
+CALL 총력전_UI_줄(인원수, 너비, 1, 0, "__", iTmp, sTmp)
+sHtml_blank = %RESULTS%
+; 한줄에 몇 스탯 들어갈지 계산
+줄당스탯 = 너비 / 9
+
+; 방어막 여부 확인
+; 엄폐물 여부 확인
+
+; 프린트
+FOR iTmp, 0, 줄수
+	CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "이름_1", iTmp, sTmp, bBtn)
+	sHtml_name = %RESULTS%
+	IF FLAG:화상설정 && heightType != 0
+		SIF heightType == 3
+			HTML_PRINT sHtml_blank
+		HTML_PRINT sHtml_name
+		SELECTCASE heightType
+			CASE 1, 2
+				iTmp:1 = 6
+			; CASE 2
+				; iTmp:1 = 7
+			CASEELSE
+				iTmp:1 = 9
+		ENDSELECT
+		CALL 총력전_UI_프레임_0_이미지(인원수, 너비, sHtml_blank, 1, 시작위치:iTmp, iTmp:1)
+	ELSE
+		HTML_PRINT sHtml_blank
+		HTML_PRINT sHtml_name
+		HTML_PRINT sHtml_blank
+	ENDIF
+	CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "무기_1", iTmp, sTmp, bBtn)
+	HTML_PRINT RESULTS
+	SIF heightType == 3 && 줄당스탯 > 1
+		HTML_PRINT sHtml_blank
+	IF heightType > 1
+		sTmp = -
+		CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "장식_1", iTmp, sTmp, 0, "|-|", "|-|", "|-|")
+		HTML_PRINT RESULTS		
+	ENDIF
+	SIF heightType == 3 && 줄당스탯 > 1
+		HTML_PRINT sHtml_blank
+	; TESTCODE 무지성 엄폐물
+	CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "엄폐물_0", iTmp, sTmp)
+	HTML_PRINT RESULTS
+	; TESTCODE 무지성 보호막+
+	CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "보호막_0", iTmp, sTmp)
+	HTML_PRINT RESULTS
+	CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "체력_0", iTmp, sTmp)
+	HTML_PRINT RESULTS
+	; 스탯
+	IF heightType == 0 || heightType == 1 ; 1 line
+		CALL 총력전_UI_부품_스탯(인원수, 너비, 1, 시작위치:iTmp, 1)
+	ELSEIF heightType == 2 ; 3 line
+		CALL 총력전_UI_부품_스탯(인원수, 너비, 1, 시작위치:iTmp, 3)
+	ELSEIF heightType == 3 && 줄당스탯 <= 1 ; 7 line
+		CALL 총력전_UI_부품_스탯(인원수, 너비, 1, 시작위치:iTmp, 7)
+	ELSEIF heightType == 3 ; 5 line
+		CALL 총력전_UI_부품_스탯(인원수, 너비, 1, 시작위치:iTmp, 5)
+	ENDIF
+	SIF iTmp < 줄수 - 1
+		HTML_PRINT sHtml_end
+NEXT
+; #endregion == 프레임 1 ==
+
+; #region == 프레임 2 ==
+; 전투용, 위치 기반 ver2
+; 캐릭터당 필요한 줄만 출력
+@총력전_UI_프레임_2(인원수, 시작위치, heightType = 2, bBtn = 총력전_선택_캐릭터)
+#DIM 인원수 ; 한 줄당 인원수
+#DIM REF 시작위치, 0 ; 시작위치 번호
+#DIM DYNAMIC heightType ; 셀 사이즈 0=최소(6), 1=소(10), 2=중(13), 3=대(21)
+#DIM DYNAMIC bBtn ; 버튼 작동 여부, 총력전_선택_ 참조
+
+; #endregion == 프레임 2 ==
+
+; #region == 텍스트 ==
+; 총력전 전투 로그
+; ARRAYSHIFT
+; ====================
+; 건너뛰기: 하단 몇 줄을 다른 장식으로 하고 싶으면
+@총력전_UI_텍스트(줄수, 너비, 건너뛰기 = 0, sPadStart = "| | ", sPadEnd = " | |")
+#DIM 줄수 ; 높이(?)
+#DIM 너비 ; sPad 를 뺀 너비
+#DIM 건너뛰기 ; 로그 건너뛰기
+#DIMS DYNAMIC sPadStart ; 줄 왼쪽 끝
+#DIMS DYNAMIC sPadEnd ; 줄 오른쪽 끝
+
+#DIM DYNAMIC iTmp
+
+FOR iTmp, 줄수 - 1, -1, -1
+	CALL 총력전_UI_텍스트_단선(iTmp + 건너뛰기, 너비, sPadStart, sPadEnd)
+	HTML_PRINT RESULTS
+NEXT
+
+; REPEAT 줄수
+; 	CALL 총력전_UI_텍스트_단선(COUNT + 건너뛰기, 너비, sPadStart, sPadEnd)
+; 	HTML_PRINT RESULTS
+; REND
+
+; 텍스트 한줄
+@총력전_UI_텍스트_단선(줄번호, 너비, sPadStart = "| | ", sPadEnd = " | |")
+#DIM 줄번호 ; 총력전_텍스트:총력전_텍스트_표시행 + 줄번호
+#DIM 너비 ; sPad 를 뺀 너비
+#DIMS DYNAMIC sPadStart ; 줄 왼쪽 끝
+#DIMS DYNAMIC sPadEnd ; 줄 오른쪽 끝
+
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp
+
+iTmp = 총력전_텍스트_표시행 + 줄번호
+IF iTmp >= 총력전_텍스트_최대행수
+	총력전_텍스트_표시행 = 총력전_텍스트_최대행수 - 줄번호 - 1
+	iTmp = 총력전_텍스트_표시행 + 줄번호
+ENDIF
+; 너비 비례 정리?
+; DEBUGPRINTFORML 줄번호:{iTmp}
+sTmp = %ALIGN_TEXT(총력전_텍스트:iTmp, 너비, "LEFT")%
+RESULTS = %sPadStart%<font color='%총력전_텍스트_색상:iTmp%'>%sTmp%</font>%sPadEnd%
+
+; -1 이면 힌색으로
+@총력전_UI_텍스트_추가(텍스트, 칼라 = -1)
+#DIMS 텍스트
+#DIM DYNAMIC 칼라
+#DIMS DYNAMIC col
+
+IF 칼라 < 0
+	col = %INT_TO_HEXSTR(칼라_흰색)%
+ELSE
+	col = %INT_TO_HEXSTR(칼라)%
+ENDIF
+ARRAYSHIFT 총력전_텍스트, 1, 텍스트
+ARRAYSHIFT 총력전_텍스트_색상, 1, col
+
+@총력전_UI_텍스트_제거(제거수)
+#DIM 제거수
+
+IF 제거수 <= 0
+	RETURN
+ENDIF
+
+ARRAYREMOVE 총력전_텍스트, 0, 제거수
+CALL ARRAYREMOVE_SVAL(총력전_텍스트_색상, 0, 제거수, "#C0C0C0")
+
+; #endregion == 텍스트 ==
+
+; #region == 부품 ==
+; HTML_PRINT 그룹
+; 나누는 방법이 없던가, 아직 몰라서
+; ==================
+; 스탯 줄 프린트
+@총력전_UI_부품_스탯(인원수, 너비, 위치사용, 시작번호, 줄수, sPadStart = "| |", sPadEnd = "| |", sCellDiv = "| |")
+#DIM 인원수
+#DIM 너비 ; 셀 너비
+#DIM 위치사용
+#DIM 시작번호
+#DIM 줄수 ; 1 ~ 7
+#DIMS DYNAMIC sPadStart ; 줄 왼쪽 끝
+#DIMS DYNAMIC sPadEnd ; 줄 오른쪽 끝
+#DIMS DYNAMIC sCellDiv ; 사이 부분
+#DIM DYNAMIC 줄당스탯
+#DIMS 스탯이름_9 = "공", "방", "명", "회", "치유", "치명", "치피", "치명저", "치피저"
+#DIMS 스탯이름_3A = "명", "회", "치유"
+#DIMS 스탯이름_3B = "치유", "치명", "치피"
+#DIMS 스탯이름_4 = "치명", "치피", "치명저", "치피저"
+#DIMS 스탯이름_2A = "치명", "치피"
+#DIMS 스탯이름_2B = "치명저", "치피저"
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp, 3
+; 한줄에 몇 스탯 들어갈지 계산
+줄당스탯 = 너비 / 10
+SELECTCASE 줄수
+	CASE 1
+		SELECTCASE 줄당스탯
+			CASE IS <= 1
+				iTmp = 1
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+			CASE 2 TO 9 ; 줄당스탯 쓰고 있어서 CASEELSE 안씀
+				; iTmp = 2
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+		ENDSELECT
+	CASE 2
+		SELECTCASE 줄당스탯
+			CASE IS <= 1
+				iTmp = 1
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 방
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+			CASE 2
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp:0 = 회
+				sTmp:1 = 치명
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+			CASE 3
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp:0 = 치명
+				sTmp:1 = 치피
+				sTmp:2 = 회
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+			CASE 4
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_4, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+			CASEELSE
+				iTmp = 5
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				iTmp = 4
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_4, 0, sPadStart, sPadEnd, sCellDiv)
+		ENDSELECT
+	CASE 3
+		SELECTCASE 줄당스탯
+			CASE IS <= 1
+				iTmp = 1
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 방
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 치명
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+			CASE 2
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_4, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+			CASE 3
+				sTmp:0 = 공
+				sTmp:1 = 방
+				sTmp:2 = 치유
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp:0 = 치명
+				sTmp:1 = 치명저
+				sTmp:2 = 명
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp:0 = 치피
+				sTmp:0 = 치피저
+				sTmp:0 = 회
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+			CASEELSE
+				iTmp = 2
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				iTmp = 3
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				iTmp = 4
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_4, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+		ENDSELECT
+	CASE 4
+		SELECTCASE 줄당스탯
+			CASE IS <= 1
+				iTmp = 1
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 방
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 회
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 치명
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+			CASE 2
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_2B, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+			CASEELSE
+				iTmp = 2
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				iTmp = 3
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				iTmp = 2
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2B, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+		ENDSELECT
+	CASE 5
+		SELECTCASE 줄당스탯
+			CASE IS <= 1
+				iTmp = 1
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 방
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 회
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 치피
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+			CASEELSE
+				iTmp = 2
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				iTmp = 1
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3B, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				iTmp = 2
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2B, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+		ENDSELECT
+	CASE 6
+		SELECTCASE 줄당스탯
+			CASE IS <= 1
+				iTmp = 1
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 방
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 회
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 치피
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+			CASEELSE
+				iTmp = 2
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				iTmp = 1
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3B, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				iTmp = 2
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				iTmp = 1
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2B, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 치피저
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+		ENDSELECT
+	CASE 7
+		SELECTCASE 줄당스탯
+			CASE IS <= 1
+				iTmp = 1
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 방
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 회
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3B, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 치피
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+			CASEELSE
+				iTmp = 2
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				iTmp = 1
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3B, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 치피
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2B, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 치피저
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+		ENDSELECT
+	CASE 8
+		SELECTCASE 줄당스탯
+			CASE IS <= 1
+				iTmp = 1
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 방
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 회
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3B, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 치피
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2B, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+			CASEELSE
+				iTmp = 2
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				iTmp = 1
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 회
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3B, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 치피
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2B, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+				sTmp = 치피저
+				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+				HTML_PRINT RESULTS
+		ENDSELECT
+	CASE 9
+		iTmp = 1
+		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
+		HTML_PRINT RESULTS
+		sTmp = 방
+		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+		HTML_PRINT RESULTS
+		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
+		HTML_PRINT RESULTS
+		sTmp = 회
+		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+		HTML_PRINT RESULTS
+		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3B, 0, sPadStart, sPadEnd, sCellDiv)
+		HTML_PRINT RESULTS
+		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
+		HTML_PRINT RESULTS
+		sTmp = 치피
+		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+		HTML_PRINT RESULTS
+		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2B, 0, sPadStart, sPadEnd, sCellDiv)
+		HTML_PRINT RESULTS
+		sTmp = 치피저
+		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
+		HTML_PRINT RESULTS
+ENDSELECT
+
+; @총력전_UI_부품_이미지_0(인원수, 너비, sHtml_blank, sHtml_break, 위치사용, 시작번호, iSize)
+
+
+; 이미지, 비율로
+; @총력전_UI_부품_이미지_1(인원수, 너비, sHtml_blank, sHtml_break, 위치사용, 시작번호, iSize)
+; #DIM 인원수
+; #DIM 너비 ; 셀 너비
+; #DIMS sHtml_blank ; 미리 세팅해놓고 받기
+; #DIMS sHtml_break
+; #DIM DYNAMIC 위치사용
+; #DIM DYNAMIC 시작번호
+; #DIM DYNAMIC iSize ; 라인 수, 4 ~ 
+; get char image
+; calc width in pixel
+; calc height and position based on zoom
+; CALL 총력전_UI_이미지()
+
+
+; 오른쪽으로 정렬, 이미지 후로 글자 필요 없게
+@총력전_UI_부품_캐릭터정보_0(캐릭터, sPadStart = "| | ", sPadEnd = "| |  ", sDiv = " | | ", sBreak = " |=| ")
+#DIM 캐릭터
+; #DIM 줄수 ; 5?
+#DIMS DYNAMIC sPadStart ; 줄 왼쪽 끝
+#DIMS DYNAMIC sPadEnd ; 줄 오른쪽 끝
+#DIMS DYNAMIC sDiv ; 사이 부분
+#DIMS DYNAMIC sBreak ; 이미지 주변용
+
+#DIM 너비이미지 = 14
+#DIM 너비스탯 = 38
+#DIM 너비스킬
+#DIMS DYNAMIC sHtml, 7
+; #DIM DYNAMIC iPicWidth = 8
+#DIM DYNAMIC iTmp, 2
+#DIMS DYNAMIC sTmp, 8
+
+iTmp = STRLENS(sDiv) * 2
+너비스킬 = 117 - 너비이미지 - 너비스탯 - iTmp 
+
+FOR iTmp, 0, 7
+	; /nobr 은 아직 필요 없는듯?
+	sHtml:iTmp = <p align='right'><nobr>
+NEXT
+
+; 이미지
+sHtml:0 += @"%sPadStart%%TOSTR_SPACE(너비이미지)%%sDiv%"
+sHtml:1 += @"%sBreak%%TOSTR_SPACE(너비이미지)%%sBreak%"
+; sHtml:2 += @"%sPadStart%%TOSTR_SPACE(너비이미지)%%sDiv%"
+sHtml:3 += @"%sBreak%%TOSTR_SPACE(너비이미지)%%sBreak%"
+; sHtml:4 += @"%sPadStart%%TOSTR_SPACE(너비이미지)%%sDiv%"
+sHtml:5 += @"%sBreak%%TOSTR_SPACE(너비이미지)%%sBreak%"
+sHtml:6 += @"%sPadStart%%TOSTR_SPACE(너비이미지)%%sDiv%"
+IF 캐릭터 >= 0
+	sTmp = %총력전_이미지:캐릭터%
+	IF STRLENS(sTmp) == 0
+		IF 총력전_상태:캐릭터 == 총력전_상태_소환 || 총력전_상태:캐릭터 == 총력전_상태_소한_비공격
+			sTmp = %GET_IMAGE_NAME(-1)%
+		ELSE
+			sTmp = %GET_IMAGE_NAME(총력전_ID:캐릭터)%
+		ENDIF
+	ENDIF
+	iTmp = STRLENS(sDiv)
+	CALL 총력전_UI_이미지(sTmp, 너비이미지 * 50, 680, -190)
+	sHtml:2 += @"%RESULTS%%TOSTR_SPACE(iTmp)%"
+	; 이미지 사이즈가 맞으면 프레임 포함
+	IF SPRITEWIDTH(sTmp) == 200 && SPRITEHEIGHT(sTmp) == 240 && FLAG:화상범위표시
+		sTmp = 프레임_{FLAG:화상범위표시}_통상
+		CALL 총력전_UI_이미지(sTmp, 너비이미지 * 50, 680, -390)
+		sHtml:4 += @"%RESULTS%%TOSTR_SPACE(iTmp)%"
+	ENDIF
+ENDIF
+
+; 스탯
+IF 캐릭터 >= 0
+	; 이름
+	CALL 총력전_UI_버튼(총력전_이름:캐릭터, 너비스탯 - 1, -1, -2, 14, "LEFT")
+	sHtml:0 += @"%RESULTS%"
+
+	; 체력
+	sTmp = {총력전_최대체력:캐릭터}
+	iTmp = STRLENS(sTmp)
+	; iTmp/iTmp(iTmp[+/-]1~5?)
+	sHtml:1 += @"HP:%ALIGN_TEXT(총력전_체력:캐릭터, iTmp, "RIGHT")%"
+	iTmp:1 = iTmp * 2 + 1
+	IF iTmp:1 <= 너비스탯
+		iTmp = 너비스탯 - iTmp - 5
+		CALL 총력전_UI_스탯_0(캐릭터, iTmp, "최대체력")
+		sHtml:1 += @"/%RESULTS%"
+	ENDIF
+
+	; 공방
+	iTmp = (너비스탯 - 1) / 2
+	iTmp:1 = 너비스탯 - iTmp * 2
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 4, "공")
+	sHtml:2 += @"공:%RESULTS%"
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 3, "방")
+	sHtml:2 += @"방:%RESULTS%%TOSTR_SPACE(iTmp:1)%"
+	; 명회
+	; iTmp = (너비스탯 - 1) / 2
+	; iTmp:1 = 너비스탯 - iTmp * 2
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 4, "명")
+	sHtml:3 += @"명:%RESULTS%"
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 3, "회")
+	sHtml:3 += @"회:%RESULTS%%TOSTR_SPACE(iTmp:1)%"
+	; 치유
+	iTmp = 너비스탯
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 6, "치유")
+	sHtml:4 += @"치유:%RESULTS%"
+	; 치명 치저
+	iTmp = (너비스탯 - 1) / 2
+	; iTmp:1 = 너비스탯 - iTmp * 2
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 6, "치명")
+	sHtml:5 += @"치명:%RESULTS%"
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 9, "치명저항")
+	sHtml:5 += @"치명저항:%RESULTS%%TOSTR_SPACE(iTmp:1)%"
+	; 치피 치피저
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 6, "치피")
+	sHtml:6 += @"치피:%RESULTS%"
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 9, "치피저항")
+	sHtml:6 += @"치피저항:%RESULTS%%TOSTR_SPACE(iTmp:1)%"
+ELSE
+	FOR iTmp, 0, 7
+		sHtml:iTmp += @"%TOSTR_SPACE(너비스탯)%"
+	NEXT
+ENDIF
+
+FOR iTmp, 0, 7
+	sHtml:iTmp += @"%sDiv%"
+NEXT
+
+; 스킬 이름 + 설명
+IF STRLENS(총력전_스킬_이름:캐릭터) > 0
+	sTmp = %총력전_스킬_이름:캐릭터%
+ELSE
+	sTmp = 스킬이름
+ENDIF
+CALL 총력전_UI_버튼(sTmp, 너비스킬, -1, 캐릭터 + 총력전_캐릭터수)
+sHtml:0 += @"%RESULTS%"
+; 스킬 설명 RESULTS 에
+VARSET RESULTS, ""
+TRYCALLFORM 총력전_스킬_{총력전_스킬_번호:캐릭터}_설명(캐릭터)
+; RESULTS word wrap
+; 임시로 페이지 넘기지 않는 버전
+sTmp = %RESULTS%%TOSTR_SPACE(1)%
+FOR iTmp, 1, 7
+	; sTmp = %RESULTS:(iTmp - 1)%
+	IF STRLENS(sTmp) > 0
+		sTmp:1 = %SUBSTRING(sTmp, 0, 너비스킬)%
+		; 마지막 공백 찾기
+		iTmp:1 = STR_FINDBLANK_REVERSE(sTmp:1)
+		sTmp:1 = %STR_CLEAR_LEFT(SUBSTRING(sTmp, 0, iTmp:1))%
+		sTmp = %SUBSTRING(sTmp, iTmp:1, -1)%%TOSTR_SPACE(1)%
+		sHtml:iTmp += @"%ALIGN_TEXT(sTmp:1, 너비스킬, "LEFT")%"
+		; sHtml:iTmp += @"%ALIGN_TEXT(sTmp, 너비스킬, "LEFT")%"
+	ELSE
+		sHtml:iTmp += @"%TOSTR_SPACE(너비스킬)%"
+	ENDIF
+NEXT
+
+FOR iTmp, 0, 7
+	sHtml:iTmp += @"%sPadEnd%"
+NEXT
+
+FOR iTmp, 0, 7
+	HTML_PRINT sHtml:iTmp
+NEXT
+
+; #endregion == 부품 ==
+
+
+; #region == 줄 ==
+; FOR LOOP 축소화
+; 한 줄 만들기
+; ==================
+@총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, 함수이름, iExtra, sExtra, bBtn = 총력전_선택_캐릭터, sPadStart = "| |", sPadEnd = "| |", sCellDiv = "| |")
+#DIM 인원수
+#DIM 너비 ; 셀 너비
+#DIM 위치사용
+#DIM 시작번호
+#DIMS 함수이름
+#DIM REF iExtra, 0 ; 추가 ARG
+#DIMS REF sExtra, 0 ; 추가 ARG
+#DIM bBtn ; 버튼 작동 여부, 총력전_선택_ 참조
+#DIMS DYNAMIC sPadStart ; 줄 왼쪽 끝
+#DIMS DYNAMIC sPadEnd ; 줄 오른쪽 끝
+#DIMS DYNAMIC sCellDiv ; 사이 부분
+
+#DIMS DYNAMIC sHtml
+#DIM DYNAMIC 캐릭터 ; 총력전 번호
+#DIM DYNAMIC iTmp, 2
+
+; 함수이름 수정
+함수이름 = 총력전_UI_줄_%함수이름%
+; DEBUGPRINTFORML 함수이름:%함수이름%
+
+FOR iTmp, 0, 인원수
+	캐릭터 = 총력전_UI_캐릭터번호(위치사용, iTmp + 시작번호)
+	SIF iTmp == 0
+		sHtml += @"%sPadStart%"
+	TRYCCALLFORM %함수이름%(캐릭터, 너비, iExtra, sExtra, bBtn)
+		sHtml += @"%RESULTS%"
+	CATCH
+		; sHtml += @"%sCellStart%%TOSTR_SPACE(너비)%%sCellEnd%"
+		sHtml += @"%TOSTR_SPACE(너비)%"
+	ENDCATCH
+	IF iTmp == 인원수 - 1
+		sHtml += @"%sPadEnd%"
+	ELSE
+		sHtml += @"%sCellDiv%"
+	ENDIF
+NEXT
+RESULTS = %sHtml%
+RETURN
+
+; sExtra:0 으로 장식
+@총력전_UI_줄_장식_0(캐릭터, 너비, iExtra, sExtra, bBtn)
+#DIM DYNAMIC 캐릭터 ; 총력전 번호
+#DIM 너비 ; 셀 너비
+#DIM REF iExtra, 0 ; 추가 ARG
+#DIMS REF sExtra, 0 ; sExtra:0 장식에 쓰일것
+#DIM bBtn ; 사용 안해도 추가
+
+RESULTS = %sCellStart%%TOSTR_REPEAT(sExtra, 너비)%%sCellEnd%
+RETURN
+
+; 캐릭터 있으면 장식 변경
+@총력전_UI_줄_장식_1(캐릭터, 너비, iExtra, sExtra, bBtn)
+#DIM DYNAMIC 캐릭터 ; 총력전 번호
+#DIM 너비 ; 셀 너비
+#DIM REF iExtra, 0 ; 추가 ARG
+#DIMS REF sExtra, 0 ; sExtra:0 장식에 쓰일것
+#DIM bBtn ; 사용 안해도 추가
+
+#DIM iTmp, 2
+#DIMS sTmp
+IF 총력전_캐릭터상태(캐릭터)
+	iTmp = 너비 / 4
+	iTmp:1 = 너비 - iTmp * 2
+	sTmp = %TOSTR_REPEAT(sExtra, iTmp)%%TOSTR_SPACE(iTmp:1)%%TOSTR_REPEAT(sExtra, iTmp)%
+	RESULTS = %sTmp%
+ELSE
+	RESULTS = %TOSTR_REPEAT(sExtra, 너비)%
+ENDIF
+RETURN
+
+@총력전_UI_줄_이름_0(캐릭터, 너비, iExtra, sExtra, bBtn)
+#DIM 캐릭터 ; 총력전 번호
+#DIM 너비 ; 셀 너비
+#DIM REF iExtra, 0 ; 추가 ARG
+#DIMS REF sExtra, 0 ; 추가 ARG
+#DIM bBtn ; 사용 안해도 추가
+
+bBtn = 총력전_UI_버튼여부(캐릭터, bBtn)
+; DEBUGPRINTFORML 캐릭터:{캐릭터} 버튼:{bBtn} 위치:{총력전_위치:캐릭터} 상태:{총력전_상태:캐릭터}
+CALL 총력전_UI_캐릭터이름_0(캐릭터, 너비, bBtn)
+RESULTS = %RESULTS%
+RETURN
+
+; 접두사 있으면 추가
+@총력전_UI_줄_이름_1(캐릭터, 너비, iExtra, sExtra, bBtn)
+#DIM 캐릭터 ; 총력전 번호
+#DIM 너비 ; 셀 너비
+#DIM REF iExtra, 0 ; 추가 ARG
+#DIMS REF sExtra, 0 ; 추가 ARG
+#DIM bBtn ; 사용 안해도 추가
+
+#DIM DYNAMIC iTmp
+
+bBtn = 총력전_UI_버튼여부(캐릭터, bBtn)
+IF STRLENS(총력전_접두사_이름:캐릭터) > 0
+	iTmp = 1
+	너비 -= STRLENS(총력전_접두사_이름:캐릭터) + iTmp
+ENDIF
+CALL 총력전_UI_캐릭터이름_0(캐릭터, 너비, bBtn)
+RESULTS = %TOSTR_SPACE(iTmp)%%총력전_접두사_이름:캐릭터%%RESULTS%
+RETURN
+
+; 겸 스킬
+@총력전_UI_줄_무기_0(캐릭터, 너비, iExtra, sExtra, bBtn)
+#DIM 캐릭터 ; 총력전 번호
+#DIM 너비 ; 셀 너비
+#DIM REF iExtra, 0 ; 추가 ARG
+#DIMS REF sExtra, 0 ; 추가 ARG
+#DIM bBtn ; 사용 안해도 추가
+
+#DIMS 무기이름
+#DIMS 시전번호
+#DIMS 스킬코스트
+#DIM DYNAMIC iTmp, 3
+#DIMS DYNAMIC sTmp, 2
+
+iTmp = 총력전_ID:캐릭터
+IF iTmp >= 0
+	무기이름 = %WEAPON_NAME(TALENT:iTmp:웨폰)%
+	bBtn = 총력전_UI_버튼여부(캐릭터, bBtn)
+	iTmp = 캐릭터 + 총력전_캐릭터수
+	CALL 총력전_UI_버튼(무기이름, 너비 - iTmp:2, bBtn, iTmp)
+	RESULTS = %시전번호%%RESULTS%
+ELSE
+	RESULTS = %TOSTR_SPACE(너비)%
+ENDIF
+
+; 시전중 + 코스트 추가
+@총력전_UI_줄_무기_1(캐릭터, 너비, iExtra, sExtra, bBtn)
+#DIM 캐릭터 ; 총력전 번호
+#DIM 너비 ; 셀 너비
+#DIM REF iExtra, 0 ; 추가 ARG
+#DIMS REF sExtra, 0 ; 추가 ARG
+#DIM bBtn ; 사용 안해도 추가
+
+#DIMS 무기이름
+#DIMS 시전번호
+#DIMS postfix
+#DIM DYNAMIC iTmp, 3
+#DIMS DYNAMIC sTmp, 2
+
+iTmp = 총력전_ID:캐릭터
+IF iTmp >= 0 && (총력전_상태:캐릭터 == 총력전_상태_보통 || 총력전_상태:캐릭터 == 총력전_상태_행동불능)
+	무기이름 = %WEAPON_NAME(TALENT:iTmp:웨폰)%
+	; 시전번호/쿨다운
+	iTmp:1 = FINDELEMENT(총력전_스킬_시전, 캐릭터)
+	IF 총력전_스킬_쿨다운:캐릭터 > 0
+		무기이름 = 쿨{총력전_스킬_쿨다운:캐릭터}:%무기이름%
+	ELSEIF iTmp:1 >= 0
+		무기이름 = {iTmp:1}:%무기이름%
+	ENDIF
+	; 스킬 코스트 추가
+	postfix = :{총력전_스킬_코스트:캐릭터}
+	iTmp:1 = STRLENS(postfix)
+	무기이름 = %ALIGN_TEXT(무기이름, 너비 - iTmp:1 - 2, "RIGHT")%%postfix%
+	; 왼쪽 스페이스 제거
+	무기이름 = %STR_CLEAR_LEFT(무기이름)%
+	; 버튼 세팅
+	bBtn = 총력전_UI_버튼여부(캐릭터, bBtn)
+	SIF 총력전_스킬_쿨다운:캐릭터 > 0 && bBtn > 0
+		bBtn = 0
+	iTmp = 캐릭터 + 총력전_캐릭터수
+	CALL 총력전_UI_버튼(무기이름, 너비, bBtn, iTmp)
+	RESULTS = %시전번호%%RESULTS%
+ELSE
+	RESULTS = %TOSTR_SPACE(너비)%
+ENDIF
+
+; 보호막, 지금은 지속만 가능
+@총력전_UI_줄_보호막_0(캐릭터, 너비, iExtra, sExtra, bBtn)
+#DIM 캐릭터 ; 총력전 번호
+#DIM 너비 ; 셀 너비
+#DIM REF iExtra, 0 ; 추가 ARG
+#DIMS REF sExtra, 0 ; 추가 ARG
+#DIM bBtn ; 사용 안해도 추가
+
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp
+
+iTmp = 총력전_상태효과_합계(캐릭터, 상효_종류_보호막, 총력전_방식_지속)
+; 캐릭터가 없을시 + 실드가 없을시 스킵
+IF 캐릭터 < 0 || 총력전_상태:캐릭터 == 0 || iTmp <= 0
+	RESULTS = %TOSTR_SPACE(너비)%
+ELSE
+	; 임시
+	sTmp = 방:{iTmp}
+	RESULTS = <font color='%INT_TO_HEXSTR(칼라_파파랑)%'>%ALIGN_TEXT(sTmp, 너비, "CENTER")%</font>
+ENDIF
+
+@총력전_UI_줄_엄폐물_0(캐릭터, 너비, iExtra, sExtra, bBtn)
+#DIM 캐릭터 ; 총력전 번호
+#DIM 너비 ; 셀 너비
+#DIM REF iExtra, 0 ; 추가 ARG
+#DIMS REF sExtra, 0 ; 추가 ARG
+#DIM bBtn ; 사용 안해도 추가
+
+#DIM DYNAMIC 엄폐물번호
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp
+
+; 캐릭터 위치 -> 위치에 있는 엄폐물 확인
+iTmp = 총력전_위치:캐릭터
+엄폐물번호 = FINDELEMENT(총력전_엄폐물_위치, iTmp)
+; 엄폐물 있는지 확인
+IF 엄폐물번호 < 0 || 총력전_엄폐물_소비방식:엄폐물번호:0 <= 0
+	RESULTS = %TOSTR_SPACE(너비)%
+; IF 총력전_엄폐물_소비방식:엄폐물번호:0 > 0
+ELSE
+	IF 총력전_엄폐물_소비방식:엄폐물번호:0 == 총력전_방식_피격양
+		sTmp = HP
+	ELSE
+		sTmp = %총력전_방식_ENUM(총력전_엄폐물_소비방식:엄폐물번호:0)%
+	ENDIF
+	sTmp += @":{총력전_엄폐물_소비양:엄폐물번호:0}"
+	IF 너비 < 9
+		; sTmp = %sTmp%
+	ELSEIF 너비 < 15
+		sTmp = 엄:%sTmp%
+	ELSE
+		sTmp = 엄폐물:%sTmp%
+	ENDIF
+	RESULTS = %ALIGN_TEXT(sTmp, 너비, "CENTER")%
+ENDIF
+; 너비 확인
+; 엄폐물:%소비방식%:{소비양}
+
+; 캐릭터 체력
+@총력전_UI_줄_체력_0(캐릭터, 너비, iExtra, sExtra, bBtn)
+#DIM 캐릭터 ; 총력전 번호
+#DIM 너비 ; 셀 너비
+#DIM REF iExtra, 0 ; 추가 ARG
+#DIMS REF sExtra, 0 ; 추가 ARG
+#DIM bBtn ; 사용 안해도 추가
+
+; 캐릭터가 없을시 스킵
+IF 캐릭터 < 0 || 총력전_상태:캐릭터 == 0
+	RESULTS = %TOSTR_SPACE(너비)%
+ELSE
+	CALL 총력전_UI_캐릭터체력(캐릭터, 너비)
+	RESULTS = %RESULTS%
+ENDIF
+
+; 캐릭터 최대체력
+@총력전_UI_줄_최대체력_0(캐릭터, 너비, iExtra, sExtra, bBtn)
+#DIM 캐릭터 ; 총력전 번호
+#DIM 너비 ; 셀 너비
+#DIM REF iExtra, 0 ; 추가 ARG
+#DIMS REF sExtra, 0 ; 추가 ARG
+#DIM bBtn ; 사용 안해도 추가
+
+; 캐릭터가 없을시 스킵
+IF 캐릭터 < 0 || 총력전_상태:캐릭터 == 0
+	RESULTS = %TOSTR_SPACE(너비)%
+	RETURN
+ELSE
+	CALL 총력전_UI_캐릭터최대체력(캐릭터, 너비)
+	RESULTS = %RESULTS%
+	RETURN
+ENDIF
+
+; 캐릭터 스탯 표시
+; iExtra:0 스탯 갯수, sExtra = 스탯 이름
+; VARSIZE(sExtra) 쓰기에 는 sTmp 로 할때가 많아서 
+@총력전_UI_줄_스탯_0(캐릭터, 너비, iExtra, sExtra, bBtn)
+#DIM 캐릭터 ; 총력전 번호
+#DIM 너비 ; 셀 너비
+#DIM REF iExtra, 0 ; 추가 ARG
+#DIMS REF sExtra, 0 ; 추가 ARG
+#DIM bBtn ; 사용 안해도 추가
+
+#DIM DYNAMIC iTmp, 4
+#DIMS DYNAMIC sTmp, 3 ; 필요하면 증가
+
+; 캐릭터가 없을시 스킵
+IF 캐릭터 < 0 || 총력전_상태:캐릭터 == 0
+	RESULTS = %TOSTR_SPACE(너비)%
+ELSE
+	iTmp:1 = 너비 / iExtra
+	FOR iTmp, 0, iExtra
+		iTmp:2 = GETVAR_RAIDSTAT(캐릭터, sExtra:iTmp) + GETVAR_RAIDSTAT_EFFECT(캐릭터, sExtra:iTmp)
+		iTmp:3 = GETVAR_RAIDSTAT_INIT(캐릭터, sExtra:iTmp)
+		sTmp:1 = {iTmp:2}
+		sTmp:2 = %sExtra:iTmp%:
+		sTmp += @"%sExtra:iTmp%:"
+		IF iTmp:2 > iTmp:3
+			sTmp += @"<font color='%INT_TO_HEXSTR(칼라_파파랑)%'>%ALIGN_TEXT(sTmp:1, iTmp:1 - STRLENS(sTmp:2), "LEFT")%</font>"
+		ELSEIF iTmp:2 < iTmp:3
+			sTmp += @"<font color='%INT_TO_HEXSTR(칼라_빨강)%'>%ALIGN_TEXT(sTmp:1, iTmp:1 - STRLENS(sTmp:2), "LEFT")%</font>"
+		ELSE
+			sTmp += @"%ALIGN_TEXT(sTmp:1, iTmp:1 - STRLENS(sTmp:2), "LEFT")%"
+		ENDIF
+	NEXT
+	iTmp:2 = 너비 - iTmp:1 * iExtra
+	RESULTS = %sTmp%%TOSTR_SPACE(iTmp:2)%
+ENDIF
+
+; #endregion == 줄 ==
+
+; #region == Utility ==
+; 여기나 보스.ERB 에서 쓰의는 함수
+; =====================
+
+@총력전_UI_캐릭터번호(위치사용, 번호)
+#FUNCTION
+#DIM 위치사용
+#DIM 번호
+
+IF 위치사용
+	RETURNF FINDELEMENT(총력전_위치, 번호)
+ELSE
+	RETURNF 번호
+ENDIF
+
+@총력전_UI_버튼여부(캐릭터, bBtn)
+#FUNCTION
+#DIM 캐릭터 ; 총력전 번호
+#DIM DYNAMIC bBtn ; 버튼 작동 여부, 총력전_선택_ 참조
+#DIM DYNAMIC iTmp, 2
+
+iTmp = 총력전_캐릭터상태(캐릭터)
+IF bBtn == 2
+	RETURNF 1
+ELSEIF bBtn == 총력전_선택_캐릭터
+	IF iTmp == 총력전_상태_보통 || iTmp == 총력전_상태_보스 || iTmp == 총력전_상태_소환	|| iTmp == 총력전_상태_소한_비공격
+		RETURNF 1
+	ELSE
+		RETURNF 0
+	ENDIF
+ELSEIF bBtn == 총력전_선택_빈공간
+	IF iTmp == 0 ; || iTmp == 총력전_상태_행동불능 || iTmp == 총력전_상태_보스_행동불능		
+		RETURNF 1
+	ELSE
+		RETURNF 0
+	ENDIF
+ELSEIF bBtn == 총력전_선택_전체_엄폐물 || bBtn == 총력전_선택_아군지역_엄폐물 || bBtn == 총력전_선택_적군지역_엄폐물
+	; 위치에 엄폐물 상태 확인
+	; 없으면 RETURNF 1
+	; iTmp:1 엄폐물 번호
+	iTmp:1 = FINDELEMENT(총력전_엄폐물_위치, 총력전_위치:캐릭터)
+	IF iTmp:1 < 0
+		; 엄폐물 이동 하기 시작하면 오류 날거 디버그용
+		[IF_DEBUG]
+		DEBUGPRINTFORML *** 엄폐물 위치 오류 ***
+		FOR LOCAL, 0, 총력전_캐릭터수
+			DEBUGPRINTFORML 엄폐물({LOCAL}) 위치({총력전_엄폐물_위치:LOCAL})
+		NEXT
+		CALLF ERROR(@"위치{총력전_위치:캐릭터} 에 엄폐물 없음")
+		[ENDIF]
+		RETURNF 1
+	ELSEIF 총력전_엄폐물_소비방식:(iTmp:1):0 > 0
+		RETURNF 0
+	ELSE
+		RETURNF 1
+	ENDIF
+ELSE
+	RETURNF bBtn
+ENDIF
+
+; ----- 이름 -----
+@총력전_UI_캐릭터이름_0(캐릭터, 너비, bBtn = 0, btnVal = -1, align = "CENTER")
+#DIM 캐릭터 ; 총력전 번호, -1 = 공백
+#DIM 너비 ; 전체 너비
+#DIM DYNAMIC bBtn ; 버튼 으로 만들지
+#DIM DYNAMIC btnVal ; 버튼 값, -1 이면 캐릭터 값
+#DIMS DYNAMIC align
+
+; [히죽히죽교수] == 14, 설마 모르니까 +2
+#DIM DYNAMIC minWidth = 16 ; 최소 이름 너비, [] 포함
+#DIMS DYNAMIC sTmp
+#DIM DYNAMIC iTmp
+
+IF 캐릭터 < 0
+	sTmp = 
+ELSE
+	sTmp = %총력전_이름:캐릭터%
+ENDIF
+
+SIF btnVal == -1
+	btnVal = 캐릭터
+CALL 총력전_UI_버튼(sTmp, 너비, bBtn, btnVal, minWidth, align)
+; 필요한가?
+; RESULTS = %RESULTS%
+
+; 버튼을 너비 align 방향으로
+@총력전_UI_버튼(텍스트, 너비, bBtn, btnVal, minWidth = 16, align = "CENTER")
+#DIMS 텍스트 ; 버튼 이름
+#DIM 너비 ; 전체 너비
+#DIM btnVal ; 버튼 값
+#DIM DYNAMIC bBtn ; 버튼 으로 만들지, 0 = 칼라_선택불가, -1 = 칼라 없음
+#DIM DYNAMIC minWidth ; 최소 너비, [] 포함
+#DIMS DYNAMIC align ; 버튼 정렬
+
+#DIM DYNAMIC spaceSide ;= 0 ; 이름 옆 너비
+#DIM DYNAMIC iTmp
+
+; 너비 계산
+iTmp = STRLENS(텍스트) + 2
+SIF iTmp > minWidth
+	minWidth = iTmp
+SIF 너비 < minWidth
+	minWidth = 너비
+IF 너비 > minWidth
+	IF align == "CENTER" || align == "C" || align == "center" || align == "중"
+		spaceSide = (너비 - minWidth) / 2
+		; rounding 이 이상 하게 될거를 대비해서
+		minWidth = 너비 - (spaceSide*2)
+	ELSE
+		spaceSide = 너비 - minWidth
+	ENDIF
+ENDIF
+
+; [] 맞춰 -2
+minWidth -= 2
+
+텍스트 = [%ALIGN_TEXT(텍스트, minWidth, "CENTER")%]
+; 텍스트 = [%ALIGN_TEXT(텍스트, minWidth, align)%]
+
+IF bBtn > 0
+	텍스트 = <button value='{btnVal}'>%텍스트%</button>
+ELSEIF bBtn == 0
+	텍스트 = <font color='%INT_TO_HEXSTR(칼라_선택불가)%'>%텍스트%</font>
+ENDIF
+
+SELECTCASE align
+	CASE "RIGHT", "R", "right", "우"
+		RESULTS = %TOSTR_SPACE(spaceSide)%%텍스트%
+	CASE "CENTER", "C", "center", "중"
+		RESULTS = %TOSTR_SPACE(spaceSide)%%텍스트%%TOSTR_SPACE(spaceSide)%
+	CASEELSE
+		RESULTS = %텍스트%%TOSTR_SPACE(spaceSide)%
+ENDSELECT
+
+; --- END 이름 ---
+
+; ----- 캐릭터 이미지 -----
+; 총력전 전용 이미지
+; RESULTS = HTML
+; RETURN
+; 
+; 총력전 파티 번호, cell 전체 너비, 높이, yOffset
+; 을 주면, 최대한 중앙으로 맟춤
+; <div margin:'0 center'><img> 같은
+; image_t 정리 할때 이동
+@총력전_UI_이미지(sImage, iSize, iHeight, iPos)
+#DIMS sImage ; 이미지 이름
+#DIM iSize ; 전체 너비
+#DIM iHeight ; 총력전 번호
+#DIM iPos ; y offset
+
+#DIM DYNAMIC iTmp
+#DIM DYNAMIC iPad ; 옆 공간
+#DIMS DYNAMIC sHtml
+
+IF !SPRITECREATED(sImage)
+	DEBUGPRINTFORML WARNING@총력전_UI_이미지: "%sImage%" 는 없는 이미지입니다
+	RESULTS = <shape type='space' param='{iSize}'>
+	RETURN
+ENDIF
+
+; 옆 공간 계산
+; iSize - 500(image width) / 2
+; DEBUGPRINTFORML image = %sImage%
+; DEBUGPRINTFORML height:width = {SPRITEHEIGHT(sImage)}:{SPRITEWIDTH(sImage)}
+iTmp = DIVIDE_ROUND(SPRITEWIDTH(sImage) * iHeight, MAX(SPRITEHEIGHT(sImage), 1))
+iPad = (iSize - iTmp) / 2
+; DEBUGPRINTFORML padding = {iPad}
+IF iPad < 0
+	iPad = 0
+	; 너비를 iSize 로, iHeight, iPos 재 계산
+	iTmp = DIVIDE_ROUND(SPRITEHEIGHT(sImage) * iSize, SPRITEWIDTH(sImage))
+	; DEBUGPRINTFORML {iPos} + ({iHeight} - {iTmp}) / 2
+	iPos = iPos + (iHeight - iTmp) / 2
+	; DEBUGPRINTFORML = {iPos}
+	iHeight = iTmp
+ENDIF
+
+; 이미지 틀어져서 추가 수정
+sHtml = <shape type='space' param='{iPad}'>
+sHtml += @"<img src='%sImage%' height='{iHeight}' ypos='{iPos}'>"
+sHtml += @"<shape type='space' param='{iPad + 4}'>"
+
+RESULTS = %sHtml%
+; --- END 캐릭터 이미지 ---
+
+; ----- 캐릭터 체력 -----
+; 기본 체력 display
+; 체력양 적으면 텍스트, 이상이면 바
+@총력전_UI_캐릭터체력(캐릭터, 너비)
+#DIM 캐릭터 ; 총력전 번호
+#DIM 너비
+
+#DIMS DYNAMIC sTmp
+#DIM DYNAMIC iTmp
+
+IF 총력전_체력:캐릭터 >= 1000
+	iTmp = GETVAR_RAIDSTAT_SUM(캐릭터, "최대체력")
+	; BARSTR 가 너무 길면 오류남
+	IF 너비 > 85
+		; iTmp:1 = MIN(너비 - 5, 80)
+		sTmp = HP:%BARSTR(총력전_체력:캐릭터, iTmp, 80)%
+		sTmp = %ALIGN_TEXT(sTmp, 너비, "CENTER")%
+	ELSEIF 너비 > 8
+		sTmp = HP:%BARSTR(총력전_체력:캐릭터, iTmp, 너비 - 5)%
+	ELSE
+		sTmp = %BARSTR(총력전_체력:캐릭터, iTmp, 너비 - 2)%
+	ENDIF
+ELSE
+	IF 너비 > 6
+		sTmp = HP:{총력전_체력:캐릭터}
+		sTmp = %ALIGN_TEXT(sTmp, 너비, "CENTER")%
+	ELSE
+		sTmp = {총력전_체력:캐릭터}
+		sTmp = %ALIGN_TEXT(sTmp, 너비, "CENTER")%
+	ENDIF
+ENDIF
+
+RESULTS = %sTmp%
+
+; 파티 선택용 최대 체력
+@총력전_UI_캐릭터최대체력(캐릭터, 너비)
+#DIM 캐릭터 ; 총력전 번호
+#DIM 너비
+
+#DIMS DYNAMIC sTmp
+
+IF 너비 > 6
+	sTmp = HP:{총력전_최대체력:캐릭터}
+	sTmp = %ALIGN_TEXT(sTmp, 너비, "CENTER")%
+ELSE
+	sTmp = {총력전_최대체력:캐릭터}
+	sTmp = %ALIGN_TEXT(sTmp, 너비, "CENTER")%
+ENDIF
+
+RESULTS = %sTmp%
+; ----- END 캐릭터 체력 -----
+
+; 초기 스탯 포함한 스탯, 칼라 포함
+@총력전_UI_스탯_0(캐릭터, 너비, 스탯이름)
+#DIM 캐릭터
+#DIM 너비
+#DIMS 스탯이름
+
+#DIM DYNAMIC 초기스탯값
+#DIM DYNAMIC 스탯값
+#DIMS DYNAMIC 스탯문자열
+#DIM DYNAMIC iDif
+#DIMS DYNAMIC sDif
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp
+
+; 스탯값
+초기스탯값 = GETVAR_RAIDSTAT_INIT(캐릭터, 스탯이름)
+스탯값 = GETVAR_RAIDSTAT(캐릭터, 스탯이름) + GETVAR_RAIDSTAT_EFFECT(캐릭터, 스탯이름)
+iDif = 스탯값 - 초기스탯값
+IF iDif > 0
+	sDif = +{iDif}
+	스탯문자열 = <font color='%INT_TO_HEXSTR(칼라_파파랑)%'>{스탯값}</font>
+ELSEIF iDif < 0
+	sDif = {iDif}
+	스탯문자열 = <font color='%INT_TO_HEXSTR(칼라_빨강)%'>{스탯값}</font>
+ELSE
+	sDif = 
+	스탯문자열 = {스탯값}
+ENDIF
+
+sTmp = {스탯값}({초기스탯값}%sDif%)
+IF STRLENS(sTmp) <= 너비
+	iTmp = 너비 - STRLENS(sTmp)
+	RESULTS = %스탯문자열%({초기스탯값}%sDif%)%TOSTR_SPACE(iTmp)%
+	RETURN
+ENDIF
+sTmp = {스탯값}(%sDif%)
+IF STRLENS(sTmp) <= 너비
+	iTmp = 너비 - STRLENS(sTmp)
+	RESULTS = %스탯문자열%(%sDif%)%TOSTR_SPACE(iTmp)%
+	RETURN
+ENDIF
+RESULTS = %ALIGN_TEXT(스탯문자열, 너비, "LEFT")%
+
+; #endregion == Utility ==
