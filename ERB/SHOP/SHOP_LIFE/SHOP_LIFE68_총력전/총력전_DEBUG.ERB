@@ -1,0 +1,271 @@
+﻿; ===== DEBUG =====
+; 총력전용 디버그
+; =================
+[IF_DEBUG]
+@DEBUG_총력전_RESULT
+VARSET RESULT, -1
+RESULT:0 = 2
+RESULT:1 = 4
+RESULT:2 = 6
+; DEBUGPRINTFORML test:{RESULT:0}:{RESULT:1}:{RESULT:2}:{RESULT:3}:{RESULT:4}
+; test:0:4:6:-1:-1
+; ???
+RETURN 3
+; test:3:4:6:-1:-1
+
+@DEBUG_총력전_전
+#DIM CONST wid = 40
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp, 3
+DEBUGPRINTFORML %TOSTR_REPEAT("=",wid)%
+FOR iTmp, 0, 총력전_캐릭터수
+	; 상태가 "무" 이면 스킵
+	SIF !총력전_상태:iTmp
+		CONTINUE
+	CALL DEBUG_총력전_스탯(iTmp, wid)
+	; 상태효과, 하나라도 있으면
+	IF 총력전_상효_종류:iTmp:0 != 0
+		DEBUGPRINTFORML %TOSTR_REPEAT("-",wid)%
+		CALL DEBUG_총력전_상효(iTmp)
+	ENDIF
+	DEBUGPRINTFORML %TOSTR_REPEAT("=",wid)%
+NEXT
+
+@DEBUG_총력전_스탯(캐릭터, wid = 40)
+#DIM DYNAMIC 캐릭터
+#DIM DYNAMIC wid
+
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp, 4
+
+sTmp:0 = %총력전_이름:캐릭터%
+sTmp:1 = 상태:{총력전_상태:캐릭터}
+sTmp:2 = 팀:{총력전_팀:캐릭터}
+sTmp:3 = 위치:{총력전_위치:캐릭터}
+DEBUGPRINTFORML %sTmp:0, (wid/4), LEFT%%sTmp:1, (wid/4), LEFT%%sTmp:2, (wid/4), LEFT%%sTmp:3, (wid/4), LEFT%
+sTmp:0 = 이미지:%총력전_이미지:캐릭터%
+DEBUGPRINTFORML %sTmp:0%
+DEBUGPRINTFORML %TOSTR_REPEAT("-",wid)%
+sTmp:0 = 체력:{총력전_체력:캐릭터}/{총력전_최대체력:캐릭터}({총력전_최대체력_최초:캐릭터})
+DEBUGPRINTFORML %sTmp:0%
+sTmp:0 = 공격력:{총력전_공격력:캐릭터}({총력전_공격력_최초:캐릭터})
+sTmp:1 = 방어력:{총력전_방어력:캐릭터}({총력전_방어력_최초:캐릭터})
+DEBUGPRINTFORML %sTmp:0, (wid/2), LEFT%%sTmp:1, (wid/2), LEFT%
+sTmp:0 = 명중률:{총력전_명중률:캐릭터}({총력전_명중률_최초:캐릭터})
+sTmp:1 = 회피율:{총력전_회피율:캐릭터}({총력전_회피율_최초:캐릭터})
+DEBUGPRINTFORML %sTmp:0, (wid/2), LEFT%%sTmp:1, (wid/2), LEFT%
+sTmp:0 = 치유력:{총력전_치유력:캐릭터}({총력전_치유력_최초:캐릭터})
+DEBUGPRINTFORML %sTmp:0%
+sTmp:0 = 치명타:{총력전_치명타:캐릭터}({총력전_치명타_최초:캐릭터})
+sTmp:1 = 치피:{총력전_치명타_대미지:캐릭터}({총력전_치명타_대미지_최초:캐릭터})
+DEBUGPRINTFORML %sTmp:0, (wid/2), LEFT%%sTmp:1, (wid/2), LEFT%
+sTmp:0 = 치명저항:{총력전_치명타_저항:캐릭터}({총력전_치명타_저항_최초:캐릭터})
+sTmp:1 = 치피저항:{총력전_치명타_대미지_저항:캐릭터}({총력전_치명타_대미지_저항_최초:캐릭터})
+DEBUGPRINTFORML %sTmp:0, (wid/2), LEFT%%sTmp:1, (wid/2), LEFT%
+
+@DEBUG_총력전_상효(캐릭터, standalone = 0)
+#DIM 캐릭터
+#DIM standalone
+
+#DIM CONST wid, 2 = 40, 10
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp, 7
+
+IF standalone
+	DEBUGPRINTFORML %TOSTR_REPEAT("=",wid)%
+	DEBUGPRINTFORML 이름:%총력전_이름:캐릭터%
+	DEBUGPRINTFORML %TOSTR_REPEAT("-",wid)%
+ENDIF
+
+FOR iTmp, 0, 총력전_상태효과수
+	; 종류
+	CALL DEBUG_상태효과_ENUM_STR(총력전_상효_종류:캐릭터:iTmp)
+	sTmp:0 = %RESULTS%
+	CALL DEBUG_방식_ENUM_STR(총력전_상효_효과방식_0:캐릭터:iTmp)
+	sTmp:1 = %RESULTS%
+	sTmp:2 = {총력전_상효_양:캐릭터:iTmp}
+	CALL DEBUG_방식_ENUM_STR(총력전_상효_소비방식_0:캐릭터:iTmp)
+	sTmp:3 = %RESULTS%
+	sTmp:4 = {총력전_상효_소비양_0:캐릭터:iTmp}
+	sTmp:5 = {총력전_상효_스킬번호:캐릭터:iTmp}
+	sTmp:6 = {총력전_상효_추가번호:캐릭터:iTmp}
+	DEBUGPRINTFORML %sTmp:0%(효과:%sTmp:1%:양=%sTmp:2%)(소비:%sTmp:3%=%sTmp:4%)(스킬:%sTmp:5%.%sTmp:6%)
+	IF iTmp >= 3 && 총력전_상효_종류:캐릭터:(iTmp - 3) == 0
+		BREAK
+	ENDIF
+NEXT
+SIF standalone
+	DEBUGPRINTFORML %TOSTR_REPEAT("=",wid)%
+
+@DEBUG_상태효과_ENUM_STR(상태효과종류)
+#DIM 상태효과종류
+
+; try and keep it under 5 char
+SELECTCASE 상태효과종류
+	CASE 0
+		RESULTS = 무
+		RETURN
+	CASE 상효_종류_최대체력
+		RESULTS = 최대체력
+		RETURN
+	CASE 상효_종류_공격력
+		RESULTS = 공격력
+		RETURN
+	CASE 상효_종류_공격력백분율
+		RESULTS = 공격백분율
+		RETURN
+	CASE 상효_종류_방어력
+		RESULTS = 방어력
+		RETURN
+	CASE 상효_종류_방어력백분율
+		RESULTS = 방어백분율
+		RETURN
+	CASE 상효_종류_명중률
+		RESULTS = 명중률
+		RETURN
+	CASE 상효_종류_명중률백분율
+		RESULTS = 명중백분율
+		RETURN
+	CASE 상효_종류_회피율
+		RESULTS = 회피율
+		RETURN
+	CASE 상효_종류_회피율백분율
+		RESULTS = 회피백분율
+		RETURN
+	CASE 상효_종류_치유력
+		RESULTS = 치유력
+		RETURN
+	CASE 상효_종류_치유력백분율
+		RESULTS = 치유백분율
+		RETURN
+	CASE 상효_종류_치명타
+		RESULTS = 치명타
+		RETURN
+	CASE 상효_종류_치명타대미지
+		RESULTS = 치명대미지
+		RETURN
+	CASE 상효_종류_치명타저항
+		RESULTS = 치명타저항
+		RETURN
+	CASE 상효_종류_치명타대미지저항
+		RESULTS = 치명댐저항
+		RETURN
+; ------------------------------
+	CASE 상효_종류_보호막
+		RESULTS = 보호막
+		RETURN
+	CASE 상효_종류_침묵
+		RESULTS = 스킬불가
+		RETURN
+; ------------------------------
+	CASE 상효_종류_불사
+		RESULTS = 불사
+		RETURN
+	CASE 상효_종류_보호막관통
+		RESULTS = 보호막관통
+		RETURN
+	CASE 상효_종류_피해감소
+		RESULTS = 피해감소
+		RETURN
+	CASE 상효_종류_피해감소백분율
+		RESULTS = 피감백분율
+		RETURN
+	CASE 상효_종류_치유강화
+		RESULTS = 치유강화
+		RETURN
+	CASE 상효_종류_치유량
+		RESULTS = 치유량
+		RETURN
+	CASE 상효_종류_공격속도
+		RESULTS = 공격속도
+		RETURN
+	CASE 상효_종류_효과저항
+		RESULTS = 효과저항
+		RETURN
+	CASE 상효_종류_군중제어강화
+		RESULTS = 군제어강화
+		RETURN
+	CASE 상효_종류_군중제어저항
+		RESULTS = 군제어저항
+		RETURN
+	CASE 상효_종류_군중제어회복
+		RESULTS = 군제어회복
+		RETURN
+	CASE 상효_종류_코스트감소
+		RESULTS = 코스트감소
+		RETURN
+	CASE 상효_종류_코스트회복
+		RESULTS = 코스트회복
+		RETURN
+; ------------------------------
+	CASE 상효_종류_도발
+		RESULTS = 도발
+		RETURN
+; ------------------------------
+	CASE 상효_종류_대미지
+		RESULTS = 대미지
+		RETURN
+	CASE 상효_종류_군중제어
+		RESULTS = 군중제어
+		RETURN
+	; CASE 상효_종류_기절
+		; RESULTS = 기절
+		; RETURN
+	; CASE 상효_종류_공포
+		; RESULTS = 공포
+		; RETURN
+	CASE 상효_종류_혼란
+		RESULTS = 혼란
+		RETURN
+	CASE 상효_종류_피해동기화
+		RESULTS = 피해동기화
+		RETURN
+; ------------------------------
+	CASEELSE
+		RESULTS = ERR({상태효과종류})
+		RETURN
+ENDSELECT
+
+@DEBUG_방식_ENUM_STR(방식종류)
+#DIM DYNAMIC 방식종류
+
+; try and keep it under 5 char
+SELECTCASE 방식종류
+	CASE 0
+		RESULTS = 무
+		RETURN
+	CASE 총력전_방식_지속
+		RESULTS = 지속
+		RETURN
+	CASE 총력전_방식_턴
+		RESULTS = 턴
+		RETURN
+	CASE 총력전_방식_공격
+		RESULTS = 공격
+		RETURN
+	CASE 총력전_방식_피격
+		RESULTS = 피격
+		RETURN
+	CASE 총력전_방식_피격양
+		RESULTS = 피격양
+		RETURN
+	CASE 총력전_방식_회피
+		RESULTS = 회피
+		RETURN
+	CASE 총력전_방식_스킬
+		RESULTS = 스킬
+		RETURN
+	CASE 총력전_방식_치명타
+		RESULTS = 치명타
+		RETURN
+	CASE 총력전_방식_치유
+		RESULTS = 치유
+		RETURN
+	CASE 총력전_방식_치유양
+		RESULTS = 치유양
+		RETURN
+	CASEELSE
+		RESULTS = ERR({방식종류})
+		RETURN
+ENDSELECT
+[ENDIF]
