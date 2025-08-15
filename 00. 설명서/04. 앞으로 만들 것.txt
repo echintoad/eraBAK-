@@ -1,4 +1,4 @@
-2025. 5. 6. 기준
+2025. 8. 16. 기준
 언제 개발될 진 몰루?
 
 
@@ -26,13 +26,25 @@
   - 고정캐릭터의 딸들도 엄마 닮은 화상 추가
   - 그림체 통일 시키는 문제 + AI 사용에 따른 거부감 등 메인으로 넣을 순 없고 확장의 형식으로 배포(일러팩 넣은 뒤 설정에서 ON 해야 작동)
 
-○ 총력전 시스템 Overhaul
+○ (0.6.0) 총력전 시스템 Overhaul
   - 지금 시스템은 새로운 보스 + 스킬 더하려면 노가다가 너무 많음
   - ARRAYREMOVE
     - for buff/debuff list
     - ARRAYREMOVE 상태효과_번호:4, 15, 1
+      - ARRAYREMOVE 총력전_상태효과:캐릭터, COUNT, 1
+      - "3차원 배열변수 총력전_상태 효와의 인수는 생략할 수 없습니다"
+      - 1차원 배열변수만 되는 듯
+      - 하... 인생
+  - 보스/캐릭터 CC
+    - 최대 CC 수치를 채우면 스턴, 다음턴 플레이어 스킬 선택후 최대 CC 만큼 회복
+    - 기본 캐릭터 최대 수치 1000 위주로 조정 
+    - 보스는 최대 CC 크게 3000 ~ 5000?
+    - CC 스킬 수치 조정 하면서 보스 최대치를 얼만큼 놔야될지 정하기
+    - 특이한 스턴 효과 원하면?
+      - TRYCALLFORM 총력전_보스_군중제어_{번호}(종류, 양)
+      - CATCH -> 스턴 적용
 
-○ 총력전 스킬 쓸때 의상 변경
+○ (0.6.0) 총력전 스킬 쓸때 의상 변경
   - 토키를 예시로
   - 스킬 끝날때 다시 변경
 
@@ -48,6 +60,7 @@
 ○ IMAGE_t 축소화?
   - (아마?) 반복 함수 있는듯?
   - 나중에 시간 들여서 함수 수 줄이기
+    - iFont_Hei_mag 계산 법을 한군데서만 하게 변경
 + SHOW_INFO
   - IMAGE_t 에 있는 함수로 변경
 
@@ -58,7 +71,7 @@
 ○ 프레임 색을 코드로
   - tw/텍붕 모브 참조; 색 바꾸는법
 
-○ 무기 시스템 Overhaul
+○ (0.6.0) 무기 시스템 Overhaul
   - 캐릭터당 쓸수있는 무기 시스템
     - (전) 플레이어가 여분의 무기를 보관
     - (후) 캐릭터가 허용된 무기 풀에서 선택할 수 있도록
@@ -68,3 +81,110 @@
       - 쿠로코/아야네의 아이, 상식적 수단 장착: 방위 += 2, 지략 += 15
       - 아야네, 상식적 수단 장착: 방위 += 10, 지략 += 40
     - 후 맞춰서 스텟 수정 필요
+  - 素質,웨폰,103 | 500,웨폰
+    - 500 은 장착 무기, 501 ~ 520 사용 가능 무기?
+    - 아이 캐릭터는 부모에게 1 ~ 2 씩 물려 받기 ~= 최대 4 정도긴 할텐데, 설마 모르니
+
+○ 특수세력 구상 마저 수정
+  - 도둑 -> 카이저
+  - 외래인 -> 무명사제? 색체?
+
+○ 환상향 언급
+  - 야쿠모 유카리, 환상향 언급 다수
+  - 시간 나면 "인간 마을", "유카리" 등 찾아가며 수정
+
+○ SHOP_LIFE_COLUMN_LEFT 자리부족
+  - 엔젤24, 블랙 마켓 안보일수 있음
+  - 안쓰는 메뉴 없에기
+  - 메뉴 접기 기능? (친교, 모략, 정무, 등등 중 하나만 열기?)
+    - but that would increase number of clicks
+  - 메뉴 scroll?
+    - 버그 확률 높음
+
+○ 엔젤24 usability
+  - 물건 사고 메인화면 말고 한칸 전으로
+  - 총력전코인 다수 교환
+
+○ 무기변경
+  - 창에서 케릭터 변경 기능
++ 총력전 스킬 좀더 쉽게 볼수있는 방법
+  - need to make sure it doesn't get too cluttered tho
+
+○ 장비
+  ○ 일괄해제/착용여부
+    - 엔젤24 장착 중인 장비에서 확인하는 것 말고 장비착용여부 확인하는법 있었으면 좋겠음
+    - 관계표시 창 참조, 장비변경 창에서 장착된 장비 확인 가능하게
+    - 장비 창 공간이 많으니 일괄해제 버튼 추가
+      - 한는김에 일괄 해제로 착용 효과 초기화(버그 있을시 캐릭터당 수정 방법 제공)
+    - feels like there's another problem in this feedback I'm not noticing...
+      - I guessed this feature was originally intended as "equip and forget" like the original game, but the fact they're asking for ease of *un-equiping*, when that's not nessesory if you were only looking to upgrade
+      - going to guess equip swap out is a feature people might enjoy if it was easier to do
+      - equipment management could be flashed out a bit
+    - 장비 착용 방식 변경
+      - 전: 장비1 -> 모자/장갑/신발 중 선택 -> 티어 선택
+      - 계획: 장비1 -> 콜룸1 모자 / 콜룸2 장갑 / 콜룸3 신발
+      예시:
+      [무지 캡모자       ] x1  [페로로 오븐 장갑  ] x2  [어그 부츠         ] x1
+      [니트 털모자       ] x3  [레이스 글러브     ] x1  [엔티크 에나멜 로퍼] x5
+      [리본 베레모       ] x2                           [아쿠아 샌들       ] x2
+      [리프 리본 페도라  ] x2
+    - 장비 프리셋?
+      - 무기 교환시 바로 바꿀수 있게
+      - 예. 하나코 기본무기(힐) -> 하나코 수영복(딜) 할때 (장비가 있으면) 딸깍으로 바꿀수 있게?
+      - 생각 해보니 캐릭터당 프리셋 (여러게) 만들어 버리면 변수 수가 폭8...
+  ○ 고티어 장비 효과 상승
+    - "장비 고티어 비용은 많이드는데 효과상승은 별론게 많은듯 가방 T3->4가 너무 좋아서 그런가"
+    - "관련해서 총력전코인 하루 한번인데 살짝 모으기 힘든듯. 모으는 재미는 있었는데 결국 장비빨보다 스탯빨로 누르게됨"
+    - 장비 스텟 확인, 장비 획득 가능할때쯤 스텟이 어느정도에 있는지
+      - compare builtin stat increase rate to bonuse stat provided by the equipment
+    - "스텟 -> 총력전 스텟" 보다 "장비 스텟 -> 총력전 스텟" 효율이 더 좋게?
+    - 고티어시 총력전 패시브 추가?
+      - 예. 가방 8티어 = 총력전 시작시 방어력 % 증가 버프 추가? 대미지 감소 버프 추가?
+      - 예2. 장갑 8티어 = 공격 속도 버프 추가?
+  ○ 변경창에서 정보
+    - "슬롯눌러서 변경하고 장비이름누르면 효과가 나왔으면 좋겠음."
+    - need to click -> FIND the item you currently have equiped to see the stat
+    - again, plenty of room there anyway, could include base stat info with the card, and rename the lower part as "total"
+    - would still want to look at adding this feature if I'm planning to have passive with high tier equipment
+
+○ (0.6.0) 총력전 턴종
+  - "너무 불편함. 처음엔 턴종해야 하는줄도 몰라서 우클릭 광클하고 이것저것 누름"
+  - UI design/onboarding problem, does not stand out "넘기기" might not make intuitive sense
+  - change next turn button to above character portrait
+  - add effect when a skill is selected?
+  - or different colour
+  - different wording
+
+○ (0.6.0) 총력전 스탯도 간단하게라도 설명있었으면
+  - could be a problem, I was kinda banking on people not caring too much about the detail
+  - prepare backup formula
+  - might need to move to "base chance"
+    - character card shows "base critical chance"
+    - crit resist affect in % instead of number before the formula
+
+○ 총력전 파티 프리셋?
+
+○ (0.6.0) 총력전 스킬 선택
+  - 턴당 스킬 3개 제한 있음
+    - doesn't seem needed?
+    - look into why 3 skill per turn was implemented in the first place
+  - 스킬 순서 선택
+    - 히마리, 아코 등 짧은 버프 있는 캐릭터
+
+○ (0.6.0) 총력전 엄폐물 소환물 실드
+  - 너무 빨리 없어짐
+  - 체력 비율 확인
+    - if it's hard coded, easy fix, make it scale to character
+    - if not, apparently it doesn't survive/isn't useful in high level raid; adjust scaling
+
+○ (0.6.0) 스텟 <-> 스탯 통일화
+  - 둘중 하나로 통일
+
+○ (0.6.0) 플래이어 -> 플레이어
+
+○ _FUNCTION_MATH 따로 만들기
+  - 게임 상관없이 쓸수 있는 산수(?) 함수들 따로 모아두기
+
+○ TALENT 에 구상색 (없으면) 추가
+  - 색 추가된 구상 참조
+  - 총력전에 발동 텍스트 등, 캐릭터 구상색을 한곳에서 조정할수있게
