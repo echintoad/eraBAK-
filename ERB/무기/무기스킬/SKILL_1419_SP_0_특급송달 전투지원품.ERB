@@ -87,16 +87,55 @@ RESULTS = 자신 부대를 회복시킨다.
 #DIM 대상부대
 RETURN 600
 
-@총력전_스킬_1419_코스트
+; #region == 총력전 ==
+@총력전_스킬_1419_코스트(시전자)
+#DIM 시전자 ; 코스트 당 대미지 스킬 카운터 위해서
+; #DIM 가변
 RETURN 4
 
-@총력전_스킬_1419_설명
+@총력전_스킬_1419_설명(시전자)
+#DIM 시전자 ; 가변스킬 설명 위해서
 RESULTS = 최대 세명의 아군에게 치유력 224％ 회복
 
-@총력전_스킬_1419_발동(LOCAL)
-#DIM 치유량
-#DIM 대상수
+@총력전_스킬_1419_발동(시전자)
+#DIM 시전자
 
-대상수 = 3
-치유량 = 총력전_치유력:LOCAL * 224 /100
-CALL 버프처리(1,,,치유량,,,,,,,,,대상수,1419)
+#DIM DYNAMIC 치유량
+#DIM DYNAMIC 대상, 3
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp
+; 발동 텍스트
+CALL SKILL_1419_SP_0_NAME
+sTmp = %총력전_이름:시전자% 스킬 시전:『%RESULTS%』
+CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+iTmp = 총력전_ID:시전자
+IF iTmp >= 0 && NO:iTmp == 5
+	; 아야네일 경우
+	SELECTCASE RAND:3
+		CASE 0
+			sTmp = 상황은 파악했어요. 갑니다!!
+		CASE 1
+			sTmp = 지원이 필요한 타이밍...! 놓치지 않아요!
+		CASEELSE
+			sTmp = 후방 지원, 도착했습니다!
+	ENDSELECT
+	CALL 총력전_UI_텍스트_추가(sTmp)
+ENDIF
+; 목표 처리
+sTmp = 치유 대상 선택
+CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+CALL 총력전_시퀀스_목표선택(대상, 총력전_선택_아군)
+; 목표 없으면 스킬 해재
+IF 대상 < 0
+	CALL 총력전_스킬_공통_스킬취소(시전자)
+	RETURN
+ENDIF
+; 회복 처리
+치유량 = GETVAR_RAIDSTAT_SUM(시전자, "치유력") * 224
+치유량 = DIVIDE_ROUND(치유량, 100)
+VARSIZE 대상
+FOR iTmp, 0, RESULT
+	SIF 대상:iTmp < 0
+		BREAK
+	CALL 총력전_처리_치유(치유량, 대상:iTmp)
+NEXT

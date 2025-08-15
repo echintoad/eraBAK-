@@ -89,15 +89,47 @@ RESULTS = 적 부대에 연속 데미지.
 #DIM 대상부대
 RETURN 250
  
- @총력전_스킬_1601_코스트
+; #region == 총력전 ==
+ @총력전_스킬_1601_코스트(시전자)
+#DIM 시전자 ; 코스트 당 대미지 스킬 카운터 위해서
  RETURN 4
  
- @총력전_스킬_1601_설명
- RESULTS = 적에게 공격력 1200％ 대미지 
+; alt.opt.1 무작위 적 범위 공격 x5
+ @총력전_스킬_1601_설명(시전자)
+#DIM 시전자 ; 가변스킬 설명 위해서
+; 1200%
+RESULTS = 모든 적에게 공격력 240％x5 대미지 
  
- @총력전_스킬_1601_발동(LOCAL)
- #DIM 대미지
- 대미지 = (총력전_공격력:LOCAL * 400 / 100) * (100 - 총력전_보스_방어력) / 100
- FOR COUNT, 0, 3
- CALL 공격판정처리(대미지,LOCAL)
- NEXT
+ @총력전_스킬_1601_발동(시전자)
+#DIM 시전자
+
+#DIM DYNAMIC 목표, 총력전_캐릭터수
+#DIM DYNAMIC 대미지
+#DIM DYNAMIC iTmp, 2
+#DIMS DYNAMIC sTmp, 3
+
+; 발동 텍스트
+sTmp:0 = 「적 위치 확인… 발포 준비 완료.」
+sTmp:1 = 「지금 장전하는건… 분노.」
+sTmp:2 = 「그럭저럭… 큰일이 날지도?」
+CALL SKILL_1601_SP_0_NAME
+CALL 총력전_스킬_공통_발동텍스트(시전자, 47, RESULTS, sTmp)
+; 목표 처리
+CALL 총력전_목표_전체(목표, 1)
+; 대미지
+대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 240
+대미지 = DIVIDE_ROUND(대미지, 100)
+FOR iTmp, 0, 총력전_캐릭터수
+	SIF 목표:iTmp < 0
+		BREAK
+	FOR iTmp:1, 0, 5
+		CALL 총력전_처리_피격(대미지, 목표:iTmp, 시전자)
+	NEXT
+NEXT
+
+
+;  #DIM 대미지
+;  대미지 = (총력전_공격력:LOCAL * 400 / 100) * (100 - 총력전_보스_방어력) / 100
+;  FOR COUNT, 0, 3
+;  CALL 공격판정처리(대미지,LOCAL)
+;  NEXT

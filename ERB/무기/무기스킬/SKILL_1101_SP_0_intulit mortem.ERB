@@ -89,21 +89,83 @@ RESULTS = 적 부대에 데미지.
 #DIM 대상부대
 RETURN 500
 
-@총력전_스킬_1101_코스트
+; #region == 총력전 ==
+@총력전_스킬_1101_코스트(시전자)
+#DIM 시전자 ; 코스트 당 대미지 스킬 카운터 위해서
+; #DIM 가변
 RETURN 5
 
-@총력전_스킬_1101_설명
-RESULTS = 1턴간 적의 방어력 24％ 감소 추가로 공격력 2020％ 대미지 
+; 디버프당 추가 대미지 가능
+; 버프+디버프 순서 수정, 개발노트 "스킬 디자인" 참조
+; alt.opt.1 110%x4 -> 방어력 감소 -> 1580%
+@총력전_스킬_1101_설명(시전자)
+#DIM 시전자 ; 가변스킬 설명 위해서
+; 2020%, 방어력 감소 2턴으로?
+RESULTS = 적에게 공격력 110％x4 + 1580％ 대미지후 1턴간 적의 방어력 24％ 감소
 
-@총력전_스킬_1101_발동(LOCAL)
-#DIM 대미지
-#DIM 막타대미지
-#DIM 방깎수치
-대미지 = (총력전_공격력:LOCAL * 110 / 100) * (100 - 총력전_보스_방어력) / 100
-막타대미지 = (총력전_공격력:LOCAL * 1580 / 100) * (100 - 총력전_보스_방어력) / 100
-방깎수치 = 24
-CALL 디버프부여처리("방깎",1101,1,LOCAL,방깎수치)
-FOR LOCAL:1, 0, 4
-CALL 공격판정처리(대미지,LOCAL)
+@총력전_스킬_1101_발동(시전자)
+#DIM 시전자
+
+#DIM DYNAMIC 목표
+#DIM DYNAMIC 대미지
+; #DIM DYNAMIC 막타대미지
+#DIM CONST 방깎수치 = -24
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp, 3
+
+; 발동 텍스트
+sTmp:0 = 「vanitas vanitatum, et omnia vanitas」
+sTmp:1 = 「vanitas vanitatum…」
+sTmp:2 = 「헛되고, 헛되니 모든 것이 헛되도다…」
+CALL SKILL_1101_SP_0_NAME
+CALL 총력전_스킬_공통_발동텍스트(시전자, 55, RESULTS, sTmp)
+; 목표 처리
+CALL 총력전_시퀀스_목표선택(목표, 총력전_선택_적군)
+; 목표 없으면 스킬 해재
+IF 목표 < 0
+	CALL 총력전_스킬_공통_스킬취소(시전자)
+	RETURN
+ENDIF
+; 대미지
+대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 110
+대미지 = DIVIDE_ROUND(대미지, 100)
+FOR iTmp, 0, 4
+	CALL 총력전_처리_피격(대미지, 목표, 시전자)
 NEXT
-CALL 공격판정처리(막타대미지,LOCAL)
+; 막타 텍스트
+iTmp = 총력전_ID:시전자
+IF iTmp >= 0 && NO:iTmp == 55
+	SELECTCASE RAND:2
+		CASE 0
+			sTmp = 「이걸로 편해질 거야.」
+		CASEELSE
+			sTmp = 「…이것으로 괜찮아질 거야.」
+	ENDSELECT
+	CALL 총력전_UI_텍스트_추가(sTmp)
+	; UI 업데이트
+	CALL 총력전_UI_Main(0)
+	WAITANYKEY
+ENDIF
+; 막타 데미지
+대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 1580
+대미지 = DIVIDE_ROUND(대미지, 100)
+CALL 총력전_처리_피격(대미지, 목표, 시전자)
+; 방어 감소
+CALL 총력전_상태효과_추가_텍스트(목표, 시전자, 상효_종류_방어력백분율, 방깎수치, 0, 총력전_방식_지속, 총력전_방식_턴, 1, 1101)
+; 텍스트 추가
+; sTmp = %조사처리(총력전_이름:목표, "의")% 방어력 ({방깎수치}％) 감소!
+; CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+; ; UI 업데이트
+; CALL 총력전_UI_Main(0)
+; WAITANYKEY
+
+
+
+; 대미지 = (총력전_공격력:LOCAL * 110 / 100) * (100 - 총력전_보스_방어력) / 100
+; 막타대미지 = (총력전_공격력:LOCAL * 1580 / 100) * (100 - 총력전_보스_방어력) / 100
+; 방깎수치 = 24
+; CALL 디버프부여처리("방깎",1101,1,LOCAL,방깎수치)
+; FOR LOCAL:1, 0, 4
+; CALL 공격판정처리(대미지,LOCAL)
+; NEXT
+; CALL 공격판정처리(막타대미지,LOCAL)

@@ -116,29 +116,121 @@ RESULTS = 무작위한 효과를 부여한다.
 
 RETURN 500
 
-@총력전_스킬_1511_코스트
+; #region == 총력전 ==
+@총력전_스킬_1511_코스트(시전자)
+#DIM 시전자 ; 코스트 당 대미지 스킬 카운터 위해서
+; #DIM 가변
 RETURN 3
 
-@총력전_스킬_1511_설명
-RESULTS = 랜덤 확률로 3턴간 자신의 공격력 35/32/26％ 증가 추가로 적에게 공격력 900/760/590％ 대미지
+; alt.opt.1 공격 방식도 변경?
+; 300%x5 랜덤 타겟 대미지(적이 1명=1500% 대미지)
+; 300%x2 1범위 대미지(적이 1명=600% 대미지) 등등
+; alt.opt.2 실패 옵션중 하나로 시전자 빼고 팀 버프?
+; alt.opt.3 버프/디버프 중복
+; 스킬 시전 -> 버프/디버프 1번 4턴 -> 스킬 시전 -> 버프/디버프 2번 추가 + 1번 지속 시간 리셋...
+; 아니면 코유키(바니) 실장 안할거 같으면 그걸로 추가
+; 스킬 이름 + 컨셉: 도박꾼의 오류(gambler's fallacy) / 매몰 비용 오류(sunk cost fallacy)
+@총력전_스킬_1511_설명(시전자)
+#DIM 시전자 ; 가변스킬 설명 위해서
+RESULTS = 랜덤 확률로 1범위 적에게 공격력 비례 대미지후 4턴간 추가효과 (900％ 대미지후 자신의 공격력 증가 72％) / (760％ 대미지후 자신의 공격력 증가 30％) / (590％ 대미지후, 자신의 공격력 감소 -15％)
+; RESULTS = 랜덤 확률로 3턴간 자신의 공격력 35/32/26％ 증가 추가로 적에게 공격력 900/760/590％ 대미지
+; 원본 대미지 444/421/398% 공버프 29.1/27.5/26%
+; 대미지는 그렇다 치고 버프는 원본쪽으로 너프, 최소, 최대 차이는 큰쪽으로
+; 지속시간 = 쿨다운 + 1, 계속 도박 ㄱㄱ
 
-@총력전_스킬_1511_발동(LOCAL)
-#DIM 대미지
-#DIM 공격력증가량
+@총력전_스킬_1511_발동(시전자)
+#DIM 시전자
 
-SELECTCASE RAND:3
-CASE 0
-공격력증가량 = 35
-대미지 = (총력전_공격력:LOCAL * 900 / 100) * (100 - 총력전_보스_방어력) / 100
-CASE 1
-공격력증가량 = 32
-대미지 = (총력전_공격력:LOCAL * 760 / 100) * (100 - 총력전_보스_방어력) / 100
-CASE 2
-공격력증가량 = 26
-대미지 = (총력전_공격력:LOCAL * 590 / 100) * (100 - 총력전_보스_방어력) / 100
+#DIM DYNAMIC 주목표
+#DIM DYNAMIC 범위목표, 총력전_캐릭터수
+#DIM DYNAMIC 대미지
+#DIM DYNAMIC 공격력변경
+#DIM DYNAMIC 긍부정 ; 버프 / 디버프
+#DIM DYNAMIC 확률계산
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp, 3
+
+; 발동 텍스트
+sTmp:0 = 「어.느.것.을.고.를…」
+sTmp:1 = 「이런 상황에서는…」
+sTmp:2 = 「이럴 때를 대비해…」
+CALL SKILL_1511_SP_0_NAME
+CALL 총력전_스킬_공통_발동텍스트(시전자, 31, RESULTS, sTmp)
+; 목표 처리
+CALL 총력전_시퀀스_목표선택(주목표, 총력전_선택_적군)
+; 목표 없으면 스킬 해재
+IF 주목표 < 0
+	CALL 총력전_스킬_공통_스킬취소(시전자)
+	RETURN
+ENDIF
+; 범위로 변경, 적팀 1 이상이 되면 수정 필요
+CALL 총력전_목표_범위(범위목표, 주목표, 1, 1)
+; 확률 처리
+확률계산 = RAND:3
+SELECTCASE 확률계산
+	CASE 0
+		대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 1100
+		공격력변경 = 72
+		긍부정 = 1
+	CASE 1
+		대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 760
+		공격력변경 = 30
+		긍부정 = 1
+	CASEELSE
+		대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 390
+		공격력변경 = -15
+		긍부정 = 0
 ENDSELECT
-CALL 버프처리(1,,,,,공격력증가량,,,,,,,,1511,,LOCAL)
-CALL 공격판정처리(대미지,LOCAL)
-
-@총력전_스킬_1511_버프지속
-RETURN 3
+대미지 = DIVIDE_ROUND(대미지, 100)
+; 추가 대사
+iTmp = 총력전_ID:시전자
+IF iTmp >= 0 && NO:iTmp == 31
+	SELECTCASE 확률계산
+		CASE 0
+			SELECTCASE RAND:2
+				CASE 0
+					sTmp = 「하챠!」
+				CASEELSE
+					sTmp = 「니하하하하~!」
+			ENDSELECT
+		CASE 1
+			SELECTCASE RAND:2
+				CASE 0
+					sTmp = 「엒…」
+				CASEELSE
+					sTmp = 「헉…!」
+					CALL 총력전_UI_텍스트_추가(sTmp)
+					sTmp = 「…괜찮네?」
+			ENDSELECT
+		CASEELSE
+			SELECTCASE RAND:2
+				CASE 0
+					sTmp = 「으에엑!!」
+				CASEELSE
+					sTmp = 「으아악!!」
+			ENDSELECT
+	ENDSELECT
+	CALL 총력전_UI_텍스트_추가(sTmp)
+	; UI 업데이트
+	CALL 총력전_UI_Main(0)
+	WAITANYKEY
+ENDIF
+; 대미지
+FOR iTmp, 0, 총력전_캐릭터수
+	SIF 범위목표:iTmp < 0
+		BREAK
+	CALL 총력전_처리_피격(대미지, 범위목표:iTmp, 시전자)
+NEXT
+; 디/버프
+CALL 총력전_상태효과_추가_텍스트(시전자, 시전자, 상효_종류_공격력백분율, 공격력변경, 긍부정, 총력전_방식_지속, 총력전_방식_턴, 4, 1511)
+; 텍스트 추가
+; sTmp = %조사처리(총력전_이름:시전자, "의")% 공격력 ({공격력변경}％)
+; IF 긍부정 == 1
+; 	sTmp += @" 증가"
+; ELSE
+; 	sTmp += @" 감소"
+; ENDIF
+; CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+; ; UI 업데이트
+; CALL 총력전_UI_Main(0)
+; WAITANYKEY
