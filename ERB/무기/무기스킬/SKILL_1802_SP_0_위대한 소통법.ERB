@@ -87,13 +87,38 @@ RESULTS = 적 부대에 데미지를 준다.
 #DIM 대상부대
 RETURN 600
  
-@총력전_스킬_1802_코스트
+; #region == 총력전 ==
+@총력전_스킬_1802_코스트(시전자)
+#DIM 시전자 ; 코스트 당 대미지 스킬 카운터 위해서
+; #DIM 가변
 RETURN 4
 
-@총력전_스킬_1802_설명
-RESULTS = 적에게 공격력 1200％ 대미지 
+@총력전_스킬_1802_설명(시전자)
+#DIM 시전자 ; 가변스킬 설명 위해서
+RESULTS = 모든 적에게 공격력 400％ 대미지 
+; RESULTS = 적에게 공격력 1200％ 대미지 
 
-@총력전_스킬_1802_발동(LOCAL)
-#DIM 대미지
-대미지 = (총력전_공격력:LOCAL * 1200 / 100) * (100 - 총력전_보스_방어력) / 100
-CALL 공격판정처리(대미지,LOCAL)
+@총력전_스킬_1802_발동(시전자)
+#DIM 시전자
+
+#DIM DYNAMIC 목표, 총력전_캐릭터수
+#DIM DYNAMIC 대미지
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp, 3
+
+; 발동 텍스트
+sTmp:0 = 「독서에 방해가 되잖아요!」
+sTmp:1 = 「…큰 소리를 내지 말아 주세요!」
+sTmp:2 = 「조용히 하세요!」
+CALL SKILL_1802_SP_0_NAME
+CALL 총력전_스킬_공통_발동텍스트(시전자, 101, RESULTS, sTmp)
+; 목표 처리
+CALL 총력전_목표_전체(목표, 1)
+; 대미지
+대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 400
+대미지 = DIVIDE_ROUND(대미지, 100)
+FOR iTmp, 0, 총력전_캐릭터수
+	SIF 목표:iTmp < 0
+		BREAK
+	CALL 총력전_처리_피격(대미지, 목표:iTmp, 시전자)
+NEXT

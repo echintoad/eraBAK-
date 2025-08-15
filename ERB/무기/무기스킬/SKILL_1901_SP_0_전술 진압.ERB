@@ -88,19 +88,71 @@ RESULTS = 적에게 데미지를 주고 방위를 증가시킨다.
 #DIM 대상부대
 RETURN 1000
  
-@총력전_스킬_1901_코스트
+; #region == 총력전 ==
+@총력전_스킬_1901_코스트(시전자)
+#DIM 시전자 ; 코스트 당 대미지 스킬 카운터 위해서
+; #DIM 가변
 RETURN 4
 
-@총력전_스킬_1901_설명
-RESULTS = 적에게 공격력 700％ 대미지 추가로 4턴간 자신에게 최대체력 35％의 쉴드 부여
+@총력전_스킬_1901_설명(시전자)
+#DIM 시전자 ; 가변스킬 설명 위해서
+; 699%
+RESULTS = 지정된 적과 1범위 안 적에게 공격력 233％x3 대미지 추가로 4턴간 자신에게 최대체력 35％의 보호막 부여
 
-@총력전_스킬_1901_발동(LOCAL)
-#DIM 대미지
-#DIM 쉴드량
-쉴드량 = MAXBASE:(총력전_파티_캐릭터:LOCAL):체력 * 35 / 100
-대미지 = (총력전_공격력:LOCAL * 700 / 100) * (100 - 총력전_보스_방어력) / 100
-CALL 공격판정처리(대미지,LOCAL)
-CALL 버프처리(1,,,,쉴드량,,,,,,,,,1901,,LOCAL)
+@총력전_스킬_1901_발동(시전자)
+#DIM 시전자
 
-@총력전_스킬_1901_버프지속
-RETURN 4
+#DIM DYNAMIC 주목표 ; 목표
+#DIM DYNAMIC 목표, 총력전_캐릭터수 ; 목표 + 주변 적
+#DIM DYNAMIC 대미지
+#DIM DYNAMIC 보호막양
+#DIM DYNAMIC iTmp, 2
+#DIMS DYNAMIC sTmp
+
+; 발동 텍스트
+CALL SKILL_1901_SP_0_NAME
+sTmp = %총력전_이름:시전자% 스킬 시전:『%RESULTS%』
+CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+iTmp = 총력전_ID:시전자
+IF iTmp >= 0 && NO:iTmp == 2
+	; 호시노일 경우 + 쿠로코 옵션 추가?
+	SELECTCASE RAND:3
+		CASE 0
+			sTmp = 「으헤- 귀찮구만.」
+		CASE 1
+			sTmp = 「전방은 내게 맡겨!」
+		CASEELSE
+			sTmp = 「나한테 맡겨두라고!」
+	ENDSELECT
+	CALL 총력전_UI_텍스트_추가(sTmp)
+ENDIF
+; 보호막
+보호막양 = GETVAR_RAIDSTAT_SUM(시전자, "최대체력") * 35
+보호막양 = DIVIDE_ROUND(보호막양, 100)
+; sTmp = 보호막양:{GETVAR_RAIDSTAT_SUM(시전자, "최대체력")} * 35％ = {보호막양}
+; DEBUGPRINTFORML %sTmp%
+CALL 총력전_상태효과_추가_텍스트(시전자, 시전자, 상효_종류_보호막, 보호막양, 1, 총력전_방식_지속, 총력전_방식_턴, 4, 1901)
+; 버프 텍스트
+; sTmp = %조사처리(총력전_이름:시전자, "의")% 보호막 추가({보호막양})
+; CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+; 목표 처리
+CALL 총력전_시퀀스_목표선택(주목표, 총력전_선택_적군)
+; 목표 없으면 스킬 해재
+IF 주목표 < 0
+	CALL 총력전_스킬_공통_스킬취소(시전자)
+	RETURN
+ENDIF
+; 범위로 변경, 적팀 1 이상이 되면 수정 필요
+CALL 총력전_목표_범위(목표, 주목표, 1)
+; 대미지
+대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 233
+대미지 = DIVIDE_ROUND(대미지, 100)
+FOR iTmp:1, 0, 3
+	; 범위로 변경
+	FOR iTmp, 0, 총력전_캐릭터수
+		IF 목표:iTmp < 0
+			BREAK
+		ENDIF
+		CALL 총력전_처리_피격(대미지, 목표:iTmp, 시전자)
+	NEXT
+NEXT

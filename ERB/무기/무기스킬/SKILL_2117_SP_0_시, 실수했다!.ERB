@@ -93,16 +93,62 @@ RESULTS = 적에게 데미지를 준다. 상대 지휘관이 많을수록 추가
 #DIM 대상부대
 RETURN 400
 
-@총력전_스킬_2117_코스트
+; #region == 총력전 ==
+@총력전_스킬_2117_코스트(시전자)
+#DIM 시전자 ; 코스트 당 대미지 스킬 카운터 위해서
+; #DIM 가변
 RETURN 5
 
-@총력전_스킬_2117_설명
-RESULTS = 적에게 공격력 987％ 대미지 이후 4턴간 적의 방어력 15％ 감소
+@총력전_스킬_2117_설명(시전자)
+#DIM 시전자 ; 가변스킬 설명 위해서
+; RESULTS = 모든 적에게 공격력 987％ 대미지 이후 4턴간 적의 방어력 15％ 감소
+; 실제 확률 = 40%
+RESULTS = 모든 적에게 공격력 987％ 대미지, 50％ 확률로 시전자도 80％ 대미지 피해. 이후 4턴간 적의 방어력 15％ 감소.
 
-@총력전_스킬_2117_발동(LOCAL)
-#DIM 방깎수치
-#DIM 대미지
-방깎수치 = 15
-대미지 = (총력전_공격력:LOCAL * 987 / 100) * (100 - 총력전_보스_방어력) / 100
-CALL 공격판정처리(대미지,LOCAL)
-CALL 디버프부여처리("방깎",2117,4,LOCAL,방깎수치)
+@총력전_스킬_2117_발동(시전자)
+#DIM 시전자
+
+#DIM DYNAMIC 목표, 총력전_캐릭터수
+#DIM DYNAMIC 대미지
+#DIM CONST 방감수치 = -15
+#DIM DYNAMIC iTmp, 2
+#DIMS DYNAMIC sTmp, 3
+; 발동 텍스트
+sTmp:0 = 「키히히힛! 쏴라!」
+sTmp:1 = 「키키키킷! 전탄 발사!」
+sTmp:2 = 「가라! 가라! 가라! 캬하하하하!」
+CALL SKILL_2117_SP_0_NAME
+CALL 총력전_스킬_공통_발동텍스트(시전자, 6, RESULTS, sTmp)
+; 목표 처리
+CALL 총력전_목표_전체(목표, 1)
+; 대미지
+대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 987
+대미지 = DIVIDE_ROUND(대미지, 100)
+VARSIZE 목표
+FOR iTmp, 0, RESULT
+	SIF 목표:iTmp < 0
+		BREAK
+	CALL 총력전_처리_피격(대미지, 목표:iTmp, 시전자)
+	; 방어 감소
+	CALL 총력전_상태효과_추가_텍스트(목표:iTmp, 시전자, 상효_종류_방어력백분율, 방감수치, 0, 총력전_방식_지속, 총력전_방식_턴, 4, 2117)
+NEXT
+; 40% 확률로 시전자 피해
+iTmp = RAND:5
+IF iTmp < 2
+	; 마코토일 경우 추가 텍스트
+	iTmp:1 = 총력전_ID:시전자
+	IF iTmp:1 >= 0 && NO:(iTmp:1) == 6
+		SELECTCASE RAND:3
+			CASE 0
+				sTmp = 「…어? 거, 거꾸로라고?」
+			CASE 1
+				sTmp = 「…응? 바, 반대?」
+			CASEELSE
+				sTmp = 「…엇, 여, 여기가 아니야?!」
+		ENDSELECT
+	ENDIF
+	CALL 총력전_UI_텍스트_추가(sTmp)
+	대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 80
+	대미지 = DIVIDE_ROUND(대미지, 100)
+	CALL 총력전_처리_피격(대미지, 시전자)
+ENDIF

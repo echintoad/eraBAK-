@@ -85,16 +85,79 @@ RESULTS = 자신 부대의 병력을 가창에 비례해 회복시킨다.
 #DIM 대상부대
 RETURN 400
 
-@총력전_스킬_1119_코스트
+; #region == 총력전 ==
+@총력전_스킬_1119_코스트(시전자)
+#DIM 시전자 ; 코스트 당 대미지 스킬 카운터 위해서
+; #DIM 가변
 RETURN 4
 
-@총력전_스킬_1119_설명
-RESULTS = 대상에게 치유력 102％ 회복 추가로 2턴간 치유력 102％ 회복
+; 테스트 동안
+; @총력전_스킬_1119_쿨다운(가변)
+; #DIM 가변
+; RETURN 0
 
-@총력전_스킬_1119_발동(LOCAL)
-#DIM 치유량
-#DIM 대상수
+@총력전_스킬_1119_설명(시전자)
+#DIM 시전자 ; 가변스킬 설명 위해서
+RESULTS = 대상에게 3턴간 치유력 102％ 회복
 
-대상수 = 1
-치유량 = 총력전_치유력:LOCAL * 102 /100
-CALL 버프처리(1,,,치유량,,,,,,,,,대상수,1119)
+@총력전_스킬_1119_발동(시전자)
+#DIM 시전자
+
+#DIM DYNAMIC 대상
+#DIM DYNAMIC 치유량
+#DIM DYNAMIC 대사번호
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp, 3
+
+; 발동 텍스트
+CALL SKILL_1119_SP_0_NAME
+sTmp = %총력전_이름:시전자% 스킬 시전:『%RESULTS%』
+CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+iTmp = 총력전_ID:시전자
+IF iTmp >= 0 && NO:iTmp == 67
+	; 하나에일 경우
+	대사번호 = RAND:3
+	SELECTCASE 대사번호
+		CASE 0
+			sTmp = 「투약을 시작합니다!」
+		CASE 1
+			sTmp = 「치료를 시작합니다!」
+		CASEELSE
+			sTmp = 「이걸로 아픔이 사라질 거예요!」
+	ENDSELECT
+	CALL 총력전_UI_텍스트_추가(sTmp)
+ENDIF
+; 목표 처리
+sTmp = 치유 대상 선택
+CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+CALL 총력전_시퀀스_목표선택(대상, 총력전_선택_아군)
+; 목표 없으면 스킬 해재
+IF 대상 < 0
+	CALL 총력전_스킬_공통_스킬취소(시전자)
+	RETURN
+ENDIF
+; 테스트
+; CALL 총력전_목표_무작위(0)
+; 대상 = RESULT
+; 지속 치유
+치유량 = GETVAR_RAIDSTAT_SUM(시전자, "치유력") * 102
+치유량 = DIVIDE_ROUND(치유량, 100)
+CALL 총력전_상태효과_추가(대상, 시전자, 상효_종류_치유량, 치유량, 1, 총력전_방식_턴, 총력전_방식_턴, 2, 1119)
+; 텍스트 추가
+sTmp = 2턴간 %조사처리(총력전_이름:대상, "가")% 회복 ({치유량})
+CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+; 추가 대사
+IF iTmp >= 0 && NO:iTmp == 67
+	SELECTCASE 대사번호
+		CASE 0
+			sTmp = 「조금… 효과가 지나쳤을지도?」
+		CASE 1
+			sTmp = 「앗! 너무 많이 넣었다!」
+		CASEELSE
+			sTmp = 「…아, 아마도?」
+	ENDSELECT
+	CALL 총력전_UI_텍스트_추가(sTmp)
+ENDIF
+; UI 업데이트
+CALL 총력전_UI_Main(0)
+WAITANYKEY

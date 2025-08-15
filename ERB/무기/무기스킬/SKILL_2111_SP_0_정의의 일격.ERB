@@ -98,19 +98,72 @@ RESULTS = 적 한명을 저격해 행동 불능으로 만든다.
 #DIM 대상부대
 RETURN 550
 
-@총력전_스킬_2111_코스트
+; #region == 총력전 ==
+@총력전_스킬_2111_코스트(시전자)
+#DIM 시전자 ; 코스트 당 대미지 스킬 카운터 위해서
+; #DIM 가변
 RETURN 3
 
-@총력전_스킬_2111_설명
-RESULTS = 적에게 공격력 664％ 대미지 75％ 확률로 공격력 1380％ 대미지
+; alt.opt.1 명중 하면 추가공격?
+@총력전_스킬_2111_설명(시전자)
+#DIM 시전자 ; 가변스킬 설명 위해서
+RESULTS = 적에게 공격력 664％ 대미지, 75％ 확률로 공격력 716％ 추가 대미지
+; RESULTS = 적에게 공격력 664％ 대미지 75％ 확률로 공격력 1380％ 대미지
 
-@총력전_스킬_2111_발동(LOCAL)
-#DIM 대미지
-SELECTCASE RAND:4
-CASE 0
-대미지 = (총력전_공격력:LOCAL * 664 / 100) * (100 - 총력전_보스_방어력) / 100
-CASEELSE
-대미지 = (총력전_공격력:LOCAL * 1380 / 100) * (100 - 총력전_보스_방어력) / 100
-ENDSELECT
-CALL 공격판정처리(대미지,LOCAL)
+@총력전_스킬_2111_발동(시전자)
+#DIM 시전자
+
+#DIM DYNAMIC 목표
+#DIM DYNAMIC 대미지
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp, 3
+
+; 발동 텍스트
+CALL SKILL_2111_SP_0_NAME
+sTmp = %총력전_이름:시전자% 스킬 시전:『%RESULTS%』
+CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+iTmp = 총력전_ID:시전자
+IF iTmp >= 0 && NO:iTmp == 1
+	; 시로코/쿠로코일 경우
+	SELECTCASE RAND:3
+		CASE 0
+			sTmp = 「탄환장전, 조준 양호...」
+			CALL 총력전_UI_텍스트_추가(sTmp)
+			sTmp = 「사격개시!」
+		CASE 1
+			sTmp = 「목표를 확인.」
+			CALL 총력전_UI_텍스트_추가(sTmp)
+			sTmp = 「배제합니다.」
+		CASEELSE
+			sTmp = 「파이어.」
+	ENDSELECT
+	CALL 총력전_UI_텍스트_추가(sTmp)
+ENDIF
+; 목표 처리
+CALL 총력전_시퀀스_목표선택(목표, 총력전_선택_적군)
+; 목표 없으면 스킬 해재
+IF 목표 < 0
+	CALL 총력전_스킬_공통_스킬취소(시전자)
+	RETURN
+ENDIF
+; 대미지
+대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 664
+대미지 = DIVIDE_ROUND(대미지, 100)
+CALL 총력전_처리_피격(대미지, 목표, 시전자)
+; 명중 하면
+IF RESULT == 1 && RAND:4 > 0
+	; 75% 추가 대미지
+	대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 716
+	대미지 = DIVIDE_ROUND(대미지, 100)
+	CALL 총력전_처리_피격(대미지, 목표, 시전자)
+ENDIF
+
+
+; SELECTCASE RAND:4
+; CASE 0
+; 대미지 = (총력전_공격력:LOCAL * 664 / 100) * (100 - 총력전_보스_방어력) / 100
+; CASEELSE
+; 대미지 = (총력전_공격력:LOCAL * 1380 / 100) * (100 - 총력전_보스_방어력) / 100
+; ENDSELECT
+; CALL 공격판정처리(대미지,LOCAL)
 

@@ -78,15 +78,59 @@ RESULTS = 휴대용 드론 공격으로 적에게 피해를 준다.
 #DIM 대상부대
 RETURN 1000
 
-@총력전_스킬_1103_코스트
+; #region == 총력전 ==
+@총력전_스킬_1103_코스트(시전자)
+#DIM 시전자 ; 코스트 당 대미지 스킬 카운터 위해서
+; #DIM 가변
 RETURN 2
 
-@총력전_스킬_1103_설명
-RESULTS = 적에게 공격력 760％ 대미지
+; 없으면 기본, 2 로
+; @총력전_스킬_1103_쿨다운(가변)
+; #DIM 가변
+; RETURN 2
 
-@총력전_스킬_1103_발동(LOCAL)
+@총력전_스킬_1103_설명(시전자)
+#DIM 시전자 ; 가변스킬 설명 위해서
+; 760％
+RESULTS = 적에게 공격력 152％x5 대미지
+
+
+@총력전_스킬_1103_발동(시전자)
+#DIM 시전자
+
+#DIM 목표
 #DIM 대미지
-대미지 = (총력전_공격력:LOCAL * 152 / 100) * (100 - 총력전_보스_방어력) / 100
-FOR LOCAL:1, 0, 5
-CALL 공격판정처리(대미지,LOCAL)
+#DIM iTmp
+#DIMS sTmp
+
+; 발동 텍스트
+CALL SKILL_1103_BASE_0_NAME
+sTmp = %총력전_이름:시전자% 스킬 시전:『%RESULTS%』
+CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+iTmp = 총력전_ID:시전자
+IF iTmp >= 0 && NO:iTmp == 1 && NO:iTmp == 142
+	; 시로코/쿠로코일 경우
+	SELECTCASE RAND:3
+		CASE 0
+			sTmp = 「...상태, 양효. 간다.」
+		CASE 1
+			sTmp = 「...유닛 기동.」
+		CASEELSE
+			sTmp = 「드론 작동 개시.」
+	ENDSELECT
+	CALL 총력전_UI_텍스트_추가(sTmp)
+ENDIF
+; 목표 처리
+CALL 총력전_시퀀스_목표선택(목표, 총력전_선택_적군)
+; 목표 없으면 스킬 해재
+IF 목표 < 0
+	CALL 총력전_스킬_공통_스킬취소(시전자)
+	RETURN
+ENDIF
+; 대미지
+대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 152
+대미지 = DIVIDE_ROUND(대미지, 100)
+; 피격중 죽어도 오류는 없을...듯?
+FOR iTmp, 0, 5
+	CALL 총력전_처리_피격(대미지, 목표, 시전자)
 NEXT
