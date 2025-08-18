@@ -128,10 +128,28 @@ NEXT
 FOR iTmp, 0, 총력전_캐릭터수
 	총력전_스킬_쿨다운:iTmp = MAX(총력전_스킬_쿨다운:iTmp - 1, 0)
 NEXT
+[IF_DEBUG]
+sTmp = 
+[ENDIF]
 VARSIZE 총력전_보스_쿨다운
 FOR iTmp, 0, RESULT
-	총력전_보스_쿨다운:iTmp = MAX(총력전_보스_쿨다운:iTmp - 1, 0)
+	IF 총력전_보스_쿨다운:iTmp > 0
+		총력전_보스_쿨다운:iTmp --
+		[IF_DEBUG]
+		IF STRLENS(sTmp) == 0
+			sTmp += @"보스스킬 쿨 "
+		ENDIF
+		sTmp += @"{iTmp}={총력전_보스_쿨다운:iTmp} "
+		[ENDIF]
+	ENDIF
 NEXT
+[IF_DEBUG]
+IF STRLENS(sTmp) > 0
+	CALL 총력전_UI_텍스트_추가(sTmp, 칼라_파노랑)
+ENDIF
+[ENDIF]
+
+
 ; 스킬 캐릭터
 총력전_전투단계 = 총력전_전투단계_스킬
 CALL 총력전_시퀀스_스킬시전(총력전_상태_보통)
@@ -832,6 +850,7 @@ FOR iTmp, 0, 총력전_캐릭터수
 		CALL 총력전_UI_Main(0)
 		WAITANYKEY
 		; 보상 trycall
+		CALLFORM 총력전_보스_보상_{총력전_보스}
 		; UI 업데이트 + 나가기 버튼 하이라이트?
 		RETURN 1
 	ENDIF

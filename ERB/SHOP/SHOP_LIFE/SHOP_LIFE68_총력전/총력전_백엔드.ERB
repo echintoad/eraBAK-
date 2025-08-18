@@ -69,6 +69,52 @@ NEXT
 총력전_보스_시전중 = 0
 VARSET 총력전_보스_조준, -1
 
+; ----- 보상 -----
+@총력전_보상_코인(기본, 상급)
+#DIM 기본
+#DIM 상급
+
+#DIMS DYNAMIC sTmp
+
+IF 기본 > 0
+	; 155,총력전 코인,2000
+	ITEM:155 += 기본
+	sTmp = 총력전 코인 {기본}개 획득
+	CALL 총력전_UI_텍스트_추가(sTmp, 칼라_주석)
+	; UI 업데이트
+	CALL 총력전_UI_Main(0)
+	WAITANYKEY
+ENDIF
+IF 상급 > 0
+	; 156,상급 총력전 코인,8000
+	ITEM:156 += 상급
+	sTmp = 상급 총력전 코인 {상급}개 획득
+	CALL 총력전_UI_텍스트_추가(sTmp, 칼라_주석)
+	; UI 업데이트
+	CALL 총력전_UI_Main(0)
+	WAITANYKEY
+ENDIF
+
+; -1 이면 여기서 무작위로
+@총력전_보상_장비(티어, 타입 = -1)
+#DIM 티어
+#DIM 타입
+
+#DIM DYNAMIC 획득장비
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp
+
+SIF 타입 == -1
+	타입 = RAND:9
+
+획득장비 = 9 * (티어 - 1) + 타입
+장비:획득장비 ++
+sTmp = %장비티어(획득장비)% %장비타입(획득장비)%「%장비이름(획득장비)%」획득
+CALL 총력전_UI_텍스트_추가(sTmp, 칼라_주석)
+; UI 업데이트
+CALL 총력전_UI_Main(0)
+WAITANYKEY
+
 ; #endregion == 보스 공통 ==
 
 ; #region == 스킬 ==
