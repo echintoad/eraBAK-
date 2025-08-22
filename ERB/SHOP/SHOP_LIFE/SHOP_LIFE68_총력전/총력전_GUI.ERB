@@ -1226,10 +1226,11 @@ RETURN
 
 iTmp = 총력전_ID:캐릭터
 IF iTmp >= 0
-	무기이름 = %WEAPON_NAME(TALENT:iTmp:웨폰)%
+	CALL WEAPON_NAME(TALENT:iTmp:웨폰, 너비 - 2)
+	무기이름 = %RESULTS%
 	bBtn = 총력전_UI_버튼여부(캐릭터, bBtn)
 	iTmp = 캐릭터 + 총력전_캐릭터수
-	CALL 총력전_UI_버튼(무기이름, 너비 - iTmp:2, bBtn, iTmp)
+	CALL 총력전_UI_버튼(무기이름, 너비, bBtn, iTmp)
 	RESULTS = %시전번호%%RESULTS%
 ELSE
 	RESULTS = %TOSTR_SPACE(너비)%
@@ -1251,7 +1252,8 @@ ENDIF
 
 iTmp = 총력전_ID:캐릭터
 IF iTmp >= 0 && (총력전_상태:캐릭터 == 총력전_상태_보통 || 총력전_상태:캐릭터 == 총력전_상태_행동불능)
-	무기이름 = %WEAPON_NAME(TALENT:iTmp:웨폰)%
+	CALL WEAPON_NAME(TALENT:iTmp:웨폰, 너비 - 2)
+	무기이름 = %RESULTS%
 	; 시전번호/쿨다운
 	iTmp:1 = FINDELEMENT(총력전_스킬_시전, 캐릭터)
 	IF 총력전_스킬_쿨다운:캐릭터 > 0
