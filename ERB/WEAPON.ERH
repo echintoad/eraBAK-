@@ -23,5 +23,7 @@
 #DIM CONST WN_SMG_NUM = 4
 #DIM CONST WN_SR_NUM = 5
 
+
+#DIM CONST 무기_번호_상한 = 1200 ; 100 ~ 1200
 #DIM 무기사용가능,4100
-#DIM 총력전무기스킬
+#DIM 총력전무기스킬 ; 무기 장착 창에 총력전 스킬 보여줄지
