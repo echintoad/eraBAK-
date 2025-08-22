@@ -444,7 +444,7 @@ FOR iTmp, 0, 총력전_캐릭터수
 			; 일단 그냥 10 으로
 			보스번호 = 10
 		ENDIF
-		CALL 총력전_상태효과_추가(목표:iTmp, 보스번호, 상효_종류_명중률백분율, 명중감소, 0, 총력전_방식_지속, 총력전_방식_지속, 1, -1, 2)
+		CALL 총력전_상태효과_추가(목표:iTmp, 보스번호, 상효_종류_명중률백분율, 명중감소, 3, 총력전_방식_지속, 총력전_방식_지속, 1, -1, 2)
 		; 텍스트 추가
 		sTmp = %조사처리(총력전_이름:(목표:iTmp), "의")% 명중률 ({명중감소}％) 감소!
 		CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
@@ -532,7 +532,7 @@ SELECTCASE 총력전_보스_난이도
 		IF iTmp < 12
 			CALL 총력전_보상_장비(2)
 		ENDIF
-	CASE 1 ; HARDCORE: (T1 45%), (T2 20%), (T3 10%)
+	CASE 1 ; HARDCORE: (T1 50%), (T2 25%), (T3 15%)
 		; T1
 		iTmp = RAND:100
 		IF iTmp < 45
@@ -540,12 +540,12 @@ SELECTCASE 총력전_보스_난이도
 		ENDIF
 		; T2
 		iTmp = RAND:100
-		IF iTmp < 20
+		IF iTmp < 25
 			CALL 총력전_보상_장비(2)
 		ENDIF
 		; T3
 		iTmp = RAND:100
-		IF iTmp < 10
+		IF iTmp < 15
 			CALL 총력전_보상_장비(3)
 		ENDIF
 	CASE 2 ; EXTREME: (T2 50%), (T3 25%), (T4 20%)
