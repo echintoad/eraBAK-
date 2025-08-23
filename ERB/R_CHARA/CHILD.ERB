@@ -35,6 +35,9 @@ CALL CHILD_SKILL_SETTING
 CALL RANDOM_CHARA_CLOTH_SETTING()
 CALL CHILD_TAG_SETTING()
 CALL CHILD_IMAGE_SETTING(TARGET, ARG:0)
+;웨폰 설정
+CALL CHILD_WEAPON_SETTING
+
 ;타겟의 재설정
 TARGET = LOCAL:0
 RETURN CHARANUM - 1
@@ -580,3 +583,46 @@ FOR LOCAL, 0, MAX_TAG
 		CALL ADD_TAG(TARGET, TAG:어머니:LOCAL)
 NEXT
 
+@CHILD_WEAPON_SETTING
+; #DIM 아버지
+; #DIM 어머니
+#DIM CONST iInherit_Max = 2 ; 각 부모로부터 상속할 수 있는 최대 무기수
+#DIM DYNAMIC iParent, 2
+#DIM DYNAMIC iP_Weapon_Ary, 200 ; 부모 무기 번호, TALENT.csv 허가웨폰 확인
+#DIM DYNAMIC iP_Weapon_Cnt ; 부모 무기수, RAND 용
+#DIM DYNAMIC iWeapon_Cnt = 501 ; 아이 캐릭터 무기 번호 카운터
+
+iParent:0 = ID_TO_CHARA(CFLAG:부친)
+iParent:1 = ID_TO_CHARA(CFLAG:모친)
+; 아이 캐릭터 무기 번호 카운터
+LOCAL:3 = 501
+FOR LOCAL, 0, 2
+	; 부모 무기 처리
+	iP_Weapon_Cnt = 0
+	VARSET iP_Weapon_Ary, 0
+	FOR LOCAL:1, 501, 701 ; TALENT.csv 허가웨폰 확인
+		IF TALENT:(iParent:LOCAL):(LOCAL:1) <= 0
+			BREAK
+		ENDIF
+		iP_Weapon_Ary:iP_Weapon_Cnt = TALENT:(iParent:LOCAL):(LOCAL:1)
+		iP_Weapon_Cnt ++
+	NEXT
+	; 무기 없으면
+	SIF iP_Weapon_Cnt <= 0
+		CONTINUE
+	FOR LOCAL:1, 0, iInherit_Max
+		; 남은 무기 없으면
+		SIF iP_Weapon_Cnt <= 0
+			BREAK
+		; 무기 번호
+		LOCAL:2 = RAND:iP_Weapon_Cnt
+		; 무기 상속 확률
+		IF RAND:100 < 50
+			TALENT:TARGET:(LOCAL:3) = iP_Weapon_Ary:(LOCAL:2)
+			LOCAL:3 ++
+		ENDIF
+		; 사용한 번호 제거
+		ARRAYREMOVE iP_Weapon_Ary, LOCAL:2, 1
+		iP_Weapon_Cnt --
+	NEXT
+NEXT
