@@ -26,7 +26,7 @@ SELECTCASE ARG
 	CASE 105    
 		IF iLen > 0 && iLen < 21
 			LOCALS = 마이 네세시티(수)
-		ELSEIF iLen < 29
+		ELSEIF iLen > 0 && iLen < 29
 			LOCALS = 마이 네세시티(수영복)
 		ELSE
 			LOCALS = 마이 네세시티 + 크루세이더 쨩
@@ -136,7 +136,7 @@ SELECTCASE ARG
 	CASE 413
 		IF iLen > 0 && iLen < 14
 			LOCALS = 치스토카(온)
-		ELSEIF iLen < 21
+		ELSEIF iLen > 0 && iLen < 21
 			LOCALS = 치스토카(온천)
 		ELSE 		;123456789012345678901234567890
 			LOCALS = 치스토카 + 숙청군 1호
@@ -433,7 +433,7 @@ FOR LOCAL, 501, 701 ; TALENT.csv 확인
 	LOCALS = %RESULTS%
 	SIF STRLENS(LOCALS) <= 0
 		CONTINUE
-	PRINTBUTTON @"{WEAPON_SELECT,4,RIGHT}[%LOCALS, 20, LEFT%]", WEAPON_SELECT
+	PRINTBUTTON @"{WEAPON_SELECT,4,RIGHT}[%ALIGN_TEXT(RESULTS, 20, "LEFT")%]", WEAPON_SELECT
 	IF LOCAL:1 >= 3
 		PRINTL
 		LOCAL:1 = 0
@@ -499,7 +499,8 @@ SELECTCASE RESULT
 			TRYCALLFORM 무기_착용_{TALENT:대상:웨폰}(대상,-1)
 			TRYCALLFORM 무기_착용_{WEAPON_SELECT}(대상,1)
 			TALENT:대상:웨폰 = WEAPON_SELECT
-			RETURN
+			GOTO INPUT_LOOP1
+			; RETURN
 		ENDIF
 ENDSELECT
 ;-------------------------------------------------
@@ -535,11 +536,7 @@ ENDSELECT
 #DIM 대상
 #DIM 무기
 
-; WEAPON_SELECT = TALENT:대상:LOCAL
-; 	SIF WEAPON_SELECT <= 0
-; 		BREAK
-; 	SIF WEAPON_SELECT == TALENT:대상:웨폰
-; 		CONTINUE
+; 양산형 이면 무시?
 ; 501 ~ 700 에 빈 공간 확인
 FOR LOCAL, 501, 701
 	SIF TALENT:대상:LOCAL == 무기
