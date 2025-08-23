@@ -591,11 +591,11 @@ NEXT
 #DIM DYNAMIC iP_Weapon_Ary, 200 ; 부모 무기 번호, TALENT.csv 허가웨폰 확인
 #DIM DYNAMIC iP_Weapon_Cnt ; 부모 무기수, RAND 용
 #DIM DYNAMIC iWeapon_Cnt = 501 ; 아이 캐릭터 무기 번호 카운터
+#LOCALSIZE 3
 
 iParent:0 = ID_TO_CHARA(CFLAG:부친)
 iParent:1 = ID_TO_CHARA(CFLAG:모친)
 ; 아이 캐릭터 무기 번호 카운터
-LOCAL:3 = 501
 FOR LOCAL, 0, 2
 	; 부모 무기 처리
 	iP_Weapon_Cnt = 0
@@ -618,8 +618,8 @@ FOR LOCAL, 0, 2
 		LOCAL:2 = RAND:iP_Weapon_Cnt
 		; 무기 상속 확률
 		IF RAND:100 < 50
-			TALENT:TARGET:(LOCAL:3) = iP_Weapon_Ary:(LOCAL:2)
-			LOCAL:3 ++
+			TALENT:TARGET:iWeapon_Cnt = iP_Weapon_Ary:(LOCAL:2)
+			iWeapon_Cnt ++
 		ENDIF
 		; 사용한 번호 제거
 		ARRAYREMOVE iP_Weapon_Ary, LOCAL:2, 1
