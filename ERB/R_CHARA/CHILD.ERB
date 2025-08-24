@@ -590,7 +590,7 @@ NEXT
 #DIM DYNAMIC iParent, 2
 #DIM DYNAMIC iP_Weapon_Ary, 200 ; 부모 무기 번호, TALENT.csv 허가웨폰 확인
 #DIM DYNAMIC iP_Weapon_Cnt ; 부모 무기수, RAND 용
-#DIM DYNAMIC iWeapon_Cnt = 501 ; 아이 캐릭터 무기 번호 카운터
+; #DIM DYNAMIC iWeapon_Cnt = 501 ; 아이 캐릭터 무기 번호 카운터
 #LOCALSIZE 3
 
 iParent:0 = ID_TO_CHARA(CFLAG:부친)
@@ -618,11 +618,19 @@ FOR LOCAL, 0, 2
 		LOCAL:2 = RAND:iP_Weapon_Cnt
 		; 무기 상속 확률
 		IF RAND:100 < 50
-			TALENT:TARGET:iWeapon_Cnt = iP_Weapon_Ary:(LOCAL:2)
-			iWeapon_Cnt ++
+			CALL WEAPON_ADD(TARGET, iP_Weapon_Ary:(LOCAL:2))
+			; TALENT:TARGET:iWeapon_Cnt = iP_Weapon_Ary:(LOCAL:2)
+			; iWeapon_Cnt ++
 		ENDIF
 		; 사용한 번호 제거
 		ARRAYREMOVE iP_Weapon_Ary, LOCAL:2, 1
 		iP_Weapon_Cnt --
 	NEXT
 NEXT
+; 501 번 무기 장착, 없으면 RANDOM_CHARA_WEAPON_SETTING
+; DEBUGPRINTFORML TARGET({TARGET}) WEAPON 501 = {TALENT:TARGET:501}
+IF TALENT:TARGET:501 > 0
+	CALL WEAPON_EQUIP(TARGET, TALENT:TARGET:501)
+ELSE
+	CALL RANDOM_CHARA_WEAPON_SETTING
+ENDIF
