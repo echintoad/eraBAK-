@@ -494,6 +494,11 @@ FOR 장르, 0, SKILL_GENRE_NUM
 			CONTINUE
 		SIF SKILL_NO_SLOT:아버지:장르:스킬ID == -1
 			CONTINUE
+		; CANT_INHERIT 이면 무시 (예.무기 스킬)
+		TRYCCALLFORM SKILL_{SKILL_NO_SLOT:아버지:장르:스킬ID}_%SKILL_GENRE_ENG:장르%_{SKILL_ID_SLOT:아버지:장르:스킬ID}_CANT_INHERIT
+			CONTINUE
+		CATCH
+		ENDCATCH
 		TRYCCALLFORM SKILL_{SKILL_NO_SLOT:아버지:장르:스킬ID}_%SKILL_GENRE_ENG:장르%_{SKILL_ID_SLOT:아버지:장르:스킬ID}_EXIST
 			스킬NO군:장르:(스킬수:장르) = SKILL_NO_SLOT:아버지:장르:스킬ID
 			스킬ID군:장르:(스킬수:장르) = SKILL_ID_SLOT:아버지:장르:스킬ID
@@ -522,6 +527,11 @@ FOR 장르, 0, SKILL_GENRE_NUM
 			CONTINUE
 		SIF SKILL_NO_SLOT:어머니:장르:스킬ID == -1
 			CONTINUE
+		; CANT_INHERIT 이면 무시 (예.무기 스킬)
+		TRYCCALLFORM SKILL_{SKILL_NO_SLOT:어머니:장르:스킬ID}_%SKILL_GENRE_ENG:장르%_{SKILL_ID_SLOT:어머니:장르:스킬ID}_CANT_INHERIT
+			CONTINUE
+		CATCH
+		ENDCATCH
 		TRYCCALLFORM SKILL_{SKILL_NO_SLOT:어머니:장르:스킬ID}_%SKILL_GENRE_ENG:장르%_{SKILL_ID_SLOT:어머니:장르:스킬ID}_EXIST
 			스킬NO군:장르:(스킬수:장르) = SKILL_NO_SLOT:어머니:장르:스킬ID
 			스킬ID군:장르:(스킬수:장르) = SKILL_ID_SLOT:어머니:장르:스킬ID
