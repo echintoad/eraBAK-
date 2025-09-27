@@ -1269,8 +1269,13 @@ IF iTmp >= 0 && (총력전_상태:캐릭터 == 총력전_상태_보통 || 총력
 	무기이름 = %STR_CLEAR_LEFT(무기이름)%
 	; 버튼 세팅
 	bBtn = 총력전_UI_버튼여부(캐릭터, bBtn)
-	SIF 총력전_스킬_쿨다운:캐릭터 > 0 && bBtn > 0
-		bBtn = 0
+	IF bBtn > 0
+		; 스킬 쿨다운 || 스턴중 스킬 선택 불가
+		iTmp = GETVAR_RAIDSTAT_SUM(캐릭터, "CC최대")
+		IF 총력전_스킬_쿨다운:캐릭터 > 0 || 총력전_군중제어:캐릭터 > iTmp
+			bBtn = 0
+		ENDIF
+	ENDIF
 	iTmp = 캐릭터 + 총력전_캐릭터수
 	CALL 총력전_UI_버튼(무기이름, 너비, bBtn, iTmp)
 	RESULTS = %시전번호%%RESULTS%
