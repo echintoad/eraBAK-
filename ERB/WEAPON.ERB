@@ -11,20 +11,6 @@ CATCH
 ENDCATCH
 LOCALS = 
 SELECTCASE ARG
-	; CASE 100
-	; 	IF iLen > 0 && iLen < 8
-	; 		LOCALS = 돌격소총
-	; 	ELSE
-	; 		LOCALS = 양산형 돌격소총
-	; 	ENDIF
-	; CASE 101
-	; 	LOCALS = Et Omnia Vanitas
-	; CASE 102
-	; 	LOCALS = Honest Wish
-	; CASE 103
-	; 	LOCALS = WHITE FANG 465
-	; CASE 104
-	; 	LOCALS = 라이브러리 룰러
 	CASE 105    
 		IF iLen > 0 && iLen < 21
 			LOCALS = 마이 네세시티(수)
@@ -33,108 +19,26 @@ SELECTCASE ARG
 		ELSE
 			LOCALS = 마이 네세시티 + 크루세이더 쨩
 		ENDIF
-				  ;123456789012345678901234567890
-		; LOCALS = 마이 네세시티+
-		; LOCALS = 마이 네세시티(수영복)
-		; LOCALS = 마이 네세시티 + 크루세이더 쨩
-	; CASE 106
-	; 	LOCALS = 마이 네세시티
-	; CASE 107
-	; 	LOCALS = 바텀리스
-	; CASE 108
-	; 	LOCALS = 백도어
-	; CASE 109
-	; 	LOCALS = 서프라이즈 파티
-	; CASE 110
-	; 	LOCALS = 세이프티
-	; CASE 111
-	; 	LOCALS = 숙녀의 기품
-	; CASE 112
-	; 	LOCALS = 스위트 드라이버
-	; CASE 113
-	; 	LOCALS = 식탁 위의 무법자
-	; CASE 114
-	; 	LOCALS = 신시어리티
-	; CASE 115
-	; 	LOCALS = 아리우스제 돌격소총
-	; CASE 116
-	; 	LOCALS = 오토 에이머
-	; CASE 117
-	; 	LOCALS = 유니크 아이디어
-	; CASE 118
-	; 	LOCALS = 택티컬 테라피
-	; CASE 119
-	; 	LOCALS = 해피 스마일 건
-	; CASE 120
-	; 	LOCALS = 빵야빵야! 쨩
-	; CASE 121
-	; 	LOCALS = 시크릿 타임+아비 에슈흐
-	; CASE 122
-	; 	LOCALS = 레드 드래곤
-	; CASE 123
-	; 	LOCALS = 정화의 손길
-	; CASE 124
-	; 	LOCALS = 전략홍보팀장의 노하우
-	; CASE 125
-	; 	LOCALS = 축제의 열기
-	; CASE 126
-	; 	LOCALS = 강철의 횃불
-	; CASE 127
-	; 	LOCALS = 초콜릿 N 스트로베리
 	CASE 200
 		IF iLen > 0 && iLen < 17
 			LOCALS = 화염방사기
 		ELSE 		;12345678901234567890
 			LOCALS = 양산형 화염방사기
 		ENDIF
-	; CASE 201
-	; 	LOCALS = 메그마 파워!
 	CASE 300
 		IF iLen > 0 && iLen < 17
 			LOCALS = 유탄발사기
 		ELSE 		;12345678901234567890
 			LOCALS = 양산형 유탄발사기
 		ENDIF
-	; CASE 301
-	; 	LOCALS = 575식 유탄발사기
-	; CASE 302 ;  ;123456789012345678901234567890
-	; 	LOCALS = 구급용 돌입 키트+구급차량 11호
-	; CASE 303
-	; 	LOCALS = 냥즈 대쉬
 	CASE 304
 		LOCALS = 라이브용 T셔츠 캐논
-	; CASE 305
-	; 	LOCALS = 스프링 펀치
 	CASE 400
 		IF iLen > 0 && iLen < 11
 			LOCALS = 권총
 		ELSE 		;12345678901234567890
 			LOCALS = 양산형 권총
 		ENDIF
-	; CASE 401
-	; 	LOCALS = RABBIT 224식 권총
-	; CASE 402
-	; 	LOCALS = 나님의 특제 권총
-	; CASE 403
-	; 	LOCALS = 만마전 제식 권총+토라마루
-	; CASE 404
-	; 	LOCALS = 발키리 제식 권총 17호
-	; CASE 405
-	; 	LOCALS = 부드러운 결의
-	; CASE 406
-	; 	LOCALS = 블레싱
-	; CASE 407
-	; 	LOCALS = 서기의 결단
-	; CASE 408
-	; 	LOCALS = 서포트 포인터
-	; CASE 409
-	; 	LOCALS = 에코링크
-	; CASE 410
-	; 	LOCALS = 절벽 위의 꽃
-	; CASE 411
-	; 	LOCALS = 제3호 발키리 제식 권총
-	; CASE 412
-	; 	LOCALS = 조용한 해결법
 	CASE 413
 		IF iLen > 0 && iLen < 14
 			LOCALS = 치스토카(온)
@@ -143,62 +47,20 @@ SELECTCASE ARG
 		ELSE 		;123456789012345678901234567890
 			LOCALS = 치스토카 + 숙청군 1호
 		ENDIF
-	; CASE 414
-	; 	LOCALS = 치스토카
-	; CASE 415
-	; 	LOCALS = 파이에티
-	; CASE 416
-	; 	LOCALS = 패니·파이어웍스
-	; CASE 417
-	; 	LOCALS = 핫 샷
-	; CASE 418
-	; 	LOCALS = 데몬스 로어
-	; CASE 419
-	; 	LOCALS = 상식적 수단
-	; CASE 420
-	; 	LOCALS = 현룡 N 백호
-	; CASE 421
-	; 	LOCALS = 레드 렉터
-	; CASE 422
-	; 	LOCALS = 로얄 블렌드
-	; CASE 423
-	; 	LOCALS = 창작의… 고통!
 	CASE 500
 		IF iLen > 0 && iLen < 13
 			LOCALS = 기관총
 		ELSE 		;12345678901234567890
 			LOCALS = 양산형 기관총
 		ENDIF
-	; CASE 501
-	; 	LOCALS = RABBIT 26식 기관총
-	; CASE 502
-	; 	LOCALS = 데일리 커틀러리
 	CASE 503 ; 노노미 미니 No.5?
 		LOCALS = 리틀 머신건 V
-	; CASE 504
-	; 	LOCALS = 마비노기온
-	; CASE 505
-	; 	LOCALS = 미니 NO.5
-	; CASE 506
-	; 	LOCALS = 오토 래커
-	; CASE 507
-	; 	LOCALS = 인의 없는 사격
-	; CASE 508
-	; 	LOCALS = 종막의 디스트로이어
-	; CASE 509
-	; 	LOCALS = 트릭 오어 트릿
-	; CASE 510
-	; 	LOCALS = 프로페서 K
-	; CASE 511
-	; 	LOCALS = 멀리:건
 	CASE 600
 		IF iLen > 0 && iLen < 13
 			LOCALS = 박격포
 		ELSE 		;12345678901234567890
 			LOCALS = 양산형 박격포
 		ENDIF
-	; CASE 601
-	; 	LOCALS = 팬시 라이트
 	CASE 602
 		IF iLen > 0 && iLen < 19
 			LOCALS = 팬시 라이트(응)
@@ -211,112 +73,30 @@ SELECTCASE ARG
 		ELSE 		;12345678901234567890
 			LOCALS = 양산형 레일건
 		ENDIF
-	; CASE 701
-	; 	LOCALS = 빛의 검:슈퍼노바
 	CASE 800
 		IF iLen > 0 && iLen < 15
 			LOCALS = 로켓런처
 		ELSE 		;12345678901234567890
 			LOCALS = 양산형 로켓런처
 		ENDIF
-	; CASE 801
-	; 	LOCALS = 세인트 프레데터
-	; CASE 802
-	; 	LOCALS = 도서관 이용수칙 7호
 	CASE 900
 		IF iLen > 0 && iLen < 11
 			LOCALS = 샷건
 		ELSE 		;12345678901234567890
 			LOCALS = 양산형 샷건
 		ENDIF
-	; CASE 901
-	; 	LOCALS = 호루스의 눈
-	; CASE 902
-	; 	LOCALS = 구호의 증명
-	; CASE 903
-	; 	LOCALS = 급식부 호신용 총 type B
-	; CASE 904
-	; 	LOCALS = 멀티 택티컬
-	; CASE 905
-	; 	LOCALS = 미치루류 오버플로우 샷건
-	; CASE 906
-	; 	LOCALS = 밀레니엄제 최신형 덤벨
-	; CASE 907
-	; 	LOCALS = 블러드 앤 건파우더
-	; CASE 908
-	; 	LOCALS = 블로 어웨이
-	; CASE 909
-	; 	LOCALS = 사쿠라 봉봉
-	; CASE 910
-	; 	LOCALS = 슈팅☆스타
 	CASE 1000
 		IF iLen > 0 && iLen < 15
 			LOCALS = 기관단총
 		ELSE 		;12345678901234567890
 			LOCALS = 양산형 기관단총
 		ENDIF
-	; CASE 1001
-	; 	LOCALS = Quis ut Deus
-	; CASE 1002
-	; 	LOCALS = 급식부 호신용 총 type A
-	; CASE 1003
-	; 	LOCALS = 로직 앤 리즌
-	; CASE 1004
-	; 	LOCALS = 마이스터·제로
-	; CASE 1005
-	; 	LOCALS = 비욘드 더 루미네이션
-	; CASE 1006
-	; 	LOCALS = 사지타리우스 나이트
-	; CASE 1007
-	; 	LOCALS = 상큼 민트초코
-	; CASE 1008
-	; 	LOCALS = 숙면 도우미 Ⅱ
-	; CASE 1009
-	; 	LOCALS = 이즈나류 슈퍼 닌자 도구
-	; CASE 1010
-	; 	LOCALS = 잿빛 발랄라이카
-	; CASE 1011
-	; 	LOCALS = 츠쿠요류 서브머신건
-	; CASE 1012
-	; 	LOCALS = 트윈 드래곤
-	; CASE 1013
-	; 	LOCALS = RABBIT 31식 기관단총
-	; CASE 1014
-	; 	LOCALS = 스코르피우스
-	; CASE 1015
-	; 	LOCALS = 온고지신
 	CASE 1100
 		IF iLen > 0 && iLen < 15
 			LOCALS = 저격소총
 		ELSE 		;12345678901234567890
 			LOCALS = 양산형 저격소총
 		ENDIF
-	; CASE 1101
-	; 	LOCALS = Ideal
-	; CASE 1102
-	; 	LOCALS = RABBIT 39식 소총
-	; CASE 1103
-	; 	LOCALS = 볼륨 서프레서
-	; CASE 1104
-	; 	LOCALS = 비에르나시치
-	; CASE 1105
-	; 	LOCALS = 빅 아이
-	; CASE 1106
-	; 	LOCALS = 사랑의 매
-	; CASE 1107
-	; 	LOCALS = 아이덴티티
-	; CASE 1108
-	; 	LOCALS = 와인레드 어드마이어
-	; CASE 1109
-	; 	LOCALS = 임페일먼트
-	; CASE 1110
-	; 	LOCALS = 저스티스 블랙
-	; CASE 1111
-	; 	LOCALS = 정의구현
-	; CASE 1112
-	; 	LOCALS = 제14호 발키리 제식 소총
-	; CASE 1113
-	; 	LOCALS = 진홍빛 재앙
 	CASE 1114
 		IF iLen > 0 && iLen < 19
 			LOCALS = 진홍빛 재앙(수)
@@ -388,6 +168,7 @@ PRINTL
 PRINTL
 CALL WEAPON_NAME(TALENT:대상:웨폰)
 PRINTFORML [%RESULTS, 30, LEFT%]
+TRYCALLFORM 무기_설명_스탯_{TALENT:대상:웨폰}(총력전무기스킬)
 IF 총력전무기스킬 == 0
 	TRYCALLFORM 무기_설명_{TALENT:대상:웨폰}
 ELSEIF 총력전무기스킬 == 1
@@ -532,7 +313,7 @@ ENDSELECT
 ; ; 허가 무기 확인
 
 ;-------------------------------------------------
-;사용가능한무기 추가
+;캐릭터가 사용 가능한 무기 추가 / 제거
 ;-------------------------------------------------
 @WEAPON_ADD(대상, 무기)
 #DIM 대상

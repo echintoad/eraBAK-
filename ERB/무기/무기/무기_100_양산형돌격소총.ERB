@@ -24,20 +24,27 @@ IF 탈착 == 1
 	ABL:대상:무투 += LOCAL:1
 	ABL:대상:방위 += LOCAL:2
 	TALENT:대상:웨폰 = 100
-	무기사용가능:100 = 0
+	; 무기사용가능:100 = 0
 ELSEIF 탈착 == -1
 	ABL:대상:무투 -= LOCAL:1
 	ABL:대상:방위 -= LOCAL:2
 	TALENT:대상:웨폰 = 100
-	무기사용가능:100 = 1
+	; 무기사용가능:100 = 1
 ENDIF
 
 RETURN 탈착
 ;------------------------------------------
 ;무기설명
 ;------------------------------------------
+@무기_설명_스탯_100(isRaid = 0)
+#DIM DYNAMIC isRaid
+IF isRaid
+	; CALL ICPRINT(@"공격력: <25> 명중률: <10>", "L", 칼라_주의)
+ELSE
+	CALL ICPRINT(@"무투: <10> 방위: <10>", "L", 칼라_주의)
+ENDIF
+
 @무기_설명_100
-CALL ICPRINT(@"무투: <10> 방위: <10>", "L", 칼라_주의)
 CALL SINGLE_DRAWLINE
 PRINTL 전용스킬
 PRINTL 
