@@ -113,16 +113,17 @@ ELSE
 	RETURN 1
 ENDIF
 
+; alt.opt. 연타로 변경?
 @총력전_스킬_1121_설명(시전자)
 #DIM 시전자 ; 가변스킬 설명 위해서
 ; 시전자 총력전_스킬_가변 확인후 RETURN
 SELECTCASE 총력전_스킬_가변:시전자
 	CASE 0
-		RESULTS = 아비 에슈흐 모드로 전환, 자신의 공격력 41％ 명중률 18％ 회피율 12％ 상승
+		RESULTS = 아비 에슈흐 모드로 전환, 자신의 공격력 (+60％) 명중률 (+20％) 회피율 (+12％) 상승
 	CASE 3
-		RESULTS = 적에게 방어력 60％ 감소후 공격력 1152％ 대미지 
+		RESULTS = 적에게 방어력 감소후 (-50％) 대미지 (공격력 825％)  
 	CASEELSE ; 1, 2
-		RESULTS = 적에게 방어력 60％ 감소후 공격력 300％ 대미지 
+		RESULTS = 적에게 방어력 감소후 (-50％) 대미지 (공격력 338％)
 ENDSELECT
 
 ; @총력전_스킬_1121_발동(시전자)
@@ -144,8 +145,8 @@ ENDSELECT
 
 #DIM DYNAMIC 목표
 #DIM DYNAMIC 대미지
-#DIM CONST 공격증가 = 41
-#DIM CONST 명중증가 = 18
+#DIM CONST 공격증가 = 60
+#DIM CONST 명중증가 = 20
 #DIM CONST 회피증가 = 12
 #DIM DYNAMIC iTmp, 2
 #DIMS DYNAMIC sTmp, 3
@@ -202,12 +203,13 @@ ELSE ; 가변 1, 2, 3
 	; CALL 총력전_상태효과_스탯처리(목표, 총력전_방식_스킬)
 	; 대미지
 	IF 총력전_스킬_가변:시전자 == 3
-		대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 1152
+		대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 825
 	ELSE
-		대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 300
+		대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 338
 	ENDIF
 	대미지 = DIVIDE_ROUND(대미지, 100)
 	CALL 총력전_처리_피격(대미지, 목표, 시전자)
+	; 방어 감소 제거
 	; 회피 하면 상태효과 소비 안함...
 	; 방어 무시 추가하면 필요 없어짐
 	IF RESULT == 0

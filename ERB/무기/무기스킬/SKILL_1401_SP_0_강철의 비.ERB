@@ -99,7 +99,7 @@ RETURN 4
 
 @총력전_스킬_1401_설명(시전자)
 #DIM 시전자 ; 가변스킬 설명 위해서
-RESULTS = 모든 적에게 공격력 245％x2 대미지 추가로 2턴간 공격력 100％ 화상부여
+RESULTS = 모든 적에게 대미지 (공격력 45％x2), 2턴간 지속 대미지 부여 (공격력 15％)
 
 @총력전_스킬_1401_발동(시전자)
 #DIM 시전자
@@ -120,9 +120,9 @@ CALL 총력전_스킬_공통_발동텍스트(시전자, 109, RESULTS, sTmp)
 ; 목표 처리
 CALL 총력전_목표_전체(목표, 1)
 ; 대미지
-대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 245
+대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 45
 대미지 = DIVIDE_ROUND(대미지, 100)
-지속대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 100
+지속대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 15
 지속대미지 = DIVIDE_ROUND(지속대미지, 100)
 FOR iTmp, 0, 총력전_캐릭터수
 	SIF 목표:iTmp < 0

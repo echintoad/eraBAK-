@@ -101,14 +101,14 @@ RETURN 5
 @총력전_스킬_1505_설명(시전자)
 #DIM 시전자 ; 가변스킬 설명 위해서
 ; 820%
-RESULTS = 1턴간 자신의 치명대미지 30％ 증가 추가로 모든 적에게 공격력 410％x2 대미지
+RESULTS = 1턴간 자신의 치명 대미지 증가 (+20％) 추가로 모든 적에게 대미지 (공격력 73％x2)
 
 @총력전_스킬_1505_발동(시전자)
 #DIM 시전자
 
 #DIM 목표, 총력전_캐릭터수
 #DIM 대미지
-#DIM 치댐증가 = 30
+#DIM 치댐증가 = 20
 #DIM iTmp, 2
 #DIMS sTmp
 ; 발동 텍스트
@@ -132,24 +132,14 @@ IF iTmp >= 0 && NO:iTmp == 4
 ENDIF
 ; 버프 추가
 CALL 총력전_상태효과_추가_텍스트(시전자, 시전자, 상효_종류_치명타대미지, 치댐증가, 1, 총력전_방식_지속, 총력전_방식_턴, 1, 1505)
-; 버프 텍스트
-; sTmp = %조사처리(총력전_이름:시전자, "의")% 치명타 대미지 증가(30％)
-; CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
-; 목표 처리
-; IF 총력전_팀:시전자 == 0
-; 	iTmp = 1
-; ELSE
-; 	iTmp = 0
-; ENDIF
 CALL 총력전_목표_전체(목표, 1)
 ; 대미지
-대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 410
+대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 73
 대미지 = DIVIDE_ROUND(대미지, 100)
-FOR iTmp:1, 0, 2
-	VARSIZE 목표
-	FOR iTmp, 0, RESULT
-		SIF 목표:iTmp < 0
-			BREAK ; CONTINUE?
+FOR iTmp, 0, 총력전_캐릭터수
+	SIF 목표:iTmp < 0
+		BREAK ; CONTINUE?
+	FOR iTmp:1, 0, 2
 		CALL 총력전_처리_피격(대미지, 목표:iTmp, 시전자)
 	NEXT
 NEXT

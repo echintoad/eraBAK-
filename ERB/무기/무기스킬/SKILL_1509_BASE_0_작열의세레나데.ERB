@@ -101,7 +101,7 @@ RETURN 4
 @총력전_스킬_1509_설명(시전자)
 #DIM 시전자 ; 가변스킬 설명 위해서
 ; 1149 = 383
-RESULTS = 지정된 적과 2범위 안 적에게 공격력 383％x3 대미지
+RESULTS = 1범위 적에게 대미지 (공격력 87％x3)
 
 @총력전_스킬_1509_발동(시전자)
 #DIM 시전자
@@ -126,16 +126,14 @@ IF 주목표 < 0
 	RETURN
 ENDIF
 ; 범위로 변경, 적팀 1 이상이 되면 수정 필요
-CALL 총력전_목표_범위(범위목표, 주목표, 1, 2)
+CALL 총력전_목표_범위(범위목표, 주목표, 1)
 ; 대미지
-대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 383
+대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 87
 대미지 = DIVIDE_ROUND(대미지, 100)
-FOR iTmp:1, 0, 3
-	; 범위로 변경
-	FOR iTmp, 0, 총력전_캐릭터수
-		IF 범위목표:iTmp < 0
-			BREAK
-		ENDIF
+FOR iTmp, 0, 총력전_캐릭터수
+	SIF 범위목표:iTmp < 0
+		BREAK
+	FOR iTmp:1, 0, 3
 		CALL 총력전_처리_피격(대미지, 범위목표:iTmp, 시전자)
 	NEXT
 NEXT

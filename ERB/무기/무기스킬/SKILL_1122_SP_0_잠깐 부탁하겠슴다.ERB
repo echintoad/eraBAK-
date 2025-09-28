@@ -101,7 +101,7 @@ RETURN 6
 ; alt.opt.2 3명의 적에게 800? 대미지
 @총력전_스킬_1122_설명(시전자)
 #DIM 시전자 ; 가변스킬 설명 위해서
-RESULTS = 1범위 적에게 공격력 1300％ 대미지
+RESULTS = 1범위 적에게 대미지 (공격력 67％x3)
 
 @총력전_스킬_1122_발동(시전자)
 #DIM 시전자
@@ -109,7 +109,7 @@ RESULTS = 1범위 적에게 공격력 1300％ 대미지
 #DIM DYNAMIC 주목표
 #DIM DYNAMIC 범위목표, 총력전_캐릭터수
 #DIM DYNAMIC 대미지
-#DIM DYNAMIC iTmp
+#DIM DYNAMIC iTmp, 2
 #DIMS DYNAMIC sTmp, 3
 
 ; 발동 텍스트
@@ -126,12 +126,14 @@ IF 주목표 < 0
 	RETURN
 ENDIF
 ; 범위로 변경, 적팀 1 이상이 되면 수정 필요
-CALL 총력전_목표_범위(범위목표, 주목표, 1, 1)
+CALL 총력전_목표_범위(범위목표, 주목표, 1)
 ; 대미지
-대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 1300
+대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 67
 대미지 = DIVIDE_ROUND(대미지, 100)
 FOR iTmp, 0, 총력전_캐릭터수
 	SIF 범위목표:iTmp < 0
 		BREAK
-	CALL 총력전_처리_피격(대미지, 범위목표:iTmp, 시전자)
+	FOR iTmp:1, 0, 3
+		CALL 총력전_처리_피격(대미지, 범위목표:iTmp, 시전자)
+	NEXT
 NEXT
