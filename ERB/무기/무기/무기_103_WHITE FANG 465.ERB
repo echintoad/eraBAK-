@@ -13,7 +13,8 @@ RESULTS = WHITE FANG 465
 #DIM 탈착
 #DIM 스탯증가, 2
 ; 시로코
-IF 대상 >= 0 && NO:대상 == 1
+; ...돼나?
+IF 대상 >= 0 && (NO:대상 == 1 || NO:대상 == 142)
 	스탯증가:0 = 25 ; 무투
 	스탯증가:1 = 5 ; 방위
 ELSE
@@ -44,7 +45,7 @@ RETURN 탈착
 @무기_총력전스탯_103(대상)
 #DIM 대상
 VARSET RESULT, 0 ; WEAPON.ERH 참조
-IF 대상 >= 0 && NO:대상 == 1
+IF 대상 >= 0 && (NO:대상 == 1 || NO:대상 == 142)
 	RESULT:총력전_무기_공격력 = 20
 	RESULT:총력전_무기_명중률 = 12
 	RESULT:총력전_무기_회피율 = 8
@@ -60,10 +61,10 @@ ENDIF
 @무기_설명_스탯_103(isRaid = 0)
 #DIM DYNAMIC isRaid
 IF isRaid
-	CALL ICPRINT(@"시로코: 공격력: <20> 명중률: <12> 회피율: <8>", "L", 칼라_주의)
+	CALL ICPRINT(@"시로코/쿠로코: 공격력: <20> 명중률: <12> 회피율: <8>", "L", 칼라_주의)
 	CALL ICPRINT(@"나머지: 공격력: <10> 명중률: <6> 회피율: <4>", "L", 칼라_주의)
 ELSE
-	CALL ICPRINT(@"시로코: 무투: <25> 방위: <5>", "L", 칼라_주의)
+	CALL ICPRINT(@"시로코/쿠로코: 무투: <25> 방위: <5>", "L", 칼라_주의)
 	CALL ICPRINT(@"나머지: 무투: <12> 방위: <2>", "L", 칼라_주의)
 ENDIF
 
