@@ -97,12 +97,12 @@ RETURN 2
 
 @총력전_스킬_1114_설명(시전자)
 #DIM 시전자 ; 가변스킬 설명 위해서
-RESULTS = 3턴간 공격력 (+12％) 공격속도 (+60％) 증가
+RESULTS = 3턴간 공격력 (+27％) 공격속도 (+60％) 증가
 
 @총력전_스킬_1114_발동(시전자)
 #DIM 시전자
 
-#DIM CONST 공증가백분 = 12
+#DIM CONST 공증가백분 = 27
 #DIM CONST 공속증가 = 60
 #DIM iTmp
 #DIMS sTmp
@@ -115,11 +115,11 @@ IF iTmp >= 0 && NO:iTmp == 3
 	; 캬루일 경우
 	SELECTCASE RAND:3
 		CASE 0
-			sTmp = 용서 못해!
+			sTmp = 「용서 못해!」
 		CASE 1
-			sTmp = 화났다고!
+			sTmp = 「화났다고!」
 		CASEELSE
-			sTmp = 각오해!
+			sTmp = 「각오해!」
 	ENDSELECT
 	CALL 총력전_UI_텍스트_추가(sTmp)
 ENDIF

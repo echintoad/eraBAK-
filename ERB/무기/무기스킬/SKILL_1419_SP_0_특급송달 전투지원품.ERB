@@ -116,11 +116,11 @@ IF iTmp >= 0 && NO:iTmp == 5
 	; 아야네일 경우
 	SELECTCASE RAND:3
 		CASE 0
-			sTmp = 상황은 파악했어요. 갑니다!!
+			sTmp = 「상황은 파악했어요. 갑니다!!」
 		CASE 1
-			sTmp = 지원이 필요한 타이밍...! 놓치지 않아요!
+			sTmp = 「지원이 필요한 타이밍...! 놓치지 않아요!」
 		CASEELSE
-			sTmp = 후방 지원, 도착했습니다!
+			sTmp = 「후방 지원, 도착했습니다!」
 	ENDSELECT
 	CALL 총력전_UI_텍스트_추가(sTmp)
 ENDIF

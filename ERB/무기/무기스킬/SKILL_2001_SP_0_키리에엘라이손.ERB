@@ -99,7 +99,7 @@ RETURN 6
 
 @총력전_스킬_2001_설명(시전자)
 #DIM 시전자 ; 가변스킬 설명 위해서
-RESULTS = 적에게 확정 치명 대미지 (공격력 71％x3 + 114％) 대상의 현재체력에 비례하여 최대 2배까지 대미지 상승.
+RESULTS = 적에게 확정 치명 대미지 (공격력 76％x3 + 123％) 대상의 현재체력에 비례하여 최대 2배까지 대미지 상승.
 
 @총력전_스킬_2001_발동(시전자)
 #DIM 시전자
@@ -125,9 +125,9 @@ ENDIF
 ; 대미지
 ; 체력 비례 대미지 증가
 iTmp = REMAP_CLAMP(총력전_체력:목표, 0, GETVAR_RAIDSTAT_SUM(목표, "최대체력"), 100, 200)
-대미지:0 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 71 * iTmp
+대미지:0 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 76 * iTmp
 대미지:0 = DIVIDE_ROUND(대미지:0, 10000)
-대미지:1 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 114 * iTmp
+대미지:1 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 123 * iTmp
 대미지:1 = DIVIDE_ROUND(대미지:1, 10000)
 ; 계산 확인
 [IF_DEBUG]
