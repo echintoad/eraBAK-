@@ -35,8 +35,6 @@ IF 탈착 == 1
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 1127, 0)
 	; 무기사용가능:127 = 0
 ELSEIF 탈착 == -1
-	ABL:대상:방위 -= LOCAL:1
-	ABL:대상:가창 -= LOCAL:2
 	TALENT:대상:웨폰 = 100
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "게헨나의 셀러브리티!")
 	; 무기사용가능:127 = 1
