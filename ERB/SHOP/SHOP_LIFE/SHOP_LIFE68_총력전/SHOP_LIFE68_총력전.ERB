@@ -364,7 +364,8 @@ ELSEIF RESULT == -2
 ELSEIF RESULT == -3
 	; 결정
 	IF 배치완료 == 1
-		PRINTW 시작
+		; PRINTW 시작
+		DEBUGCLEAR
 		총력전_보스 = 보스
 		CALL 총력전_실행 ;(보스)
 		; 리셋
