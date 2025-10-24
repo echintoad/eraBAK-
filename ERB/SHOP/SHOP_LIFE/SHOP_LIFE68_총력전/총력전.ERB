@@ -567,7 +567,7 @@ FOR iTmp, 0, 대상수
 NEXT
 SIF 선택끝수 < 대상수
 	GOTO INPUT_LOOP
-
+CALL 총력전_UI_텍스트_제거(1)
 $SKIP_SELECT
 총력전_텍스트_표시행 = 0
 VARSET 총력전_접두사_이름, ""
