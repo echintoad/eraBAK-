@@ -1,0 +1,165 @@
+﻿;-----------------------------------
+;기본치 계산에 앞서 처리하는 것
+;-----------------------------------
+@SKILL_1426_SP_0_EXIST
+RETURN 1
+
+@SKILL_1426_SP_0_NAME
+RESULTS = 빅 시스터
+
+;레벨은 1-5까지
+@SKILL_1426_SP_0_LEVEL
+RETURN 3
+
+;대상 선택
+@SKILL_1426_SP_0_SETTARGET(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+SIF BATTLE_COMMANDER_NUM:발동측 == 0
+	RETURN 0
+COMBAT_SKILL_TARGET = RAND:(BATTLE_COMMANDER_NUM:발동측)
+RETURN 1
+
+;발동 판정
+@SKILL_1426_SP_0_CAN_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+RETURN 1
+
+
+;발동 텍스트를 오바라이드 하고 싶을 때에.
+;「아무개의 스킬 발동!   00했다!」의 「00했다!」의 부분을 실장하고 싶은 경우는,
+;이것이 아니고 INVOKE로 쓰면 좋습니다.
+;@SKILL_1426_SP_0_INVOKE_TEXT(발동자, 스킬, 장르)
+;#DIM 발동자
+;#DIM 스킬
+;#DIMS 장르
+
+;효과를 여기에 기술
+@SKILL_1426_SP_0_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+; 원호 행동
+; BATTLE_SKILL_RATE:발동측:COMBAT_SKILL_TARGET += 10 ~ 20
+; eraK 골드 탐지기
+; LOCAL = RAND(1000, 3000)
+; MONEY:(CFLAG:(발동자):소속) += LOCAL
+; X ~ 2500
+; 자금 확인
+LOCAL:1 = MIN(MONEY:(CFLAG:(발동자):소속), 2500)
+LOCAL:0 = LOCAL:1 / 6
+; 소비 자금
+LOCAL = RAND(LOCAL:0, LOCAL:1)
+; 텍스트
+LOCALS = %ANAME(BATTLE_COMMANDER:발동측:COMBAT_SKILL_TARGET)%
+PRINTFORML {LOCAL}크레딧을 소비하여, %조사처리(LOCALS, "의")% 스킬 발동 확률을 올렸다!
+; 소비 자금 비례 발동확률 증가
+LOCAL = REMAP_CLAMP(LOCAL, 0, 2500, 10, 40)
+BATTLE_SKILL_RATE:발동측:COMBAT_SKILL_TARGET += LOCAL
+
+
+; 무투 까지 증가 하면 뭔가 너무 많을거 같고... 안 하기엔 우이, 고서관 스킬이랑 비교 되고...
+@SKILL_1426_SP_0_EXPLANATION
+RESULTS = 국고의 자금을 소비해, 아군 한 사람의 스킬을 발동하기 쉽게 한다.
+; RESULTS = 국고의 자금을 소비해, 아군 한사람의 무투·스킬 발동율을 업.
+
+@SKILL_1426_SP_0_CANT_TELL
+
+; 아이가 배울수 없도록 한다
+@SKILL_1426_SP_0_CANT_INHERIT
+
+
+@SKILL_1426_SP_0_RATE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+; RETURN 1000
+RETURN 350
+
+; #region == 총력전 ==
+@총력전_스킬_1426_코스트(시전자)
+#DIM 시전자 ; 코스트 당 대미지 스킬 카운터 위해서
+RETURN 2
+
+@총력전_스킬_1426_설명(시전자)
+#DIM 시전자 ; 가변스킬 설명 위해서
+RESULTS = 자신을 제외한 아군 1명, 3턴간 공력력 (+70％) 증가, 다음 스킬 쿨다운 0으로 고정.
+
+@총력전_스킬_1426_발동(시전자)
+#DIM 시전자
+
+#DIM DYNAMIC 버프대상
+#DIM CONST 공격력증가량 = 70
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp, 3
+
+; 발동 텍스트
+sTmp:0 = 「지켜보고 있어. 전부.」
+sTmp:1 = 「난 모든 곳에 있어.」
+sTmp:2 = 「이게 당신의 가능성이야.」
+CALL SKILL_1426_SP_0_NAME
+CALL 총력전_스킬_공통_발동텍스트(시전자, 28, RESULTS, sTmp)
+; 목표 처리
+CALL 총력전_UI_텍스트_추가("버프 대상 선택", 칼라_노랑)
+CALL 총력전_시퀀스_목표선택(버프대상, 총력전_선택_아군)
+; 시전자면 메세지후 다시 선택
+WHILE 버프대상 == 시전자
+	sTmp:0 = %조사처리(총력전_이름:시전자, "를")% 제외한 아군 선택
+	CALL 총력전_UI_텍스트_추가(sTmp:0)
+	CALL 총력전_시퀀스_목표선택(버프대상, 총력전_선택_아군)
+	CALL 총력전_UI_텍스트_제거(1)
+WEND
+; 목표 없으면 스킬 해재
+IF 버프대상 < 0
+	CALL 총력전_스킬_공통_스킬취소(시전자)
+	RETURN
+ENDIF
+; 버프
+CALL 총력전_상태효과_추가_텍스트(버프대상, 시전자, 상효_종류_공격력백분율, 공격력증가량, 1, 총력전_방식_지속, 총력전_방식_턴, 3, 1426, 0)
+; 스킬 쿨 리셋 카운터 추가
+CALL 총력전_카운터_추가(버프대상, 시전자, 총력전_방식_지속, 총력전_방식_스킬, 1, 1426, 0)
+
+
+; #region == 카운터 ==
+; 스킬 쿨 리셋
+@총력전_스킬_1426_0_카운터_종료(대상, 카운터번호)
+#DIM 대상
+#DIM 카운터번호
+
+총력전_스킬_쿨다운:대상 = 0
+; 카운터 제거
+CALL 총력전_카운터_제거(대상, 카운터번호)
