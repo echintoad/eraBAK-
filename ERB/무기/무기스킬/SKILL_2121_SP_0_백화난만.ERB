@@ -150,7 +150,7 @@ ENDIF
 CALL 총력전_상태효과_추가_텍스트(시전자, 시전자, 상효_종류_치명타, 30, 1, 총력전_방식_스킬, 총력전_방식_스킬, 1, 2121, 0)
 ; 체력 비례 대미지 증가
 iTmp = REMAP_CLAMP(총력전_체력:목표, 0, GETVAR_RAIDSTAT_SUM(목표, "최대체력"), 100, 300)
-대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 80 * iTmp
+대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 120 * iTmp
 대미지 = DIVIDE_ROUND(대미지:0, 10000)
 FOR iTmp, 0, 3
 	CALL 총력전_처리_피격(대미지, 목표, 시전자)
