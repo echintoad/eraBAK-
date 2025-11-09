@@ -1,0 +1,157 @@
+﻿;-----------------------------------
+;기본치 계산에 앞서 처리하는 것
+;-----------------------------------
+@SKILL_2121_SP_0_EXIST
+RETURN 1
+
+@SKILL_2121_SP_0_NAME
+RESULTS = 백화난만
+
+;레벨은 1-5까지
+@SKILL_2121_SP_0_LEVEL
+RETURN 5
+
+;대상 선택
+@SKILL_2121_SP_0_SETTARGET(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+;부대 대상
+RETURN 1
+
+;발동 판정
+@SKILL_2121_SP_0_CAN_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+RETURN 1
+
+;발동 텍스트를 오바라이드 하고 싶을 때에.
+;「아무개의 스킬 발동!   00했다!」의 「00했다!」의 부분을 실장하고 싶은 경우는,
+;이것이 아니고 INVOKE로 쓰면 좋습니다.
+;@SKILL_2121_SP_0_INVOKE_TEXT(발동자, 스킬, 장르)
+;#DIM 발동자
+;#DIM 스킬
+;#DIMS 장르
+
+;효과를 여기에 기술
+@SKILL_2121_SP_0_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+
+CALL DECREASE_SOLDIER(대상세력, 대상부대, RAND(ABL:발동자:무투*30 , ABL:발동자:무투*50), 1)
+PRINTFORML 적부대에 데미지!
+
+; 일단은 무투, 나중에 신비로 변경?
+; 쿠즈노하 신비 > 나구사 신비
+; 쿠즈노하가 백련을 더 잘쓰게
+@SKILL_2121_SP_0_EXPLANATION
+RESULTS = 자신 무투에 비례해 데미지를 준다.
+; RESULTS = 자신 신비에 비례해 데미지를 준다.
+
+
+@SKILL_2121_SP_0_CANT_TELL
+
+; 아이가 배울수 없도록 한다
+@SKILL_2121_SP_0_CANT_INHERIT
+
+
+@SKILL_2121_SP_0_RATE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+; RETURN 1000
+RETURN 200
+
+; #region == 총력전 ==
+@총력전_스킬_2121_코스트(시전자)
+#DIM 시전자 ; 코스트 당 대미지 스킬 카운터 위해서
+RETURN 4
+
+@총력전_스킬_2121_설명(시전자)
+#DIM 시전자 ; 가변스킬 설명 위해서
+RESULTS = 스킬 발동중 치명타 확률 (+30) 증가, 적에게 대미지 (공격력 120％x3), 대상의 현재체력에 비례하여 (많을수록 증가) 최대 3배까지 대미지 상승.
+
+; 카운터 추가
+; @총력전_스킬_2121_초기(시전자)
+; #DIM 시전자
+; CALL 총력전_카운터_추가(시전자, 시전자, 총력전_방식_턴, 총력전_방식_지속, 1, 2121)
+
+@총력전_스킬_2121_발동(시전자)
+#DIM 시전자
+
+#DIM DYNAMIC 목표
+#DIM DYNAMIC 대미지
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp
+
+; 발동 텍스트
+CALL SKILL_2121_SP_0_NAME
+sTmp = %총력전_이름:시전자% 스킬 시전:『%RESULTS%』
+CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+iTmp = 총력전_ID:시전자
+IF iTmp >= 0
+	; 쿠즈노하
+	IF NO:iTmp == 88
+	ENDIF
+	; 나구사
+	IF NO:iTmp == 131
+		SELECTCASE RAND:3
+			CASE 0
+				sTmp = 「그것이 모두를 지킬 수 있는 방법이라면…!」
+			CASE 1
+				sTmp = 「이것이 내가 할 수 있는 최선이니까.」
+			CASEELSE
+				sTmp = 「물러서지 않겠어!」
+		ENDSELECT
+		CALL 총력전_UI_텍스트_추가(sTmp)
+	ENDIF
+ENDIF
+; 목표 처리
+CALL 총력전_시퀀스_목표선택(목표, 총력전_선택_적군)
+; 목표 없으면 스킬 해재
+IF 목표 < 0
+	CALL 총력전_스킬_공통_스킬취소(시전자)
+	RETURN
+ENDIF
+; 버프
+CALL 총력전_상태효과_추가_텍스트(시전자, 시전자, 상효_종류_치명타, 30, 1, 총력전_방식_스킬, 총력전_방식_스킬, 1, 2121, 0)
+; 체력 비례 대미지 증가
+iTmp = REMAP_CLAMP(총력전_체력:목표, 0, GETVAR_RAIDSTAT_SUM(목표, "최대체력"), 100, 300)
+대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 80 * iTmp
+대미지 = DIVIDE_ROUND(대미지:0, 10000)
+FOR iTmp, 0, 3
+	CALL 총력전_처리_피격(대미지, 목표, 시전자)
+NEXT

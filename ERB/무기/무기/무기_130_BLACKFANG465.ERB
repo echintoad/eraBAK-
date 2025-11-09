@@ -1,0 +1,98 @@
+﻿;------------------------------------------
+;이름
+;+ 무기 있는지 확인용
+;------------------------------------------
+@무기_이름_130(iLen = 0)
+#DIM DYNAMIC iLen
+IF iLen > 0 && iLen < 14
+	RESULTS = B.FANG 465
+ELSE 		 ;123456789012345678901234567890
+	RESULTS = BLACK FANG 465
+ENDIF
+;------------------------------------------
+;착용 효과 (대상, 착용 1,미착용 -1)
+;------------------------------------------
+@무기_착용_130(대상, 탈착 = 1)
+#DIM 대상
+#DIM 탈착
+#DIM DYNAMIC 스탯증가, 4
+IF 대상 >= 0 && NO:대상 == 142
+	스탯증가:0 = 25 ; 무투
+	스탯증가:2 = 10 ; 지략
+	스탯증가:3 = 10 ; 신비
+ELSE
+	스탯증가:0 = 15 ; 무투
+	스탯증가:2 = 7 ; 지략
+ENDIF
+스탯증가:1 = -5 ; 방위
+; 스탯
+ABL:대상:무투 += 스탯증가:0 * 탈착
+ABL:대상:방위 += 스탯증가:1 * 탈착
+ABL:대상:지략 += 스탯증가:2 * 탈착
+ABL:대상:신비 += 스탯증가:2 * 탈착
+
+IF 탈착 == 1
+	TALENT:대상:웨폰 = 130
+	; 스킬은 시로코 드론 소환 사용
+	CALL SKILL_LEARN(대상, 스킬_장르_BASE, 1103, 0)
+ELSEIF 탈착 == -1
+	TALENT:대상:웨폰 = 100
+	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "드론 소환: 화력 지원")
+ENDIF
+
+RETURN 탈착
+
+;------------------------------------------
+; 임시: 총력전 스탯 추가
+; 나중에 총력전 장비 스탯 정리 하면서 같이 처리 되도록 변경
+;------------------------------------------
+@무기_총력전스탯_130(대상)
+#DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+IF 대상 >= 0 && NO:대상 == 142
+	RESULT:총력전_무기_공격력 = 20
+	RESULT:총력전_무기_명중률 = 10
+	RESULT:총력전_무기_회피율 = 10
+ELSE
+	RESULT:총력전_무기_공격력 = 10
+	RESULT:총력전_무기_명중률 = 5
+	RESULT:총력전_무기_회피율 = 5
+ENDIF
+
+;------------------------------------------
+;무기설명
+;------------------------------------------
+@무기_설명_스탯_130(isRaid = 0)
+#DIM DYNAMIC isRaid
+IF isRaid
+	CALL ICPRINT(@"쿠로코: 공격력: <20> 회피율: <10> 치명대미지: <10>", "L", 칼라_주의)
+	CALL ICPRINT(@"나머지: 공격력: <10> 회피율: <5> 치명대미지: <5>", "L", 칼라_주의)
+ELSE
+	CALL ICPRINT(@"쿠로코: 지략: <5> 정치: <10> 가창: <5>", "L", 칼라_주의)
+	CALL ICPRINT(@"나머지: 지략: <2> 정치: <5> 가창: <2>", "L", 칼라_주의)
+ENDIF
+
+@무기_설명_130
+CALL SINGLE_DRAWLINE
+PRINTL 전용스킬
+PRINTL 
+; 스킬은 시로코 드론 소환 사용
+CALL SKILL_1103_BASE_0_NAME
+SETCOLOR 칼라_선택불가
+PRINT   · 
+RESETCOLOR
+PRINTFORML %RESULTS%
+CALL COLOR_LINE
+SETCOLOR 칼라_선택불가
+PRINT   · 
+RESETCOLOR
+CALL SKILL_1103_BASE_0_EXPLANATION
+PRINTFORML %RESULTS% 
+PRINTL
+SETCOLOR 칼라_선택불가
+PRINT   · 
+RESETCOLOR
+; 가창 비례?
+CALL ICPRINT(@"영향 받는 능력치 : <무투>", "L", 칼라_주의)
+PRINTL 
+RETURN
