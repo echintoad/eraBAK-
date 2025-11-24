@@ -399,16 +399,19 @@ CALL 총력전_상태효과_스탯처리(수, 총력전_방식_피격)
 ; MAX=75, MIN=0, a=195000, b=160
 ; 50 = 4%, 200 = 20%, 500 = 47%
 IF 회피 > 0 && 공 >= 0
-	; 회피 엄폐? 연막 추가 회피율?
-	; 명중 처리, 0 / 2 로
-	iTmp:1 = GETVAR_RAIDSTAT_SUM(공, "명중률")
-	iTmp:2 = GETVAR_RAIDSTAT_SUM(수, "회피율")
-	iTmp = RAND:(iTmp:2 + iTmp:1)
-	[IF_DEBUG]
-	sTmp = ({공}) -> ({수}) 명:{iTmp:1}, 회:{iTmp:2} = {iTmp}
-	CALL 총력전_UI_텍스트_추가(sTmp, 칼라_파노랑)
-	[ENDIF]
-	IF iTmp < iTmp:1
+	; 확정 피격(명중 카운터)이면 건너뛰기
+	IF 회피 != 2
+		; 회피 엄폐? 연막 추가 회피율?
+		; 명중 처리, 0 / 2 로
+		iTmp:1 = GETVAR_RAIDSTAT_SUM(공, "명중률")
+		iTmp:2 = GETVAR_RAIDSTAT_SUM(수, "회피율")
+		iTmp = RAND:(iTmp:2 + iTmp:1)
+		[IF_DEBUG]
+		sTmp = ({공}) -> ({수}) 명:{iTmp:1}, 회:{iTmp:2} = {iTmp}
+		CALL 총력전_UI_텍스트_추가(sTmp, 칼라_파노랑)
+		[ENDIF]
+	ENDIF
+	IF iTmp < iTmp:1 || 회피 == 2
 		; 명중 / 피격 카운터?
 		명중기록 = 1
 	ELSE
@@ -688,10 +691,18 @@ ENDIF
 ; 명중확률?
 
 ; 저항 적용
+[IF_DEBUG]
+sTmp = 제어량({제어량}) - 저항({GETVAR_RAIDSTAT_SUM(대상, "군중제어저항")})
+CALL 총력전_UI_텍스트_추가(sTmp, 칼라_파노랑)
+[ENDIF]
 제어량 = MAX(제어량 - GETVAR_RAIDSTAT_SUM(대상, "군중제어저항"), 0)
 
 ; 감소
 ; 나중에 계산식 변경
+[IF_DEBUG]
+sTmp = ({총력전_군중제어:대상}/{GETVAR_RAIDSTAT_SUM(대상, "군중제어한계")}) + 제어량({제어량})
+CALL 총력전_UI_텍스트_추가(sTmp, 칼라_파노랑)
+[ENDIF]
 총력전_군중제어:대상 += 제어량
 
 ; 택스트 추가
