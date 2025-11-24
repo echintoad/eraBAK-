@@ -235,7 +235,7 @@ GOTO SEQUENCE_LOOP
 ; 스킬 선택
 ; =========================
 @총력전_시퀀스_플레이어
-#DIM DYNAMIC testMove
+; #DIM DYNAMIC testMove
 #DIM DYNAMIC 코스트합
 #DIM DYNAMIC 전투단계저장
 ; #DIM DYNAMIC 시전중, 총력전_캐릭터수
@@ -248,18 +248,20 @@ FOR iTmp, 0, 총력전_캐릭터수
 	CALL 총력전_스킬코스트(iTmp)
 NEXT
 CALL 총력전_UI_텍스트_추가("스킬 선택: 무기 선택으로 설정", 칼라_노랑)
-testMove = -1
+; testMove = -1
 $INPUT_LOOP
 ; [IF_DEBUG]
 ; DEBUGCLEAR
 ; CALL DEBUG_총력전_전
 ; [ENDIF]
 ; 타입(버튼 활성화)
-IF testMove >= 0
-	CALL 총력전_UI_Main(총력전_선택_아군지역)
-ELSE
-	CALL 총력전_UI_Main(총력전_선택_캐릭터)
-ENDIF
+; IF testMove >= 0
+; 	CALL 총력전_UI_Main(총력전_선택_전체)
+; 	; CALL 총력전_UI_Main(총력전_선택_ 아군지역)
+; ELSE
+; 	CALL 총력전_UI_Main(총력전_선택_캐릭터)
+; ENDIF
+CALL 총력전_UI_Main(총력전_선택_캐릭터, 총력전_선택_캐릭터)
 
 INPUT
 CLEARLINE 1
@@ -439,9 +441,11 @@ NEXT
 
 ; 스킬 시전시 목표 선택
 ; 스킬에서 대상 사이즈 결정, 여기서 대상 수정
-@총력전_시퀀스_목표선택(대상, type, 중복선택 = 0)
+@총력전_시퀀스_목표선택(대상, 선택종류_아군, 선택종류_적군, 중복선택 = 0)
 #DIM REF 대상, 0
-#DIM type
+#DIM 선택종류_아군
+#DIM 선택종류_적군
+; #DIM type
 #DIM 중복선택
 
 #DIM DYNAMIC 대상수 ; VARSIZE 대상
@@ -464,33 +468,32 @@ FOR iTmp, 0, 총력전_캐릭터수
 	IF 총력전_상태:iTmp == 0
 		CONTINUE
 	ENDIF
-	SELECTCASE type
-		; 나중에 아군 적군 처리 업데이트시 수정
-		CASE 총력전_선택_아군
-			; 행동 가능한 아군...일 거라 가정
-			; 부활 스킬 생기면 수정 필요
-			SIF 총력전_팀:iTmp != 0
-				CONTINUE
-			IF 총력전_상태:iTmp == 총력전_상태_보통 || 총력전_상태:iTmp == 총력전_상태_소환
-				; 자동 조준 불가
-				SIF 선택끝수 == 대상수
-					GOTO INPUT_SELECT
-				대상:선택끝수 = iTmp
-				선택끝수 ++
-			ENDIF
-		CASE 총력전_선택_적군
-			; 행동 가능한 적군일 거라 가정
-			SIF 총력전_팀:iTmp != 1
-				CONTINUE
-			; 보통일 경우는 없을거 같지만...
-			IF 총력전_상태:iTmp == 총력전_상태_보통 || 총력전_상태:iTmp == 총력전_상태_소환 || 총력전_상태:iTmp == 총력전_상태_보스
-				; 자동 조준 불가
-				SIF 선택끝수 == 대상수
-					GOTO INPUT_SELECT
-				대상:선택끝수 = iTmp
-				선택끝수 ++
-			ENDIF
-	ENDSELECT
+	; 아군만
+	IF 선택종류_아군 == 총력전_선택_캐릭터 && 선택종류_적군 == 0
+		; 행동 가능한 아군...일 거라 가정
+		; 부활 스킬 생기면 수정 필요
+		SIF 총력전_팀:iTmp != 0
+			CONTINUE
+		IF 총력전_상태:iTmp == 총력전_상태_보통 || 총력전_상태:iTmp == 총력전_상태_소환
+			; 자동 조준 불가
+			SIF 선택끝수 == 대상수
+				GOTO INPUT_SELECT
+			대상:선택끝수 = iTmp
+			선택끝수 ++
+		ENDIF
+	ELSEIF 선택종류_적군 == 총력전_선택_캐릭터 && 선택종류_아군 == 0
+		; 행동 가능한 적군일 거라 가정
+		SIF 총력전_팀:iTmp != 1
+			CONTINUE
+		; 보통일 경우는 없을거 같지만...
+		IF 총력전_상태:iTmp == 총력전_상태_보통 || 총력전_상태:iTmp == 총력전_상태_소환 || 총력전_상태:iTmp == 총력전_상태_보스
+			; 자동 조준 불가
+			SIF 선택끝수 == 대상수
+				GOTO INPUT_SELECT
+			대상:선택끝수 = iTmp
+			선택끝수 ++
+		ENDIF
+	ENDIF
 NEXT
 ; 가능한 대상 수 보다 선택 가능한 대상 수가 많으면 스킵?
 IF 대상:0 != -1	
@@ -510,7 +513,7 @@ $INPUT_LOOP
 CALL 총력전_UI_텍스트_제거(1)
 sTmp = 선택 ({선택끝수}/{대상수})
 CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
-CALL 총력전_UI_Main(type, 1)
+CALL 총력전_UI_Main(선택종류_아군, 선택종류_적군, 1)
 INPUT
 CLEARLINE 1
 
@@ -590,6 +593,8 @@ VARSET 총력전_접두사_이름, ""
 
 #DIM DYNAMIC 이동유닛 = -1
 #DIM DYNAMIC 목표유닛 = -1
+#DIM DYNAMIC 선택종류_아군
+#DIM DYNAMIC 선택종류_적군
 #DIM DYNAMIC iTmp
 #DIMS DYNAMIC sTmp
 
@@ -608,17 +613,22 @@ IF 팀 == 1
 	; 적군 위치에
 	sTmp = 적군 위치에 %sTmp%
 	iTmp = 총력전_선택_적군
+	선택종류_아군 = 0
+	선택종류_적군 = 총력전_선택_캐릭터
 ELSE
 	; 아군 위치에
 	sTmp = 아군 위치에 %sTmp%
+	선택종류_적군 = 0
 	IF 이동유닛 < 0
-		iTmp = 총력전_선택_아군
+		선택종류_아군 = 총력전_선택_캐릭터
+		; iTmp = 총력전_선택_ 아군
 	ELSE
-		iTmp = 총력전_선택_아군지역
+		; iTmp = 총력전_선택_ 아군지역
+		선택종류_아군 = 총력전_선택_전체
 	ENDIF
 ENDIF
 CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
-CALL 총력전_UI_Main(iTmp, 1)
+CALL 총력전_UI_Main(선택종류_아군, 선택종류_적군, 1)
 INPUT
 CLEARLINE 1
 
@@ -682,7 +692,9 @@ sTmp = %조사처리(총력전_이름:시전자, "가")% 이동할 목적지 선
 CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
 $INPUT_LOOP
 ; UI 업데이트
-CALL 총력전_UI_Main(총력전_선택_아군지역, 1)
+; 아군지역만 이동
+CALL 총력전_UI_Main(총력전_선택_전체, 0, 1)
+; CALL 총력전_UI_Main(총력전_선택_ 아군지역, 1)
 INPUT
 CLEARLINE 1
 ; 나중에 총력전 종료 추가?
