@@ -139,6 +139,6 @@ CALL 총력전_처리_피격(대미지, 목표, 시전자)
 sTmp = 700 * {GETVAR_RAIDSTAT_SUM(시전자, "군중제어강화")}
 CALL 총력전_UI_텍스트_추가(sTmp, 칼라_파노랑)
 [ENDIF]
-군중제어 = 700 * GETVAR_RAIDSTAT_SUM(시전자, "군중제어강화")
-군중제어 = DIVIDE_ROUND(군중제어, 100)
+군중제어 = 700 + GETVAR_RAIDSTAT_SUM(시전자, "군중제어강화")
+; 군중제어 = DIVIDE_ROUND(군중제어, 100)
 CALL 총력전_처리_군중제어(군중제어, 목표, 시전자)

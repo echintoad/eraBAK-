@@ -132,8 +132,8 @@ ENDIF
 CALL 총력전_처리_피격(대미지, 목표, 시전자)
 ; 명중 하면 군중제어 적용
 IF RESULT == 1
-	군중제어 = 420 * GETVAR_RAIDSTAT_SUM(시전자, "군중제어강화")
-	군중제어 = DIVIDE_ROUND(군중제어, 100)
+	군중제어 = 420 + GETVAR_RAIDSTAT_SUM(시전자, "군중제어강화")
+	; 군중제어 = DIVIDE_ROUND(군중제어, 100)
 	CALL 총력전_처리_군중제어(군중제어, 목표, 시전자)
 ENDIF
 ; 방어 증가, 받는 대미지 감소로 변경? 피해감소백분율?

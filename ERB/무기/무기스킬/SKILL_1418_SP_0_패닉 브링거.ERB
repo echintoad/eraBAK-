@@ -126,8 +126,8 @@ CALL 총력전_목표_전체(목표, 1)
 대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 250
 대미지 = DIVIDE_ROUND(대미지, 100)
 ; 군중제어 처리
-군중제어 = 400 * GETVAR_RAIDSTAT_SUM(시전자, "군중제어강화")
-군중제어 = DIVIDE_ROUND(군중제어, 100)
+군중제어 = 400 + GETVAR_RAIDSTAT_SUM(시전자, "군중제어강화")
+; 군중제어 = DIVIDE_ROUND(군중제어, 100)
 ; 적용
 FOR iTmp, 0, 총력전_캐릭터수
 	IF 목표:iTmp < 0
@@ -138,7 +138,3 @@ FOR iTmp, 0, 총력전_캐릭터수
 	SIF RESULT == 1
 		CALL 총력전_처리_군중제어(군중제어, 목표:iTmp, 시전자)
 NEXT
-
-; 대미지 = (총력전_공격력:LOCAL * 558 / 100) * (100 - 총력전_보스_방어력) / 100
-; CALL 디버프부여처리("약점",1418,2,LOCAL)
-; CALL 공격판정처리(대미지,LOCAL)

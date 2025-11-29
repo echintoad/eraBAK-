@@ -136,8 +136,8 @@ CALL 총력전_목표_범위(범위목표, 주목표, 1)
 대미지:1 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 137
 대미지:1 = DIVIDE_ROUND(대미지:1, 100)
 ; 군중제어 처리
-군중제어 = 600 * GETVAR_RAIDSTAT_SUM(시전자, "군중제어강화")
-군중제어 = DIVIDE_ROUND(군중제어, 100)
+군중제어 = 600 + GETVAR_RAIDSTAT_SUM(시전자, "군중제어강화")
+; 군중제어 = DIVIDE_ROUND(군중제어, 100)
 ; 적용
 FOR iTmp, 0, 총력전_캐릭터수
 	SIF 범위목표:iTmp < 0
