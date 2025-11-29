@@ -893,6 +893,40 @@ CALL 총력전_UI_텍스트_추가(LOCALS, 칼라_파노랑)
 [ENDIF]
 RETURN iTmp
 
+; 범위 안 무작위 하나 선택, 목표제외
+@총력전_목표_무작위_범위(목표, 팀 = -1, 범위 = 1)
+#DIM 목표 ; 총력전ID
+#DIM DYNAMIC 팀 ; 범위안 팀 선택
+#DIM DYNAMIC 범위
+
+#DIM 대상전체, 총력전_캐릭터수
+#DIM 대상수
+#DIM DYNAMIC iTmp
+
+; VARSET 목표, -1
+CALL 총력전_목표_범위(대상전체, 목표, 팀, 범위)
+; 기존 목표 제거, 대상전체:0 은 목표가 팀에 포함되지 않았을때 오류
+FOR iTmp, 0, 총력전_캐릭터수
+	IF 대상전체:iTmp == 목표
+		CALL ARRAYREMOVE_VAL(대상전체, iTmp, 1, -1)
+		BREAK
+	ENDIF
+	SIF 대상전체:iTmp == -1
+		BREAK
+NEXT
+; 목표수 확인
+대상수 = 0
+FOR iTmp, 0, 총력전_캐릭터수
+	SIF 대상전체:iTmp >= 0 ; && 대상전체:iTmp != 목표
+		대상수 ++
+NEXT
+; 대상 없으면 -1
+SIF 대상수 == 0
+	RETURN -1
+iTmp = RAND:대상수
+RETURN 대상전체:iTmp
+
+
 ; n턴 동안 주의
 ; @총력전_목표_조준(대상수, 조준턴 = 1)
 ; #DIM 대상수
