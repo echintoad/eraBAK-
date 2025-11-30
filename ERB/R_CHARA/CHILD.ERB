@@ -607,6 +607,9 @@ iParent:0 = ID_TO_CHARA(CFLAG:부친)
 iParent:1 = ID_TO_CHARA(CFLAG:모친)
 ; 아이 캐릭터 무기 번호 카운터
 FOR LOCAL, 0, 2
+	; 부모 없으면
+	SIF iParent:LOCAL < 0
+		CONTINUE
 	; 부모 무기 처리
 	iP_Weapon_Cnt = 0
 	VARSET iP_Weapon_Ary, 0
