@@ -803,7 +803,11 @@ FOR iTmp, 시작위치, iTmp:1
 		ENDIF
 	NEXT
 
-	CALL 총력전_목표(적팀, 0, 총력전_캐릭터수)
+	IF 총력전_공격모드:(총력전_팀:공) == 0
+		CALL 총력전_목표(적팀, 0, 총력전_캐릭터수)
+	ELSE
+		CALL 총력전_목표_무작위(적팀)
+	ENDIF
 	IF RESULT == -1
 		DEBUGPRINTFORML 목표 없음
 		CONTINUE
