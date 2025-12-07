@@ -52,51 +52,43 @@ IF 총력전_보스_활동_쿨다운:0 == -2
 	; 그의 이명은 <다름을 통감하는 숙고의 이해자>라.
 	; 나의 이름은 비나BINAH.
 	; 신성한 열글자의 신을 증명하고 기적을 예언하는 3번째 예언자로다.
-	CALL PRINT_TEXTANIM("", "통신 수신중", 100)
+	CALL PRINTL_TEXTANIM("", "통신 수신중", 100)
 	CLEARLINE 1
-	CALL PRINT_TEXTANIM("통신 수신중", "...", 600)
-	AWAIT 490
-	AWAIT 10
-	CALL PRINT_TEXTANIM("", "그의 길은", 100)
-	AWAIT 150
+	CALL PRINTL_TEXTANIM("통신 수신중", "...", 600)
+	CALL AWAIT_FIX(580)
+	CALL PRINTL_TEXTANIM("", "그의 길은", 100)
+	CALL AWAIT_FIX(150)
 	CLEARLINE 1
-	CALL PRINT_TEXTANIM("그의 길path은 ", "<이해를 통한 합일>.", 100)
-	AWAIT 490
-	AWAIT 10
-	CALL PRINT_TEXTANIM("", "그의 이명은 <다름을 통감하는 숙고의 이해자>라.", 100)
-	AWAIT 590
-	AWAIT 10
-	CALL PRINT_TEXTANIM("", "그의 이름은-", 150)
+	CALL PRINTL_TEXTANIM("그의 길path은 ", "<이해를 통한 합일>.", 100)
+	CALL AWAIT_FIX(500)
+	CALL PRINTL_TEXTANIM("", "그의 이명은 <다름을 통감하는 숙고의 이해자>라.", 100)
+	CALL AWAIT_FIX(600)
+	CALL PRINTL_TEXTANIM("", "그의 이름은-", 150)
 	CLEARLINE 3
 	PRINTL - 의 길-at-은 <이해를 통한 합일>.
 	PRINTL  -의 이명은 <다름을 통감하는 숙고의 이해자>라.
 	PRINTL --의 이름은-
-	AWAIT 240
-	AWAIT 10
+	CALL AWAIT_FIX(250)
 	CLEARLINE 3
 	PRINTL  - - 길p-t--  <이해를 통한 합일>.
 	PRINTL - -- 이- 은 <다름을 통감하는 숙고의 이해자> --
 	PRINTL - - בִּינָ
-	AWAIT 240
-	AWAIT 10
+	CALL AWAIT_FIX(250)
 	CLEARLINE 3
 	PRINTL
 	PRINTL
 	PRINTL
-	AWAIT 190
-	AWAIT 10
+	CALL AWAIT_FIX(200)
 	SETCOLOR 칼라_노랑
 	CLEARLINE 3
 	PRINTL 나의 길path은 <이해를 통한 합일>.
 	PRINTL 나의 이명은 <다름을 통감하는 숙고의 이해자>라.
-	CALL PRINT_TEXTANIM("나의 이름은 ", "비나BINAH", 230)
-	AWAIT 490
-	AWAIT 10
-	CALL PRINT_TEXTANIM("", "신성한 열글자의 신을 증명하고", 130)
-	AWAIT 190
-	AWAIT 10
+	CALL PRINTL_TEXTANIM("나의 이름은 ", "비나BINAH", 230)
+	CALL AWAIT_FIX(500)
+	CALL PRINTL_TEXTANIM("", "신성한 열글자의 신을 증명하고", 130)
+	CALL AWAIT_FIX(200)
 	CLEARLINE 1
-	CALL PRINT_TEXTANIM("신성한 열글자의 신을 증명하고 ", "기적을 예언하는 3번째 예언자로다.", 130)
+	CALL PRINTL_TEXTANIM("신성한 열글자의 신을 증명하고 ", "기적을 예언하는 3번째 예언자로다.", 130)
 	RESETCOLOR
 	; AWAIT 100
 	; PRINTL 비나가 나타났다
