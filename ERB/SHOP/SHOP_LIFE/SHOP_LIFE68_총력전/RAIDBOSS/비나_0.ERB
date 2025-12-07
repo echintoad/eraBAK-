@@ -20,17 +20,107 @@ RESULTS = 비나
 ; 나중에 csv에 총력전_보스_번호 로 변경
 ; 보스 선택창 이미지, 총력전시 이미지는 보스_설정 에서
 @총력전_보스_이미지_0
-RESULTS = 비나
-; @총력전_보스_선택이미지_0
-; RESULTS = 비나
+RESULTS = Boss_0_F
 
+; 총력전 보스 소환 가능한지 확인
+; RETURN 1 = 무작위 소환에 추가
+@총력전_보스_소환_확인_0
+; 최소 일수
+SIF DAY < 3
+	RETURN 0
+IF 총력전_보스_활동_쿨다운:0 == -2
+	; 처음 소환 마크
+	; 시나리오 등에서 총력전_보스_활동_쿨다운:0 = -2 설정
+	RETURN 1
+	; 옵션2
+	; CALL 총력전_보스_소환_텍스트_0
+	; CALL 총력전_보스활동_추가(0)
+	; 총력전_보스_활동_쿨다운:0 = -1
+	; RETURN 0
+ELSEIF 총력전_보스_활동_쿨다운:0 == 0
+	RETURN 1
+ELSE
+	RETURN 0
+ENDIF
+
+; #region == 텍스트 ==
+; 보스 소환시 나오는 이벤트 텍스트
+@총력전_보스_소환_텍스트_0
+IF 총력전_보스_활동_쿨다운:0 == -2
+	; 통신 수신중...
+	; 그의 길path은 <이해를 통한 합일>.
+	; 그의 이명은 <다름을 통감하는 숙고의 이해자>라.
+	; 나의 이름은 비나BINAH.
+	; 신성한 열글자의 신을 증명하고 기적을 예언하는 3번째 예언자로다.
+	CALL PRINT_TEXTANIM("", "통신 수신중", 100)
+	CLEARLINE 1
+	CALL PRINT_TEXTANIM("통신 수신중", "...", 600)
+	AWAIT 490
+	AWAIT 10
+	CALL PRINT_TEXTANIM("", "그의 길은", 100)
+	AWAIT 150
+	CLEARLINE 1
+	CALL PRINT_TEXTANIM("그의 길path은 ", "<이해를 통한 합일>.", 100)
+	AWAIT 490
+	AWAIT 10
+	CALL PRINT_TEXTANIM("", "그의 이명은 <다름을 통감하는 숙고의 이해자>라.", 100)
+	AWAIT 590
+	AWAIT 10
+	CALL PRINT_TEXTANIM("", "그의 이름은-", 150)
+	CLEARLINE 3
+	PRINTL - 의 길-at-은 <이해를 통한 합일>.
+	PRINTL  -의 이명은 <다름을 통감하는 숙고의 이해자>라.
+	PRINTL --의 이름은-
+	AWAIT 240
+	AWAIT 10
+	CLEARLINE 3
+	PRINTL  - - 길p-t--  <이해를 통한 합일>.
+	PRINTL - -- 이- 은 <다름을 통감하는 숙고의 이해자> --
+	PRINTL - - בִּינָ
+	AWAIT 240
+	AWAIT 10
+	CLEARLINE 3
+	PRINTL
+	PRINTL
+	PRINTL
+	AWAIT 190
+	AWAIT 10
+	SETCOLOR 칼라_노랑
+	CLEARLINE 3
+	PRINTL 나의 길path은 <이해를 통한 합일>.
+	PRINTL 나의 이명은 <다름을 통감하는 숙고의 이해자>라.
+	CALL PRINT_TEXTANIM("나의 이름은 ", "비나BINAH", 230)
+	AWAIT 490
+	AWAIT 10
+	CALL PRINT_TEXTANIM("", "신성한 열글자의 신을 증명하고", 130)
+	AWAIT 190
+	AWAIT 10
+	CLEARLINE 1
+	CALL PRINT_TEXTANIM("신성한 열글자의 신을 증명하고 ", "기적을 예언하는 3번째 예언자로다.", 130)
+	RESETCOLOR
+	; AWAIT 100
+	; PRINTL 비나가 나타났다
+	WAIT
+ELSE
+	PRINTW 모래 폭풍이 몰아친다.
+	PRINTW 비나가 날뛰기 시작한 거 같다.
+	WAIT
+ENDIF
+; #endregion
+
+; #region 보스 초기 설정
 ; 총력전 최대 턴수
 @총력전_보스_턴_종료_0
 ; #DIM 난이도
 ; 테스트 용으로 32
 RETURN 30
 
-; 보스 스탯 설정
+; 기본 공격모드 설정, 필요하면 활성화
+; 0 = 기본, 1 = 무작위
+; @총력전_보스_공격모드_설정_0
+; 공격모드:0 = 0 ; 아군
+; 공격모드:1 = 0 ; 보스
+
 ; 보스가 여럿 있을시 등등, 스탯 개별 설정 보다 이렇는게 더 유연(?)함
 @총력전_보스_설정_0
 #DIM 난이도계수, 4 ; 필요하면 다차원 배열
@@ -124,6 +214,7 @@ ENDSELECT
 ; 군중제어 저항
 총력전_군중제어_저항_최초:보스번호 = 50
 
+; #endregion
 
 ; #region == 페이즈 ==
 @총력전_보스_페이즈_판단_0
@@ -505,6 +596,10 @@ NEXT
 #DIM DYNAMIC iTmp, 3
 #DIMS DYNAMIC sTmp
 
+; 보스 쿨다운 + 설정
+총력전_보스_활동_쿨다운:0 = 4
+CALL 총력전_보스활동_제거(0)
+
 ; 코인 보상
 SELECTCASE 총력전_보스_난이도
 	CASE 0 ; HARD: 5~6
@@ -513,7 +608,7 @@ SELECTCASE 총력전_보스_난이도
 	CASE 1 ; HARDCORE: 7~8, 0~1
 		보상코인:0 = 7
 		보상코인:0 += RAND:2
-		보상코인:1 += RAND:2
+		보상코인:1 = RAND:2
 	CASE 2 ; EXTREME: 10~12, 1~5
 		보상코인:0 = 10
 		보상코인:0 += RAND:3

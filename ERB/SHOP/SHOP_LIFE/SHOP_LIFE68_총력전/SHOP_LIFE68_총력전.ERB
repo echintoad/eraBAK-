@@ -8,6 +8,9 @@ RESULTS '= "총력전"
 ;「총력전」의 선택 가부 판정
 ;-------------------------------------------------
 @SHOP_LIFE_CHECK68
+; 활동하는 보스가 없으면
+SIF 총력전_보스_활동:0 == -1
+	RETURN 0
 SIF CFLAG:MASTER:포로처 || 총력전클리어플래그 == 1
 	RETURN 0
 RETURN 1
@@ -129,16 +132,16 @@ FIRST_LINE = LINECOUNT
 
 ; 보스 리스트 설정
 ; 임시
-VARSET 총력전_보스_활동, -1
-총력전_보스_활동:0 = 0
+; VARSET 총력전_보스_활동, -1
+; 총력전_보스_활동:0 = 0
 
 ; 보스 활동 에서 찾기
 FOR iTmp, 0, 20
 	IF 총력전_보스_활동:iTmp == -1
 		BREAK
 	ENDIF
-	; 임시로 총력전 창에 추가
 	; UI 프레임에 나오고 버튼 활성화
+	보스수 ++
 	총력전_상태:iTmp = 1
 	총력전_ID:iTmp = 총력전_보스_활동:iTmp
 	CALLFORM 총력전_보스_이름_{총력전_보스_활동:iTmp}
@@ -156,7 +159,7 @@ NEXT
 ; 총력전_이름:1 = 몰?루
 ; 총력전_이미지:1 = 얼굴_의복_통상_22
 
-; inputloop
+; 페이지 넘기기 필요
 $INPUTLOOP
 CALL SINGLE_DRAWLINE
 PRINTL 토벌할 대상을 선택하세요

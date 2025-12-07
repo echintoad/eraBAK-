@@ -1,0 +1,164 @@
+﻿;=================================================
+; 총려전 보스 공통 코드
+;=================================================
+; 시나리오 시작, 기본 총력전 초기 설정
+@총력전_보스활동_초기설정()
+VARSET 총력전_보스_활동, -1
+VARSET 총력전_보스_활동_쿨다운, -1
+; 비나 이벤트위해 -2 설정
+총력전_보스_활동_쿨다운:0 = -2
+; 디버그 보스
+; 총력전_보스_활동_쿨다운:10 = 2
+; 총력전_보스_활동_쿨다운:11 = 2
+
+
+;-------------------------------------------------
+; 총력전_보스_활동 에 추가
+; 중복 확인
+;-------------------------------------------------
+@총력전_보스활동_추가(num)
+#DIM num ; 보스 번호
+#DIM DYNAMIC iTmp
+
+VARSIZE 총력전_보스_활동
+FOR iTmp, 0, RESULT
+	IF 총력전_보스_활동:iTmp == num
+		BREAK
+	ELSEIF 총력전_보스_활동:iTmp == -1
+		총력전_보스_활동:iTmp = num
+		BREAK
+	ENDIF
+NEXT
+
+;-------------------------------------------------
+; 총력전_보스_활동 에 제거
+;-------------------------------------------------
+@총력전_보스활동_제거(num)
+#DIM num ; 보스 번호
+#DIM DYNAMIC iTmp
+
+VARSIZE 총력전_보스_활동
+FOR iTmp, 0, RESULT
+	IF 총력전_보스_활동:iTmp == -1
+		BREAK
+	ELSEIF 총력전_보스_활동:iTmp == num
+		CALL ARRAYREMOVE_VAL(총력전_보스_활동, iTmp, 1, -1)
+	ENDIF
+NEXT
+
+; #region 공통 보상
+; 계산 필요
+
+; 간단한 코인 보상
+@총력전_보스_보상_공통코인(lvl = 0)
+#DIM DYNAMIC lvl ; 0=적은 코인, 1=많은 코인 보상
+#DIM DYNAMIC 보상코인, 2 ; 코인, 상급코인
+; clamp
+lvl = LIMIT(lvl, 0, 1)
+SELECTCASE 총력전_보스_난이도
+	CASE 0 ; HARD: 5~6
+		SELECTCASE lvl
+			CASE 0
+				보상코인:0 = RAND:3
+			CASE 1
+				보상코인:0 = 5
+				보상코인:0 += RAND:2
+		ENDSELECT
+	CASE 1 ; HARDCORE: 7~8, 0~1
+		SELECTCASE lvl
+			CASE 0
+				보상코인:0 = 4
+				보상코인:0 += RAND:4
+			CASE 1
+				보상코인:0 = 7
+				보상코인:0 += RAND:2
+				보상코인:1 += RAND:2
+		ENDSELECT
+	CASE 2 ; EXTREME: 10~12, 1~5
+		보상코인:0 = 10
+		보상코인:0 += RAND:3
+		보상코인:1 = 1
+		보상코인:1 += RAND:5
+	CASE 3 ; INSANE: 15~20, 4~9
+		보상코인:0 = 15
+		보상코인:0 += RAND:6
+		보상코인:1 = 4
+		보상코인:1 += RAND:6
+	CASE 4 ; TORMENT: 21~33, 8~14
+		보상코인:0 = 21
+		보상코인:0 += RAND:13
+		보상코인:1 = 8
+		보상코인:1 += RAND:7
+ENDSELECT
+; 텍스트 추가
+CALL 총력전_보상_코인(보상코인:0, 보상코인:1)
+
+; 간단한 장비 보상
+@총력전_보스_보상_공통장비(lvl = 0)
+#DIM DYNAMIC lvl ; 0=적은 장비, 1=많은 장비 보상
+#DIM DYNAMIC 보상장비, 6 ; 0=T0, 1=T1 ... T6
+#DIM DYNAMIC iTmp, 2
+
+lvl = LIMIT(lvl, 0, 1)
+SELECTCASE 총력전_보스_난이도
+	CASE 0 ; HARD
+		SELECTCASE lvl
+			; CASE 0
+			CASE 1
+				SIF RAND:100 < 25
+					보상장비:0 = 1
+				SIF RAND:100 < 25
+					보상장비:0 = 1
+			CASE 2
+				보상장비:0 = 1 + RAND:2
+				SIF RAND:100 < 25
+					보상장비:0 += 1
+		ENDSELECT
+	CASE 1 ; HARDCORE
+		SELECTCASE lvl
+			CASE 0
+				보상장비:0 = RAND:3
+				SIF RAND:100 < 20
+					보상장비:1 = 1
+			CASE 1
+				보상장비:0 = RAND:2
+				SIF RAND:100 < 25
+					보상장비:1 = 1
+				SIF RAND:100 < 15
+					보상장비:2 = 1
+			CASE 2
+				보상장비:0 = 1 + RAND:2
+				보상장비:1 = RAND:2
+				SIF RAND:100 < 15
+					보상장비:2 = 1
+		ENDSELECT
+	CASE 2 ; EXTREME
+		보상장비:1 = RAND:2
+		SIF RAND:100 < 25
+			보상장비:2 = 1
+		SIF RAND:100 < 20
+			보상장비:3 = 1
+	CASE 3 ; INSANE
+		보상장비:2 = RAND:2
+		FOR iTmp, 0, 2
+			SIF RAND:100 < 32
+				보상장비:3 += 1
+		NEXT
+		SIF RAND:100 < 12
+			보상장비:4 = 1
+	CASE 4 ; TORMENT
+		보상장비:3 = RAND:2
+		FOR iTmp, 0, 2
+			SIF RAND:100 < 32
+				보상장비:4 += 1
+		NEXT
+		SIF RAND:100 < 12
+			보상장비:5 = 1
+ENDSELECT
+
+FOR iTmp, 0, 6
+	FOR iTmp:1, 0, 보상장비:iTmp
+		CALL 총력전_보상_장비(iTmp + 1)
+	NEXT
+NEXT
+; #endregion

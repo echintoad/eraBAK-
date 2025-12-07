@@ -221,6 +221,10 @@ NEXT
 ;시나리오 고유의 이벤트
 TRYCALLFORM SCENARIO_EVENT_%SCENARIOID%
  
+; 총력전 보스 등장
+CALL TURNEND_RAID_CD
+CALL TURNEND_RAID_SPAWNBOSS
+
 ;랜덤인 모반 처리
 IF !DAILY_GET_DISABLE_CONFIG("RANDOM_RISE") && !FLAG:클리어플래그
 	CALL SLG_RANDOM_INDEPENDENCE
@@ -911,7 +915,79 @@ FOR LOCAL:0, 0, CHARANUM
 	ENDIF
 NEXT
 
+; 총력전 보스 쿨다운
+@TURNEND_RAID_CD()
+#DIM DYNAMIC iTmp
+VARSIZE 총력전_보스_활동_쿨다운
+FOR iTmp, 0, RESULT
+	IF 총력전_보스_활동_쿨다운:iTmp > 0
+		DEBUGPRINTFORML 보스({iTmp})CD: {총력전_보스_활동_쿨다운:iTmp}-1
+		총력전_보스_활동_쿨다운:iTmp--
+	ENDIF
+NEXT
 
+; 총력전 보스 소환/활동에 추가
+@TURNEND_RAID_SPAWNBOSS()
+#DIM DYNAMIC 소환_목록, 100
+#DIM DYNAMIC 소환_카운터
+#DIM DYNAMIC iTmp
+
+; 소환 안하는 확률
+; IF RAND:10 < 4
+; 	RETURN
+; ENDIF
+
+; 총력전_보스_활동 공간 확인
+VARSIZE 총력전_보스_활동
+IF 총력전_보스_활동:(RESULT-1) != -1
+	DEBUGPRINTL 총력전_보스_활동 공간 없음
+	RETURN
+ENDIF
+; 보스 수만큼 확인
+FOR iTmp, 0, 50
+	RESULT = 0
+	; 특수 소환 조건 등등 확인
+	TRYCCALLFORM 총력전_보스_소환_확인_{iTmp}
+		IF RESULT
+			소환_목록:소환_카운터 = iTmp
+			소환_카운터++
+		ENDIF
+	CATCH
+		; 없으면 총력전_보스_활동_쿨다운 확인
+		; -1 = 보스가 없거나 이미 소환된 상태
+		; DEBUGPRINTFORML 총력전_보스_활동_쿨다운:{iTmp} = {총력전_보스_활동_쿨다운:iTmp}
+		; DEBUGPRINTFORML 소환_카운터({iTmp}) = {소환_카운터}
+		IF 총력전_보스_활동_쿨다운:iTmp == 0
+			소환_목록:소환_카운터 = iTmp
+			소환_카운터++
+		ENDIF
+	ENDCATCH
+
+NEXT
+[IF_DEBUG]
+DEBUGPRINTL 소환 가능한 보스:
+FOR iTmp, 0, 소환_카운터
+	DEBUGPRINTFORML - 보스번호:{소환_목록:iTmp}
+NEXT
+[ENDIF]
+; 소환 가능한 보스가 없을때
+IF 소환_카운터 <= 0
+	RETURN
+ENDIF
+; 텍스트
+CUSTOMDRAWLINE =
+PRINTFORML 총력전 보스 소환 페이즈
+CALL COLOR_LINE
+; 소환 번호 선택
+iTmp = RAND:소환_카운터
+iTmp = 소환_목록:iTmp
+; 텍스트 확인
+TRYCALLFORM 총력전_보스_소환_텍스트_{iTmp}
+; 총력전_보스_활동 에 추가
+CALL 총력전_보스활동_추가(iTmp)
+; 총력전_보스_활동_쿨다운 설정
+총력전_보스_활동_쿨다운:iTmp = -1
+CUSTOMDRAWLINE -
 
 ;-------------------------------------------------
 ;ARG:0 세력의 ARG:1번의 부대에 「인기」떡의 무장이 존재하는 경우, 그 부대의 병수를 증가시키는 처리

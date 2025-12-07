@@ -471,3 +471,29 @@ FOR iTmp, RESULT, 0, -1
 	ENDIF
 NEXT
 RETURNF -1
+
+; 실험용, 텍스트 애니매이션
+@PRINT_TEXTANIM(sPrefix, sText, iDelay)
+#DIMS sPrefix ; 접두사
+#DIMS sText ; 출력할 문장
+#DIM iDelay ; 문자 간 지연
+#DIM iTmp
+#DIMS sTmp
+; PRINTFORML %sText%
+; PRINTFORML 12345678901234567890
+STRLENSU sText
+; PRINTFORML LEN = {RESULT}
+FOR iTmp, 0, RESULT + 1
+	sTmp = %sPrefix%%SUBSTRINGU(sText, 0, iTmp)%
+	SIF iTmp != 0
+		CLEARLINE 1
+	PRINTFORML %sTmp%
+	IF SUBSTRINGU(sText, iTmp, 1) != " "
+		IF iDelay >= 150
+			AWAIT iDelay - 5
+			AWAIT 5
+		ELSE
+			AWAIT iDelay
+		ENDIF
+	ENDIF
+NEXT
