@@ -492,6 +492,7 @@ FOR iTmp, 0, iTmp:1
 	; PRINTFORML @"\r%sTmp%"
 	; DEBUGPRINTFORML iTmp:0({iTmp}) != iTmp:1({iTmp:1}) - 1
 	IF SUBSTRINGU(sText, iTmp, 1) != " " && iTmp != iTmp:1 - 1
+		; INPUTMOUSEKEY iDelay
 		IF iDelay >= 100
 			AWAIT iDelay - 5
 			AWAIT 5
