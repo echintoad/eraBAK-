@@ -176,8 +176,8 @@ IF RESULT == -1
 	RETURN
 ENDIF
 
-DEBUGPRINTFORML selected boss id: {RESULT}
-보스 = RESULT
+DEBUGPRINTFORML selected boss id: {총력전_ID:RESULT}
+보스 = 총력전_ID:RESULT
 ; 총력전 창 정리
 CALL 총력전_해제_기본
 CLEARLINE LINECOUNT - FIRST_LINE
