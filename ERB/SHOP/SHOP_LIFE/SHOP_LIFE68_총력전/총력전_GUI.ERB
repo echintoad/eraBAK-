@@ -106,12 +106,17 @@ ENDIF
 ; 해더
 
 ; 적 파티 프레임
-; 임시로 그냥 팀1 수 만큼
-iTmp = MATCH(총력전_팀, 1)
-iBlank = 12
 HTML_PRINT sHtml_end
-CALL 총력전_UI_프레임_2(iTmp, iBlank, 14, 선택종류_적군)
-; CALL 총력전_UI_프레임_1(iTmp, iBlank, 2, -1)
+TRYCCALLFORM 총력전_보스_UI_프레임_{총력전_보스}(선택종류_적군)
+CATCH
+	; 없으면 팀1 확인, 수 만큼 1자로
+	iTmp = MATCH(총력전_팀, 1)
+	iBlank = FINDELEMENT(총력전_팀, 1)
+	iBlank = 총력전_위치:iBlank
+	DEBUGPRINTFORML iBlank = {iBlank}
+	; 이미지, 이름 + 체력만
+	CALL 총력전_UI_프레임_3(iTmp, iBlank, 14, 선택종류_적군)
+ENDCATCH
 HTML_PRINT sHtml_end
 
 ; 바: 턴수, 코스트, 게임 종료
@@ -527,7 +532,7 @@ NEXT
 ; 너비 계산
 ; 전체너비 / 인원수 - 장식
 너비 = DIVIDE_ROUND(iSpace, 인원수) - 3
-; 캐릭터수 계산
+; 줄수 계산
 VARSIZE 시작위치
 줄수 = RESULT
 
@@ -574,17 +579,6 @@ FOR iTmp, 0, 줄수
 		ENDIF
 	NEXT
 NEXT
-[IF_DEBUG]
-DEBUGPRINTFORML 캐릭터있음:0 = {캐릭터있음:0}
-DEBUGPRINTFORML 캐릭터있음:1 = {캐릭터있음:1}
-DEBUGPRINTFORML 캐릭터있음:2 = {캐릭터있음:2}
-DEBUGPRINTFORML 엄폐물있음:0 = {엄폐물있음:0}
-DEBUGPRINTFORML 엄폐물있음:1 = {엄폐물있음:1}
-DEBUGPRINTFORML 엄폐물있음:2 = {엄폐물있음:2}
-DEBUGPRINTFORML 보호막있음:0 = {보호막있음:0}
-DEBUGPRINTFORML 보호막있음:1 = {보호막있음:1}
-DEBUGPRINTFORML 보호막있음:2 = {보호막있음:2}
-[ENDIF]
 ; 줄 하나면 높이 계산 건너뛰기
 IF 줄수 == 1
 	cell_height_line:0 = cell_height
@@ -762,8 +756,114 @@ FOR iTmp, 0, 줄수
 	SIF iTmp < 줄수 - 1
 		HTML_PRINT sHtml_end
 NEXT
-
 ; #endregion == 프레임 2 ==
+
+; #region == 프레임 3 ==
+; 프레임 2, 이름 + 이미지 + 체력만
+; 한줄만
+; 보스 폴백용(fallback)
+@총력전_UI_프레임_3(인원수, 시작위치, cell_height = 13, bBtn = 총력전_선택_캐릭터)
+#DIM 인원수 ; 한 줄당 인원수
+#DIM REF 시작위치, 0 ; 시작위치 번호
+#DIM DYNAMIC cell_height ; 셀 높이 6 ~ 21?
+#DIM DYNAMIC bBtn ; 버튼 작동 여부, 총력전_선택_ 참조
+
+#DIM CONST iSpace = 120
+
+#DIMS DYNAMIC sHtml_end ; 줄 사이 브레이크
+#DIMS DYNAMIC sHtml_blank ; 캐릭터 사이 선 있는 부분
+#DIM DYNAMIC cell_height_line, 6 ; 줄당 셀 높이
+#DIM DYNAMIC 엄폐물있음, 6 ; 엄폐물 있는지
+#DIM DYNAMIC 보호막있음, 6 ; 보호막 있는지
+#DIM DYNAMIC 줄수 ; 시작위치 SIZE
+#DIM DYNAMIC 너비 ; 캐릭터 부분 너비
+#DIM DYNAMIC 캐릭번호 ; 임시 캐릭터 번호
+#DIM DYNAMIC 위치번호 ; 임시 위치 번호
+#DIM DYNAMIC iTmp, 3
+#DIMS DYNAMIC sTmp
+
+; 너비 계산
+; 전체너비 / 인원수 - 장식
+너비 = DIVIDE_ROUND(iSpace, 인원수) - 3
+; 줄수 계산
+VARSIZE 시작위치
+줄수 = RESULT
+; 라인 세팅
+CALL 총력전_UI_줄(인원수, 너비, 1, 0, "__", iTmp, sTmp)
+sHtml_blank = %RESULTS%
+; 줄에 캐릭터, 보호막, 엄폐물 확인
+FOR iTmp, 0, 줄수
+	FOR iTmp:1, 0, 인원수
+		; 위치, 캐릭터 번호 설정
+		위치번호 = 시작위치:iTmp + iTmp:1
+		캐릭번호 = FINDELEMENT(총력전_위치, 위치번호)
+		DEBUGPRINTFORML 줄:{iTmp}, 인원:{iTmp:1}
+		DEBUGPRINTFORML 위치번호 = {위치번호}
+		DEBUGPRINTFORML 캐릭번호 = {캐릭번호}
+		; 엄폐물 있는지 확인
+		IF 엄폐물있음:iTmp == 0
+			; 엄폐물번호
+			iTmp:2 = FINDELEMENT(총력전_엄폐물_위치, 위치번호)
+			IF iTmp:2 >= 0 && 총력전_엄폐물_소비방식:(iTmp:2):0 > 0
+				엄폐물있음:iTmp = 1
+			ENDIF
+		ENDIF
+		; 보호막 있는지 확인
+		IF 보호막있음:iTmp == 0 && 캐릭번호 >= 0
+			iTmp:2 = 총력전_상태효과_합계(캐릭번호, 상효_종류_보호막, 총력전_방식_지속)
+			DEBUGPRINTFORML 보호막 확인 = {iTmp:2}
+			IF 총력전_상태:캐릭번호 != 0 && iTmp:2 > 0
+				보호막있음:iTmp = 1
+			ENDIF
+		ENDIF
+	NEXT
+NEXT
+; 줄 하나면 높이 계산 건너뛰기
+IF 줄수 == 1
+	cell_height_line:0 = cell_height
+	GOTO 출력
+ENDIF
+; 줄 높이 계산, 간단
+; cell_height_remainder = cell_height - (줄수 - 1)
+iTmp:1 = (cell_height - (줄수 - 1)) / 줄수
+FOR iTmp, 0, 줄수 - 1
+	cell_height_line:iTmp = iTmp:1
+NEXT
+cell_height_line:(줄수 - 1) = cell_height - iTmp:1 * (줄수 - 1)
+
+$출력
+FOR iTmp, 0, 줄수
+	; 이름 버튼
+	CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "이름_1", iTmp, sTmp, bBtn)
+	HTML_PRINT RESULTS
+	; 이미지
+	iTmp:1 = cell_height_line:iTmp - 2 ; 이미지 사이즈
+	SIF 엄폐물있음:iTmp
+		iTmp:1 --
+	SIF 보호막있음:iTmp
+		iTmp:1 --
+	; 이미지 줄 출력
+	; 6보다 낮으면 빈 공간 출력
+	IF FLAG:화상설정 || iTmp:1 >= 6
+		CALL 총력전_UI_프레임_0_이미지(인원수, 너비, sHtml_blank, 1, 시작위치:iTmp, iTmp:1)
+	ELSE
+		; 빈공간
+		FOR iTmp:2, 0, iTmp:1
+			HTML_PRINT sHtml_blank
+		NEXT
+	ENDIF
+	IF 엄폐물있음:iTmp
+		CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "엄폐물_0", iTmp, sTmp)
+		HTML_PRINT RESULTS
+	ENDIF
+	IF 보호막있음:iTmp
+		CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "보호막_0", iTmp, sTmp)
+		HTML_PRINT RESULTS
+	ENDIF
+	CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "체력_0", iTmp, sTmp)
+	HTML_PRINT RESULTS
+NEXT
+; #endregion == 프레임 3 ==
 
 ; #region == 텍스트 ==
 ; 총력전 전투 로그
