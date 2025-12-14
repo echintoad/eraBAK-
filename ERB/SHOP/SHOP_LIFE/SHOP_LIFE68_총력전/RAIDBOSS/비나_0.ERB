@@ -337,10 +337,11 @@ CALL 총력전_상태효과_소비(보스번호, 총력전_방식_스킬)
 #DIMS DYNAMIC sTmp
 ; 조준 후 종료
 IF 총력전_보스_시전중 == 0
-	총력전_보스_시전중 = 1
 	iTmp = 0
 	CALL 총력전_목표(iTmp, 0, 총력전_캐릭터수)
-	; 주목표 = RESULT
+	; 목표 없으면 BREAK
+	SIF RESULT == -1
+		RETURN
 	총력전_보스_조준:0 = RESULT
 	; 시전 경고
 	sTmp = 『아칠루트의 빛』준비중
@@ -355,6 +356,7 @@ IF 총력전_보스_시전중 == 0
 	CALL 총력전_UI_Main(0)
 	WAITANYKEY
 	; 종료
+	총력전_보스_시전중 = 1
 	RETURN
 ENDIF
 
@@ -453,6 +455,10 @@ ENDSELECT
 FOR iTmp, 0, 공격회수
 	; 무작위 목표
 	CALL 총력전_목표_무작위(0)
+	IF RESULT == -1
+		DEBUGPRINTFORML 목표 없음
+		BREAK
+	ENDIF
 	목표 = RESULT
 	CALL 총력전_처리_피격(대미지, 목표, 보스번호)
 	; 명중 했으면 군중제어 적용

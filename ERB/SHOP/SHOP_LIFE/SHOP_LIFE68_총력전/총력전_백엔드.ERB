@@ -854,6 +854,27 @@ NEXT
 
 RETURN -1
 
+; 시작번호 부터 마지막에 있는 적팀, 최대 범위 만큼
+@총력전_목표_후방(적팀, 시작위치, 범위 = 5)
+#DIM REF 적팀, 0
+#DIM 시작위치
+#DIM 범위
+
+#DIM iTmp, 3
+
+FOR iTmp, 시작위치 + 범위 - 1, 시작위치 - 1, -1 
+	iTmp:1 = FINDELEMENT(총력전_위치, iTmp)
+	iTmp:2 = 총력전_캐릭터상태(iTmp:1)
+	IF iTmp:2 == 0 || iTmp:2 == 총력전_상태_행동불능 || iTmp:2 == 총력전_상태_보스_행동불능
+		CONTINUE
+	ENDIF
+	IF MATCH(적팀, 총력전_팀:(iTmp:1))
+		RETURN iTmp:1
+	ENDIF
+NEXT
+
+RETURN -1
+
 ; 팀에 대상중 무작위 선택, 총력전_FUNC 으로 이동?
 ; 나중에 팀 REF 로 변경, 예로니무스/허수아비 타겟(팀2?) 가능하게?
 ; #FUNCTION 으로 전환 가능
@@ -880,6 +901,10 @@ FOR iTmp, 0, 총력전_캐릭터수
 		RETURN iTmp
 	ENDIF
 NEXT
+; 대상 없으면
+IF 대상수 == 0
+	RETURN -1
+ENDIF
 ; 대상 선택
 iTmp = RAND:대상수
 iTmp = 대상전체:iTmp
