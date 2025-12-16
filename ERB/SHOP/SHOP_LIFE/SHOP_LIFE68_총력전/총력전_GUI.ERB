@@ -115,7 +115,7 @@ CATCH
 	iBlank = 총력전_위치:iBlank
 	DEBUGPRINTFORML iBlank = {iBlank}
 	; 이미지, 이름 + 체력만
-	CALL 총력전_UI_프레임_3(iTmp, iBlank, 14, 선택종류_적군)
+	CALL 총력전_UI_프레임_3(iTmp, iBlank, 15, 선택종류_적군)
 ENDCATCH
 HTML_PRINT sHtml_end
 
@@ -146,7 +146,7 @@ HTML_PRINT sTmp
 HTML_PRINT sHtml_end
 
 ; 전투 로그
-CALL 총력전_UI_텍스트(13, 115)
+CALL 총력전_UI_텍스트(12, 115)
 ; CALL 총력전_UI_텍스트(12, 115, 2)
 ; CALL 총력전_UI_텍스트_단선(1, 115, "| ) ", " ( |")
 ; HTML_PRINT RESULTS
@@ -844,9 +844,13 @@ FOR iTmp, 0, 줄수
 		iTmp:1 --
 	; 이미지 줄 출력
 	; 6보다 낮으면 빈 공간 출력
-	IF FLAG:화상설정 || iTmp:1 >= 6
+	IF FLAG:화상설정
+		IF iTmp:1 < 4
+			GOTO IMGBLANK
+		ENDIF
 		CALL 총력전_UI_프레임_0_이미지(인원수, 너비, sHtml_blank, 1, 시작위치:iTmp, iTmp:1)
 	ELSE
+		$IMGBLANK
 		; 빈공간
 		FOR iTmp:2, 0, iTmp:1
 			HTML_PRINT sHtml_blank

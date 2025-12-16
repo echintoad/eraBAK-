@@ -41,17 +41,17 @@ PRINTW ...약탈 하기 좋은 기회인 거 같다.
 #DIM DYNAMIC iBlank
 #DIMS DYNAMIC sTmp
 
-; 14 - 1
+; 15 - 1
 iBlank = 17
 IF 총력전_전투단계 == 총력전_전투단계_플레이어
-	CALL 총력전_UI_프레임_3(1, iBlank, 6, 선택종류_적군)
+	CALL 총력전_UI_프레임_3(1, iBlank, 8, 선택종류_적군)
 ELSE
-	CALL 총력전_UI_프레임_3(1, iBlank, 6, -1)
+	CALL 총력전_UI_프레임_3(1, iBlank, 8, -1)
 ENDIF
 sTmp = |-|%TOSTR_REPEAT("-",iSpace - 3)%|-|
 HTML_PRINT sTmp
 iBlank = 10
-CALL 총력전_UI_프레임_3(5, iBlank, 7, 선택종류_적군)
+CALL 총력전_UI_프레임_3(5, iBlank, 6, 선택종류_적군)
 
 ; #endregion
 
