@@ -19,26 +19,8 @@ SELECTCASE ARG
 		ELSE
 			LOCALS = 마이 네세시티 + 크루세이더 쨩
 		ENDIF
-	CASE 200
-		IF iLen > 0 && iLen < 17
-			LOCALS = 화염방사기
-		ELSE 		;12345678901234567890
-			LOCALS = 양산형 화염방사기
-		ENDIF
-	CASE 300
-		IF iLen > 0 && iLen < 17
-			LOCALS = 유탄발사기
-		ELSE 		;12345678901234567890
-			LOCALS = 양산형 유탄발사기
-		ENDIF
 	CASE 304
 		LOCALS = 라이브용 T셔츠 캐논
-	CASE 400
-		IF iLen > 0 && iLen < 11
-			LOCALS = 권총
-		ELSE 		;12345678901234567890
-			LOCALS = 양산형 권총
-		ENDIF
 	CASE 413
 		IF iLen > 0 && iLen < 14
 			LOCALS = 치스토카(온)
@@ -47,55 +29,13 @@ SELECTCASE ARG
 		ELSE 		;123456789012345678901234567890
 			LOCALS = 치스토카 + 숙청군 1호
 		ENDIF
-	CASE 500
-		IF iLen > 0 && iLen < 13
-			LOCALS = 기관총
-		ELSE 		;12345678901234567890
-			LOCALS = 양산형 기관총
-		ENDIF
 	CASE 503 ; 노노미 미니 No.5?
 		LOCALS = 리틀 머신건 V
-	CASE 600
-		IF iLen > 0 && iLen < 13
-			LOCALS = 박격포
-		ELSE 		;12345678901234567890
-			LOCALS = 양산형 박격포
-		ENDIF
 	CASE 602
 		IF iLen > 0 && iLen < 19
 			LOCALS = 팬시 라이트(응)
 		ELSE 		;12345678901234567890
 			LOCALS = 팬시 라이트(응원단)
-		ENDIF
-	CASE 700
-		IF iLen > 0 && iLen < 13
-			LOCALS = 레일건
-		ELSE 		;12345678901234567890
-			LOCALS = 양산형 레일건
-		ENDIF
-	CASE 800
-		IF iLen > 0 && iLen < 15
-			LOCALS = 로켓런처
-		ELSE 		;12345678901234567890
-			LOCALS = 양산형 로켓런처
-		ENDIF
-	CASE 900
-		IF iLen > 0 && iLen < 11
-			LOCALS = 샷건
-		ELSE 		;12345678901234567890
-			LOCALS = 양산형 샷건
-		ENDIF
-	CASE 1000
-		IF iLen > 0 && iLen < 15
-			LOCALS = 기관단총
-		ELSE 		;12345678901234567890
-			LOCALS = 양산형 기관단총
-		ENDIF
-	CASE 1100
-		IF iLen > 0 && iLen < 15
-			LOCALS = 저격소총
-		ELSE 		;12345678901234567890
-			LOCALS = 양산형 저격소총
 		ENDIF
 	CASE 1114
 		IF iLen > 0 && iLen < 19
