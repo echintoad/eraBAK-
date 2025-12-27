@@ -205,6 +205,7 @@ NEXT
 ; 필요 없을수도...
 FOR iTmp, 0, 총력전_캐릭터수
 	CALL 총력전_확인_행동불능(iTmp)
+	총력전_스탯상태:iTmp = 0
 	CALL 총력전_초기화_스탯_상효(iTmp)
 NEXT
 
