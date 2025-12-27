@@ -113,7 +113,7 @@ CATCH
 	iTmp = MATCH(총력전_팀, 1)
 	iBlank = FINDELEMENT(총력전_팀, 1)
 	iBlank = 총력전_위치:iBlank
-	DEBUGPRINTFORML iBlank = {iBlank}
+	; DEBUGPRINTFORML iBlank = {iBlank}
 	; 이미지, 이름 + 체력만
 	CALL 총력전_UI_프레임_3(iTmp, iBlank, 15, 선택종류_적군)
 ENDCATCH
@@ -549,9 +549,9 @@ FOR iTmp, 0, 줄수
 		; 위치, 캐릭터 번호 설정
 		위치번호 = 시작위치:iTmp + iTmp:1
 		캐릭번호 = FINDELEMENT(총력전_위치, 위치번호)
-		DEBUGPRINTFORML 줄:{iTmp}, 인원:{iTmp:1}
-		DEBUGPRINTFORML 위치번호 = {위치번호}
-		DEBUGPRINTFORML 캐릭번호 = {캐릭번호}
+		; DEBUGPRINTFORML 줄:{iTmp}, 인원:{iTmp:1}
+		; DEBUGPRINTFORML 위치번호 = {위치번호}
+		; DEBUGPRINTFORML 캐릭번호 = {캐릭번호}
 		; 엄폐물 있는지 확인
 		IF 엄폐물있음:iTmp == 0
 			; 엄폐물번호
@@ -572,7 +572,7 @@ FOR iTmp, 0, 줄수
 		; 보호막 있는지 확인
 		IF 보호막있음:iTmp == 0 && 캐릭번호 >= 0
 			iTmp:2 = 총력전_상태효과_합계(캐릭번호, 상효_종류_보호막, 총력전_방식_지속)
-			DEBUGPRINTFORML 보호막 확인 = {iTmp:2}
+			; DEBUGPRINTFORML 보호막 확인 = {iTmp:2}
 			IF 총력전_상태:캐릭번호 != 0 && iTmp:2 > 0
 				보호막있음:iTmp = 1
 			ENDIF
@@ -636,7 +636,7 @@ FOR iTmp, 0, 줄수
 NEXT
 
 $출력
-DEBUGPRINTFORML FLAG:화상설정 = {FLAG:화상설정}
+; DEBUGPRINTFORML FLAG:화상설정 = {FLAG:화상설정}
 FOR iTmp, 0, 줄수
 	IF 캐릭터있음:iTmp
 		cell_height_remainder = cell_height_line:iTmp
@@ -648,19 +648,19 @@ FOR iTmp, 0, 줄수
 		cell_height_remainder --
 		; 이미지 줄 계산
 		iTmp:1 = 0 ; 이미지 사이즈
-		DEBUGPRINTFORML cell_height_line:{iTmp} = {cell_height_line:iTmp}
+		; DEBUGPRINTFORML cell_height_line:{iTmp} = {cell_height_line:iTmp}
 		IF FLAG:화상설정 && 화상있음:iTmp == 1
 			iTmp:2 = cell_height_line:iTmp
 			SIF 엄폐물있음:iTmp
 				iTmp:2 --
 			IF cell_height_line:iTmp >= 18
-				DEBUGPRINTFORML line abv 18
+				; DEBUGPRINTFORML line abv 18
 				iTmp:1 = 9
 			ELSEIF cell_height_line:iTmp >= 12
-				DEBUGPRINTFORML line abv 12
+				; DEBUGPRINTFORML line abv 12
 				iTmp:1 = cell_height_line:iTmp / 2
 			ELSEIF cell_height_line:iTmp >= 10
-				DEBUGPRINTFORML line abv 10
+				; DEBUGPRINTFORML line abv 10
 				iTmp:1 = 6
 			ELSE
 				iTmp:1 = 1
@@ -797,9 +797,9 @@ FOR iTmp, 0, 줄수
 		; 위치, 캐릭터 번호 설정
 		위치번호 = 시작위치:iTmp + iTmp:1
 		캐릭번호 = FINDELEMENT(총력전_위치, 위치번호)
-		DEBUGPRINTFORML 줄:{iTmp}, 인원:{iTmp:1}
-		DEBUGPRINTFORML 위치번호 = {위치번호}
-		DEBUGPRINTFORML 캐릭번호 = {캐릭번호}
+		; DEBUGPRINTFORML 줄:{iTmp}, 인원:{iTmp:1}
+		; DEBUGPRINTFORML 위치번호 = {위치번호}
+		; DEBUGPRINTFORML 캐릭번호 = {캐릭번호}
 		; 엄폐물 있는지 확인
 		IF 엄폐물있음:iTmp == 0
 			; 엄폐물번호
@@ -811,7 +811,7 @@ FOR iTmp, 0, 줄수
 		; 보호막 있는지 확인
 		IF 보호막있음:iTmp == 0 && 캐릭번호 >= 0
 			iTmp:2 = 총력전_상태효과_합계(캐릭번호, 상효_종류_보호막, 총력전_방식_지속)
-			DEBUGPRINTFORML 보호막 확인 = {iTmp:2}
+			; DEBUGPRINTFORML 보호막 확인 = {iTmp:2}
 			IF 총력전_상태:캐릭번호 != 0 && iTmp:2 > 0
 				보호막있음:iTmp = 1
 			ENDIF
