@@ -24,6 +24,7 @@ FOR iTmp, iStart, iSize
 NEXT
 
 ; 나중에 총력전_ARRAYREMOVE 제거
+; iClearCnt -1 이면 iStart 부터 전체 변경
 @총력전_ARRAYREMOVE_VAL(ary, iFirstDim, iStart = 0, iClearCnt = 1, replaceVal = 0)
 #DIM REF ary, 0, 0
 #DIM iFirstDim ; 첫번쩨 차원(총력전번호)
@@ -36,7 +37,7 @@ NEXT
 
 iSize = VARSIZE("ary", 1)
 FOR iTmp, iStart, iSize
-	IF iTmp + iClearCnt < iSize
+	IF iTmp + iClearCnt < iSize && iClearCnt != -1
 		ary:iFirstDim:iTmp = ary:iFirstDim:(iTmp + iClearCnt)
 	ELSE
 		ary:iFirstDim:iTmp = replaceVal
