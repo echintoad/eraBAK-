@@ -46,6 +46,9 @@
 
 CLEARLINE LINECOUNT
 
+; 조준 칼라 계산
+CALL 총력전_UI_칼라계산
+
 ; 보스.ERB 에 특수 UI 있는지 확인
 ; RETURN 1 이면 보스 UI 에 자체 UI가 있다 가정
 RESULT = 0
@@ -1552,6 +1555,10 @@ IF STRLENS(총력전_접두사_이름:캐릭터) > 0
 ENDIF
 CALL 총력전_UI_캐릭터이름_0(캐릭터, 너비, bBtn)
 RESULTS = %TOSTR_SPACE(iTmp)%%총력전_접두사_이름:캐릭터%%RESULTS%
+; 색 추가
+IF 총력전_UI_칼라:캐릭터 >= 0
+	RESULTS = <font color='%INT_TO_HEXSTR(총력전_UI_칼라:캐릭터)%'>%RESULTS%</font>
+ENDIF
 RETURN
 
 ; 겸 스킬
@@ -2182,5 +2189,53 @@ IF STRLENS(sTmp) <= 너비
 	RETURN
 ENDIF
 RESULTS = %ALIGN_TEXT(스탯문자열, 너비, "LEFT")%
+
+; 총력전_스킬_조준, 위치, 범위 참조후
+; + 아군 버프 선택?
+; 총력전_UI_칼라 설정
+@총력전_UI_칼라계산
+#DIM DYNAMIC 캐릭번호
+#DIM DYNAMIC 범위, 총력전_캐릭터수
+#DIM DYNAMIC iTmp, 3
+; 리셋?
+VARSET 총력전_UI_칼라, -1
+
+FOR 캐릭번호, 0, 총력전_캐릭터수
+	VARSIZE 총력전_스킬_조준
+	FOR iTmp, 0, RESULT:1
+		IF 총력전_스킬_조준:캐릭번호:iTmp >= 0 || 총력전_스킬_위치:캐릭번호:iTmp >= 0
+			; 범위 확인
+			IF 총력전_스킬_범위:캐릭번호:iTmp >= 0
+				IF 총력전_스킬_조준:캐릭번호:iTmp >= 0
+					CALL 총력전_목표_범위(범위, 총력전_스킬_조준:캐릭번호:iTmp, -1, 총력전_스킬_범위:캐릭번호:iTmp)
+				ELSEIF 총력전_스킬_위치:캐릭번호:iTmp >= 0
+					; 위치 -> 총력전 번호, 나중에 위치 -> 범위 함수 있으면 편할듯?
+					iTmp:1 = FINDELEMENT(총력전_위치, 총력전_스킬_위치:캐릭번호:iTmp)
+					CALL 총력전_목표_범위(범위, 총력전_스킬_위치:캐릭번호:iTmp, -1, 총력전_스킬_범위:캐릭번호:iTmp)
+				ENDIF
+				; 총력전_UI_칼라 설정된거 없으면 설정
+				FOR iTmp:1, 0, 총력전_캐릭터수
+					iTmp:2 = 범위:(iTmp:1)
+					SIF iTmp:2 < 0
+						BREAK
+					IF 총력전_UI_칼라:(iTmp:2) == -1
+						총력전_UI_칼라:(iTmp:2) = 칼라_오렌지
+					ENDIF
+				NEXT
+			ENDIF
+			IF 총력전_스킬_조준:캐릭번호:iTmp >= 0
+				; 총력전_UI_칼라 강색 설정
+				iTmp:1 = 총력전_스킬_조준:캐릭번호:iTmp
+				총력전_UI_칼라:(iTmp:1) = 칼라_빨강
+			ELSE
+				; 총력전_UI_칼라 설정된거 없으면 설정
+				iTmp:1 = FINDELEMENT(총력전_위치, 총력전_스킬_위치:캐릭번호:iTmp)
+				IF 총력전_UI_칼라:(iTmp:1) == -1
+					총력전_UI_칼라:(iTmp:1) = 칼라_오렌지
+				ENDIF
+			ENDIF
+		ENDIF
+	NEXT
+NEXT
 
 ; #endregion == Utility ==
