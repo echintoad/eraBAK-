@@ -551,7 +551,7 @@ FOR iTmp, 0, 줄수
 		캐릭번호 = FINDELEMENT(총력전_위치, 위치번호)
 		; DEBUGPRINTFORML 줄:{iTmp}, 인원:{iTmp:1}
 		; DEBUGPRINTFORML 위치번호 = {위치번호}
-		; DEBUGPRINTFORML 캐릭번호 = {캐릭번호}
+		; DEBUGPRINTFORML 캐릭번호 = {캐릭번호} ({총력전_ID:캐릭번호})
 		; 엄폐물 있는지 확인
 		IF 엄폐물있음:iTmp == 0
 			; 엄폐물번호
@@ -564,11 +564,11 @@ FOR iTmp, 0, 줄수
 		; IF 캐릭터있음:iTmp == 0 && 캐릭번호 >= 0
 		IF 캐릭터있음:iTmp == 0 && 총력전_상태:캐릭번호 > 0
 			캐릭터있음:iTmp = 1
-			; 캐릭터 있으면 화상 확인
-			IF 화상있음:iTmp == 0 && STRLENS(총력전_이미지:캐릭번호) > 0
-				화상있음:iTmp = 1
-			ENDIF
 		ENDIF
+		; 화상 확인
+		IF 화상있음:iTmp == 0 && 캐릭번호 >= 0 && STRLENS(총력전_이미지:캐릭번호) > 0
+			화상있음:iTmp = 1
+		ENDIF		
 		; 보호막 있는지 확인
 		IF 보호막있음:iTmp == 0 && 캐릭번호 >= 0
 			iTmp:2 = 총력전_상태효과_합계(캐릭번호, 상효_종류_보호막, 총력전_방식_지속)
