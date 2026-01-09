@@ -34,10 +34,10 @@ ABL:대상:신비 += 스탯증가:2 * 탈착
 IF 탈착 == 1
 	TALENT:대상:웨폰 = 130
 	; 스킬은 시로코 드론 소환 사용
-	CALL SKILL_LEARN(대상, 스킬_장르_BASE, 1103, 0)
+	CALL SKILL_LEARN(대상, 스킬_장르_BASE, 1130, 0)
 ELSEIF 탈착 == -1
 	TALENT:대상:웨폰 = 100
-	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "드론 소환: 화력 지원")
+	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "화력 강화")
 ENDIF
 
 RETURN 탈착

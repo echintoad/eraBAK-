@@ -124,6 +124,18 @@ IF CHECK_UPDATE("0.5.4");치나츠 안경 추가
 	CALL CLOTH_INIT(16)
 ENDIF
 
+IF CHECK_UPDATE("0.5.10")
+	; BLACKFANG 확인
+	FOR LOCAL, 0, CHARANUM
+		IF TALENT:LOCAL:웨폰 == 130
+			PRINTL == 0.5.10 BLACKFANG465 장착시 스킬 변경 ==
+			PRINTFORMW >> %ANAME(LOCAL)% "드론 소환: 화력 지원" -> "화력 강화"
+			CALL SKILL_FORGET_BY_NAME(LOCAL, 스킬_장르_BASE, "드론 소환: 화력 지원")
+			CALL SKILL_LEARN(LOCAL, 스킬_장르_BASE, 1130, 0)
+		ENDIF
+	NEXT
+ENDIF
+
 ; 임시 총력전_보스_활동:49 == 0 이라면
 ; 보스 활동 업데이트 전이라 가정
 IF 총력전_보스_활동:49 == 0

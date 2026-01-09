@@ -2,45 +2,43 @@
 ; 스킬은 시로코, 1103 드론 소환 화력지원 사용
 ;기본치 계산에 앞서 처리하는 것
 ;-----------------------------------
-; @SKILL_1130_BASE_0_EXIST
-; RETURN 1
+@SKILL_1130_BASE_0_EXIST
+CALL SKILL_1103_BASE_0_EXIST
 
 @SKILL_1130_BASE_0_NAME
 RESULTS = 화력 강화
 
 ; ;레벨은 1-5까지
-; @SKILL_1130_BASE_0_LEVEL
-; RETURN 4
+@SKILL_1130_BASE_0_LEVEL
+CALL SKILL_1103_BASE_0_LEVEL
 
 ; ;대상 선택
-; @SKILL_1130_BASE_0_SETTARGET(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
-; #DIM 발동자
-; #DIM 발동번호
-; #DIM 스킬
-; #DIMS 장르
-; #DIM 발동측
-; #DIM 발동세력
-; #DIM 발동부대
-; #DIM 대상측
-; #DIM 대상세력
-; #DIM 대상부대
-; 대상측 = !발동측
-; RETURN 1
+@SKILL_1130_BASE_0_SETTARGET(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+CALL SKILL_1103_BASE_0_SETTARGET(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
 
 ; ;발동 판정
-; @SKILL_1130_BASE_0_CAN_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
-; #DIM 발동자
-; #DIM 발동번호
-; #DIM 스킬
-; #DIMS 장르
-; #DIM 발동측
-; #DIM 발동세력
-; #DIM 발동부대
-; #DIM 대상측
-; #DIM 대상세력
-; #DIM 대상부대
-; 대상측 = !발동측
-; RETURN 1
+@SKILL_1130_BASE_0_CAN_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+CALL SKILL_1103_BASE_0_CAN_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
 
 ; ;발동 텍스트를 오바라이드 하고 싶을 때에.
 ; ;「아무개의 스킬 발동!   00했다!」의 「00했다!」의 부분을 실장하고 싶은 경우는,
@@ -51,45 +49,39 @@ RESULTS = 화력 강화
 ; ;#DIMS 장르
 
 ; ;효과를 여기에 기술
-; @SKILL_1130_BASE_0_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
-; #DIM 발동자
-; #DIM 발동번호
-; #DIM 스킬
-; #DIMS 장르
-; #DIM 발동측
-; #DIM 발동세력
-; #DIM 발동부대
-; #DIM 대상측
-; #DIM 대상세력
-; #DIM 대상부대
-; #DIM DYNAMIC maxAmt
-; 대상측 = !발동측
-; LOCAL:1 = 4
-; FOR LOCAL, 0, LOCAL:1
-; 	CALL DECREASE_SOLDIER(대상세력, 대상부대, ABL:발동자:무투*3, 1)
-; NEXT
+@SKILL_1130_BASE_0_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+CALL SKILL_1103_BASE_0_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
 
-; @SKILL_1130_BASE_0_EXPLANATION
-; RESULTS = 자신의 정치에 의존해, 적부대의 피로도를 증가시킨다.
+@SKILL_1130_BASE_0_EXPLANATION
+CALL SKILL_1103_BASE_0_EXPLANATION
 
-; @SKILL_1130_BASE_0_CANT_TELL
+@SKILL_1130_BASE_0_CANT_TELL
 
 ; ; 아이가 배울수 없도록 한다
-; @SKILL_1130_BASE_0_CANT_INHERIT
+@SKILL_1130_BASE_0_CANT_INHERIT
 
-; @SKILL_1130_BASE_0_RATE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
-; #DIM 발동자
-; #DIM 발동번호
-; #DIM 스킬
-; #DIMS 장르
-; #DIM 발동측
-; #DIM 발동세력
-; #DIM 발동부대
-; #DIM 대상측
-; #DIM 대상세력
-; #DIM 대상부대
-; ; RETURN 1000
-; RETURN 150
+@SKILL_1130_BASE_0_RATE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+CALL SKILL_1103_BASE_0_RATE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
 
 
 ; #region == 총력전 ==
