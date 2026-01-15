@@ -34,7 +34,6 @@
 #DIM DYNAMIC 선택모드 ; (스킬)선택용 버튼으로 변경
 ; #DIM DYNAMIC 종료 ; 아니면 총력전_전투단계 로 확인?
 
-#DIM DYNAMIC frame ; 애니메이션 포함 하고 싶으면
 #DIM DYNAMIC 시작위치_0 = -1 ; 한줄
 #DIM DYNAMIC 시작위치_1, 2 ; 두줄
 #DIM DYNAMIC 줄수 ; 몇줄이 필요한지
@@ -109,7 +108,7 @@ ENDIF
 ; 해더
 
 ; 적 파티 프레임
-HTML_PRINT sHtml_end
+CALL 총력전_UI_줄추가(sHtml_end)
 TRYCCALLFORM 총력전_보스_UI_프레임_{총력전_보스}(선택종류_적군)
 CATCH
 	; 없으면 팀1 확인, 수 만큼 1자로
@@ -120,7 +119,7 @@ CATCH
 	; 이미지, 이름 + 체력만
 	CALL 총력전_UI_프레임_3(iTmp, iBlank, 15, 선택종류_적군)
 ENDCATCH
-HTML_PRINT sHtml_end
+CALL 총력전_UI_줄추가(sHtml_end)
 
 ; 바: 턴수, 코스트, 게임 종료
 sTmp = | |
@@ -145,8 +144,8 @@ ELSE
 ENDIF
 sTmp += @"%RESULTS%"
 sTmp += @"| |"
-HTML_PRINT sTmp
-HTML_PRINT sHtml_end
+CALL 총력전_UI_줄추가(sTmp)
+CALL 총력전_UI_줄추가(sHtml_end)
 
 ; 전투 로그
 CALL 총력전_UI_텍스트(12, 115)
@@ -157,7 +156,7 @@ CALL 총력전_UI_텍스트(12, 115)
 ; HTML_PRINT RESULTS
 
 ; 바: 다음턴, 텍스트 컨트롤러
-HTML_PRINT sHtml_end
+CALL 총력전_UI_줄추가(sHtml_end)
 sTmp = | |
 ; 왼쪽
 ; 양쪽 30
@@ -200,9 +199,9 @@ sTmp += @"%RESULTS%"
 CALL 총력전_UI_버튼("최하단", 10, 1, -7, 6)
 sTmp += @"%RESULTS%"
 sTmp += @"| |"
-HTML_PRINT sTmp
+CALL 총력전_UI_줄추가(sTmp)
 
-HTML_PRINT sHtml_end
+CALL 총력전_UI_줄추가(sHtml_end)
 ; 아군 파티 프레임
 iTmp = 21
 IF 줄수 == 2
@@ -210,7 +209,7 @@ IF 줄수 == 2
 		CALL 총력전_UI_프레임_2(5, 시작위치_1, iTmp, 선택종류_아군)
 	ELSE
 		CALL 총력전_UI_프레임_2(5, 시작위치_1, iTmp - 8, 선택종류_아군)
-		HTML_PRINT sHtml_end
+		CALL 총력전_UI_줄추가(sHtml_end)
 		CALL 총력전_UI_부품_캐릭터정보_0(총력전_캐릭터정보)
 	ENDIF
 ELSE
@@ -218,11 +217,13 @@ ELSE
 		CALL 총력전_UI_프레임_2(5, 시작위치_0, iTmp, 선택종류_아군)
 	ELSE
 		CALL 총력전_UI_프레임_2(5, 시작위치_0, iTmp - 8, 선택종류_아군)
-		HTML_PRINT sHtml_end
+		CALL 총력전_UI_줄추가(sHtml_end)
 		CALL 총력전_UI_부품_캐릭터정보_0(총력전_캐릭터정보)
 	ENDIF	
 ENDIF
-HTML_PRINT sHtml_end
+CALL 총력전_UI_줄추가(sHtml_end)
+CALL 총력전_UI_출력
+
 
 ; #region == 프레임 0 ==
 ; 총력전 번호에 따라 증분(?) 순서대로 기본정보 배치
@@ -274,30 +275,29 @@ FOR iTmp, 0, 인원수
 	ENDIF
 NEXT
 
-HTML_PRINT sHtml_end
+CALL 총력전_UI_줄추가(sHtml_end)
 IF FLAG:화상설정
 	CALL 총력전_UI_줄(인원수, 너비, 0, 시작번호, "이름_0", iTmp, sTmp, bBtn)
-	HTML_PRINT RESULTS
-	; CALL 총력전_UI_프레임_0_이름(인원수, 너비, 0, 시작번호, bBtn)
+	CALL 총력전_UI_줄추가(RESULTS)
 	IF 너비 < 10
 		CALL 총력전_UI_프레임_0_이미지(인원수, 너비, sHtml_blank, 0, 시작번호, 5)
 	ELSE
 		CALL 총력전_UI_프레임_0_이미지(인원수, 너비, sHtml_blank, 0, 시작번호, 9)
 	ENDIF
 ELSE
-	HTML_PRINT sHtml_blank
-	; CALL 총력전_UI_프레임_0_이름(인원수, 너비, 0, 시작번호, bBtn)
+	CALL 총력전_UI_줄추가(sHtml_blank)
+CALL 총력전_UI_줄추가(sHtml_end)
 	CALL 총력전_UI_줄(인원수, 너비, 0, 시작번호, "이름_0", iTmp, sTmp, bBtn)
-	HTML_PRINT RESULTS
-	HTML_PRINT sHtml_blank
+	CALL 총력전_UI_줄추가(RESULTS)
+	CALL 총력전_UI_줄추가(sHtml_blank)
 ENDIF
 IF 스탯표시 == 1
-	HTML_PRINT sHtml_div
+	CALL 총력전_UI_줄추가(sHtml_div)
 	CALL 총력전_UI_줄(인원수, 너비, 0, 시작번호, "최대체력_0", iTmp, sTmp)
-	HTML_PRINT RESULTS
+	CALL 총력전_UI_줄추가(RESULTS)
 	CALL 총력전_UI_부품_스탯(인원수, 너비, 0, 시작번호, 4)
 ENDIF
-HTML_PRINT sHtml_end
+CALL 총력전_UI_줄추가(sHtml_end)
 
 ; 정리후 부품으로 이동
 @총력전_UI_프레임_0_이미지(인원수, 너비, sHtml_blank, 위치사용 = 0, 시작번호 = 0, iSize = 7)
@@ -378,129 +378,26 @@ ELSE
 	iTmp = (iSize - 4) / 2
 ENDIF
 REPEAT iTmp
-	HTML_PRINT sHtml_blank
+	CALL 총력전_UI_줄추가(sHtml_blank)
 REND
 IF iSizeIsOdd
-	HTML_PRINT sHtml_break
-	HTML_PRINT sHtml_img
-	HTML_PRINT sHtml_break
-	HTML_PRINT sHtml_frame
-	HTML_PRINT sHtml_break
+	CALL 총력전_UI_줄추가(sHtml_break)
+	CALL 총력전_UI_줄추가(sHtml_img)
+	CALL 총력전_UI_줄추가(sHtml_break)
+	CALL 총력전_UI_줄추가(sHtml_frame)
+	CALL 총력전_UI_줄추가(sHtml_break)
 ELSE
-	HTML_PRINT sHtml_break
-	HTML_PRINT sHtml_img
-	HTML_PRINT sHtml_frame
-	HTML_PRINT sHtml_break
+	CALL 총력전_UI_줄추가(sHtml_break)
+	CALL 총력전_UI_줄추가(sHtml_img)
+	CALL 총력전_UI_줄추가(sHtml_frame)
+	CALL 총력전_UI_줄추가(sHtml_break)
 ENDIF
 REPEAT iTmp
-	HTML_PRINT sHtml_blank
+	CALL 총력전_UI_줄추가(sHtml_blank)
 REND
 
 ; #endregion == 프레임 0 ==
  
-; #region == 프레임 1 ==
-; Deprecated? 프레임_2 말고 이걸 사용할 이유가 없을듯?
-; 기본 프레임 옵션
-; 전투용, 위치 기반
-; 위에서 아래로; 같은 줄에 있는 캐릭터가 엄폐물(+방어막)이 생기면 엄폐물을 안써도 같은줄은 빈칸으로 남김
-; if single character gets cover, other characters also leaves same line blank even if they don't use them
-@총력전_UI_프레임_1(인원수, 시작위치, heightType = 2, bBtn = 총력전_선택_캐릭터)
-#DIM 인원수 ; 한 줄당 인원수
-#DIM REF 시작위치, 0 ; 시작위치 번호
-#DIM DYNAMIC heightType ; 셀 사이즈 0=최소(6), 1=소(10), 2=중(13), 3=대(21)
-#DIM DYNAMIC bBtn ; 버튼 작동 여부, 총력전_선택_ 참조
-
-#DIM CONST iSpace = 120
-
-#DIMS DYNAMIC sHtml_end ; 캐릭터 라인 사이 브레이크
-#DIMS DYNAMIC sHtml_div, 5 ; 나누는 선, 필요하면 증가
-#DIMS DYNAMIC sHtml_blank ; 캐릭터 사이 선 있는 부분
-#DIMS DYNAMIC sHtml_name
-#DIM DYNAMIC 너비 ; 캐릭터 부분 너비
-#DIM DYNAMIC 캐릭터 ; 총력전 번호
-#DIM DYNAMIC 줄수 ; 시작위치 SIZE
-#DIM DYNAMIC 스탯수
-#DIM DYNAMIC 줄당스탯
-#DIM DYNAMIC iTmp, 4
-#DIMS DYNAMIC sTmp, 3
-
-DEBUGPRINTL **Deprecated code**
-DEBUGPRINTL **총력전_UI_프레임_2 사용**
-
-; 너비 계산
-; 전체너비 / 인원수 - 장식
-너비 = DIVIDE_ROUND(iSpace, 인원수) - 3
-
-; 줄수
-VARSIZE 시작위치
-줄수 = RESULT
-
-; 라인 세팅
-; sHtml_end:0 = |%TOSTR_REPEAT("=",121)%|
-sHtml_end = |-|%TOSTR_REPEAT("-",117)%|-|
-CALL 총력전_UI_줄(인원수, 너비, 1, 0, "__", iTmp, sTmp)
-sHtml_blank = %RESULTS%
-; 한줄에 몇 스탯 들어갈지 계산
-줄당스탯 = 너비 / 9
-
-; 방어막 여부 확인
-; 엄폐물 여부 확인
-
-; 프린트
-FOR iTmp, 0, 줄수
-	CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "이름_1", iTmp, sTmp, bBtn)
-	sHtml_name = %RESULTS%
-	IF FLAG:화상설정 && heightType != 0
-		SIF heightType == 3
-			HTML_PRINT sHtml_blank
-		HTML_PRINT sHtml_name
-		SELECTCASE heightType
-			CASE 1, 2
-				iTmp:1 = 6
-			; CASE 2
-				; iTmp:1 = 7
-			CASEELSE
-				iTmp:1 = 9
-		ENDSELECT
-		CALL 총력전_UI_프레임_0_이미지(인원수, 너비, sHtml_blank, 1, 시작위치:iTmp, iTmp:1)
-	ELSE
-		HTML_PRINT sHtml_blank
-		HTML_PRINT sHtml_name
-		HTML_PRINT sHtml_blank
-	ENDIF
-	CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "무기_1", iTmp, sTmp, bBtn)
-	HTML_PRINT RESULTS
-	SIF heightType == 3 && 줄당스탯 > 1
-		HTML_PRINT sHtml_blank
-	IF heightType > 1
-		sTmp = -
-		CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "장식_1", iTmp, sTmp, 0, "|-|", "|-|", "|-|")
-		HTML_PRINT RESULTS
-	ENDIF
-	SIF heightType == 3 && 줄당스탯 > 1
-		HTML_PRINT sHtml_blank
-	; TESTCODE 무지성 엄폐물
-	CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "엄폐물_0", iTmp, sTmp)
-	HTML_PRINT RESULTS
-	; TESTCODE 무지성 보호막+
-	CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "보호막_0", iTmp, sTmp)
-	HTML_PRINT RESULTS
-	CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "체력_0", iTmp, sTmp)
-	HTML_PRINT RESULTS
-	; 스탯
-	IF heightType == 0 || heightType == 1 ; 1 line
-		CALL 총력전_UI_부품_스탯(인원수, 너비, 1, 시작위치:iTmp, 1)
-	ELSEIF heightType == 2 ; 3 line
-		CALL 총력전_UI_부품_스탯(인원수, 너비, 1, 시작위치:iTmp, 3)
-	ELSEIF heightType == 3 && 줄당스탯 <= 1 ; 7 line
-		CALL 총력전_UI_부품_스탯(인원수, 너비, 1, 시작위치:iTmp, 7)
-	ELSEIF heightType == 3 ; 5 line
-		CALL 총력전_UI_부품_스탯(인원수, 너비, 1, 시작위치:iTmp, 5)
-	ENDIF
-	SIF iTmp < 줄수 - 1
-		HTML_PRINT sHtml_end
-NEXT
-; #endregion == 프레임 1 ==
 
 ; #region == 프레임 2 ==
 ; 전투용, 위치 기반 ver2
@@ -645,9 +542,7 @@ FOR iTmp, 0, 줄수
 		cell_height_remainder = cell_height_line:iTmp
 		; 이름 버튼
 		CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "이름_1", iTmp, sTmp, bBtn)
-		HTML_PRINT RESULTS
-		; sTmp = %RESULTS%
-		; PRINTL | 이름 |
+		CALL 총력전_UI_줄추가(RESULTS)
 		cell_height_remainder --
 		; 이미지 줄 계산
 		iTmp:1 = 0 ; 이미지 사이즈
@@ -680,45 +575,35 @@ FOR iTmp, 0, 줄수
 		IF iTmp:1 < 6
 			; 6보다 낮으면 빈 공간 출력
 			FOR iTmp:2, 0, iTmp:1
-				HTML_PRINT sHtml_blank
-				; PRINTL |  00  |
+				CALL 총력전_UI_줄추가(sHtml_blank)
 			NEXT
 		ELSE
 			CALL 총력전_UI_프레임_0_이미지(인원수, 너비, sHtml_blank, 1, 시작위치:iTmp, iTmp:1)
-			; FOR iTmp:2, 0, iTmp:1
-				; PRINTL | 그림 |
-			; NEXT
 		ENDIF
 		; 스킬 버튼
 		CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "무기_1", iTmp, sTmp, bBtn)
-		HTML_PRINT RESULTS
-		; PRINTL | 스킬 |
+		CALL 총력전_UI_줄추가(RESULTS)
 		cell_height_remainder --
 		; 엄폐물 공간
 		IF 엄폐물있음:iTmp
 			CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "엄폐물_0", iTmp, sTmp)
-			HTML_PRINT RESULTS
-			; PRINTL | 엄폐 |
+			CALL 총력전_UI_줄추가(RESULTS)
 			cell_height_remainder --
 		ENDIF
 		; 체력 && 보호막
 		IF 보호막있음:iTmp && cell_height_remainder >= 5
 			CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "보호막_0", iTmp, sTmp)
-			HTML_PRINT RESULTS
+			CALL 총력전_UI_줄추가(RESULTS)
 			CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "체력_0", iTmp, sTmp)
-			HTML_PRINT RESULTS
-			; PRINTL | SHLD |
-			; PRINTL | 체력 |
+			CALL 총력전_UI_줄추가(RESULTS)
 			cell_height_remainder -= 2
 		ELSE
 			IF 보호막있음:iTmp
 				CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "체력_1", iTmp, sTmp)
-				HTML_PRINT RESULTS
-				; PRINTL |보체력|
+				CALL 총력전_UI_줄추가(RESULTS)
 			ELSE
 				CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "체력_0", iTmp, sTmp)
-				HTML_PRINT RESULTS
-				; PRINTL | 체력 |
+				CALL 총력전_UI_줄추가(RESULTS)
 			ENDIF
 			cell_height_remainder --
 		ENDIF
@@ -727,37 +612,32 @@ FOR iTmp, 0, 줄수
 		CALL 총력전_UI_부품_스탯(인원수, 너비, 1, 시작위치:iTmp, iTmp:1)
 		iTmp:1 = cell_height_remainder - iTmp:1
 		FOR iTmp:2, 0, iTmp:1
-			HTML_PRINT sHtml_blank
-			; PRINTL | 스탯 |
+			CALL 총력전_UI_줄추가(sHtml_blank)
 		NEXT
 	ELSE
 		; 이름 버튼
 		CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "이름_1", iTmp, sTmp, bBtn)
-		HTML_PRINT RESULTS
-		; PRINTL | 이름 |
+		CALL 총력전_UI_줄추가(RESULTS)
 		; 빈공간
 		iTmp:1 = cell_height_line:iTmp - 2
 		SIF 엄폐물있음:iTmp
 			iTmp:1 --
 		iTmp:1 = MAX(iTmp:1, 0)
 		FOR iTmp:2, 0, iTmp:1
-			HTML_PRINT sHtml_blank
-			; PRINTL |  00  |
+			CALL 총력전_UI_줄추가(sHtml_blank)
 		NEXT
 		; 스킬 버튼
 		CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "무기_1", iTmp, sTmp, bBtn)
-		HTML_PRINT RESULTS
-		; PRINTL | 스킬 |
+		CALL 총력전_UI_줄추가(RESULTS)
 		; 엄폐물 공간
 		IF 엄폐물있음:iTmp
 			CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "엄폐물_0", iTmp, sTmp)
-			HTML_PRINT RESULTS
-			; PRINTL | 엄폐 |
+			CALL 총력전_UI_줄추가(RESULTS)
 		ENDIF
 	ENDIF
 	; 막줄 아니면 줄 추가
 	SIF iTmp < 줄수 - 1
-		HTML_PRINT sHtml_end
+		CALL 총력전_UI_줄추가(sHtml_end)
 NEXT
 ; #endregion == 프레임 2 ==
 
@@ -838,7 +718,7 @@ $출력
 FOR iTmp, 0, 줄수
 	; 이름 버튼
 	CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "이름_1", iTmp, sTmp, bBtn)
-	HTML_PRINT RESULTS
+	CALL 총력전_UI_줄추가(RESULTS)
 	; 이미지
 	iTmp:1 = cell_height_line:iTmp - 2 ; 이미지 사이즈
 	SIF 엄폐물있음:iTmp
@@ -856,21 +736,45 @@ FOR iTmp, 0, 줄수
 		$IMGBLANK
 		; 빈공간
 		FOR iTmp:2, 0, iTmp:1
-			HTML_PRINT sHtml_blank
+			CALL 총력전_UI_줄추가(sHtml_blank)
 		NEXT
 	ENDIF
 	IF 엄폐물있음:iTmp
 		CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "엄폐물_0", iTmp, sTmp)
-		HTML_PRINT RESULTS
+		CALL 총력전_UI_줄추가(RESULTS)
 	ENDIF
 	IF 보호막있음:iTmp
 		CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "보호막_0", iTmp, sTmp)
-		HTML_PRINT RESULTS
+		CALL 총력전_UI_줄추가(RESULTS)
 	ENDIF
 	CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "체력_0", iTmp, sTmp)
-	HTML_PRINT RESULTS
+	CALL 총력전_UI_줄추가(RESULTS)
 NEXT
 ; #endregion == 프레임 3 ==
+
+; #region == HTML ==
+; 총력전 전용(?) HTML 출력 보조 함수
+; 한줄씩 출력하는 것 보다, 모아서 한번에
+; 출력 중간에 계산 없게
+; ==================
+; CLEAR -> HTML 전체 출력
+@총력전_UI_출력
+#DIM DYNAMIC iTmp
+CLEARLINE
+FOR iTmp, 0, 총력전_HTML_출력줄수
+	HTML_PRINT 총력전_HTML:iTmp
+NEXT
+총력전_HTML_출력줄수 = 0
+
+; HTML 줄 추가
+@총력전_UI_줄추가(sHtml)
+#DIMS sHtml
+총력전_HTML:총력전_HTML_출력줄수 = %sHtml%
+총력전_HTML_출력줄수 ++
+RETURN 총력전_HTML_출력줄수 - 1 ; 필요 없긴 할건데...
+
+; #endregion == HTML ==
+
 
 ; #region == 텍스트 ==
 ; 총력전 전투 로그
@@ -888,7 +792,7 @@ NEXT
 
 FOR iTmp, 줄수 - 1, -1, -1
 	CALL 총력전_UI_텍스트_단선(iTmp + 건너뛰기, 너비, sPadStart, sPadEnd)
-	HTML_PRINT RESULTS
+	CALL 총력전_UI_줄추가(RESULTS)
 NEXT
 
 ; REPEAT 줄수
@@ -973,45 +877,45 @@ SELECTCASE 줄수
 			CASE IS <= 1
 				iTmp = 1
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 			CASE 2 TO 9 ; 줄당스탯 쓰고 있어서 CASEELSE 안씀
 				; iTmp = 2
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 		ENDSELECT
 	CASE 2
 		SELECTCASE 줄당스탯
 			CASE IS <= 1
 				iTmp = 1
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 방
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 			CASE 2
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp:0 = 회
 				sTmp:1 = 치명
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 			CASE 3
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp:0 = 치명
 				sTmp:1 = 치피
 				sTmp:2 = 회
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 			CASE 4
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_4, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 			CASEELSE
 				iTmp = 5
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				iTmp = 4
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_4, 0, sPadStart, sPadEnd, sCellDiv)
 		ENDSELECT
@@ -1020,265 +924,265 @@ SELECTCASE 줄수
 			CASE IS <= 1
 				iTmp = 1
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 방
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 치명
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 			CASE 2
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_4, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 			CASE 3
 				sTmp:0 = 공
 				sTmp:1 = 방
 				sTmp:2 = 치유
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp:0 = 치명
 				sTmp:1 = 치명저
 				sTmp:2 = 명
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp:0 = 치피
 				sTmp:0 = 치피저
 				sTmp:0 = 회
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 			CASEELSE
 				iTmp = 2
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				iTmp = 3
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				iTmp = 4
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_4, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 		ENDSELECT
 	CASE 4
 		SELECTCASE 줄당스탯
 			CASE IS <= 1
 				iTmp = 1
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 방
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 회
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 치명
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 			CASE 2
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", 줄당스탯, 스탯이름_2B, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 			CASEELSE
 				iTmp = 2
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				iTmp = 3
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				iTmp = 2
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2B, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 		ENDSELECT
 	CASE 5
 		SELECTCASE 줄당스탯
 			CASE IS <= 1
 				iTmp = 1
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 방
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 회
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 치피
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 			CASEELSE
 				iTmp = 2
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				iTmp = 1
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3B, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				iTmp = 2
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2B, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 		ENDSELECT
 	CASE 6
 		SELECTCASE 줄당스탯
 			CASE IS <= 1
 				iTmp = 1
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 방
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 회
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 치피
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 			CASEELSE
 				iTmp = 2
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				iTmp = 1
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3B, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				iTmp = 2
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				iTmp = 1
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2B, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 치피저
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 		ENDSELECT
 	CASE 7
 		SELECTCASE 줄당스탯
 			CASE IS <= 1
 				iTmp = 1
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 방
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 회
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3B, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 치피
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 			CASEELSE
 				iTmp = 2
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				iTmp = 1
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3B, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 치피
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2B, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 치피저
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 		ENDSELECT
 	CASE 8
 		SELECTCASE 줄당스탯
 			CASE IS <= 1
 				iTmp = 1
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 방
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 회
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3B, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 치피
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2B, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 			CASEELSE
 				iTmp = 2
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				iTmp = 1
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 회
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3B, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 치피
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2B, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 				sTmp = 치피저
 				CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-				HTML_PRINT RESULTS
+				CALL 총력전_UI_줄추가(RESULTS)
 		ENDSELECT
 	CASE 9
 		iTmp = 1
 		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_9, 0, sPadStart, sPadEnd, sCellDiv)
-		HTML_PRINT RESULTS
+		CALL 총력전_UI_줄추가(RESULTS)
 		sTmp = 방
 		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-		HTML_PRINT RESULTS
+		CALL 총력전_UI_줄추가(RESULTS)
 		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3A, 0, sPadStart, sPadEnd, sCellDiv)
-		HTML_PRINT RESULTS
+		CALL 총력전_UI_줄추가(RESULTS)
 		sTmp = 회
 		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-		HTML_PRINT RESULTS
+		CALL 총력전_UI_줄추가(RESULTS)
 		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_3B, 0, sPadStart, sPadEnd, sCellDiv)
-		HTML_PRINT RESULTS
+		CALL 총력전_UI_줄추가(RESULTS)
 		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2A, 0, sPadStart, sPadEnd, sCellDiv)
-		HTML_PRINT RESULTS
+		CALL 총력전_UI_줄추가(RESULTS)
 		sTmp = 치피
 		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-		HTML_PRINT RESULTS
+		CALL 총력전_UI_줄추가(RESULTS)
 		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, 스탯이름_2B, 0, sPadStart, sPadEnd, sCellDiv)
-		HTML_PRINT RESULTS
+		CALL 총력전_UI_줄추가(RESULTS)
 		sTmp = 치피저
 		CALL 총력전_UI_줄(인원수, 너비, 위치사용, 시작번호, "스탯_0", iTmp, sTmp, 0, sPadStart, sPadEnd, sCellDiv)
-		HTML_PRINT RESULTS
+		CALL 총력전_UI_줄추가(RESULTS)
 ENDSELECT
 
 ; @총력전_UI_부품_이미지_0(인원수, 너비, sHtml_blank, sHtml_break, 위치사용, 시작번호, iSize)
@@ -1444,7 +1348,7 @@ FOR iTmp, 0, 7
 NEXT
 
 FOR iTmp, 0, 7
-	HTML_PRINT sHtml:iTmp
+	CALL 총력전_UI_줄추가(sHtml:iTmp)
 NEXT
 
 ; #endregion == 부품 ==

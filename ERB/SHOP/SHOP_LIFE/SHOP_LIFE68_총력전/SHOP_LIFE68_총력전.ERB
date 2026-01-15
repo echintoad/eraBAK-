@@ -166,6 +166,7 @@ PRINTL 토벌할 대상을 선택하세요
 CALL SINGLE_DRAWLINE
 PRINTL
 CALL 총력전_UI_프레임_0(3, 0, 0, 총력전_선택_캐릭터)
+CALL 총력전_UI_출력
 ; CALL 보스_선택_이미지
 PRINTBUTTON "[ 돌아간다 ]", -1
 PRINTL
@@ -311,6 +312,7 @@ CALL 총력전_초기화_파티선택
 CALL 총력전_초기화_스탯_전
 CALL 총력전_처리_스탯_전
 CALL 총력전_UI_프레임_0(5, 0, 1, 배치인원수 >= 2 ? 총력전_선택_캐릭터 # -1)
+CALL 총력전_UI_출력
 ; CALL 총력전_파티선택_이미지
 PRINTL
 CALL SINGLE_DRAWLINE
