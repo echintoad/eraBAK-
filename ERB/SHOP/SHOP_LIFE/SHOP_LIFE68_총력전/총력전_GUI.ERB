@@ -30,17 +30,14 @@
 @총력전_UI_Main(선택종류_아군, 선택종류_적군 = 0, 선택모드 = 0) ; 줄강제 = 0,
 #DIM 선택종류_아군
 #DIM DYNAMIC 선택종류_적군
-; #DIM DYNAMIC 줄강제 ; 줄수 강제 세팅, 0 이면 자동 계산
 #DIM DYNAMIC 선택모드 ; (스킬)선택용 버튼으로 변경
-; #DIM DYNAMIC 종료 ; 아니면 총력전_전투단계 로 확인?
 
 #DIM DYNAMIC 시작위치_0 = -1 ; 한줄
 #DIM DYNAMIC 시작위치_1, 2 ; 두줄
 #DIM DYNAMIC 줄수 ; 몇줄이 필요한지
-; #DIMS DYNAMIC sHtml, 2 ; 임시
 #DIMS DYNAMIC sHtml_end ; 시작과 끝 부분
-#DIM DYNAMIC iTmp, 4
-#DIMS DYNAMIC sTmp, 2
+#DIM DYNAMIC iTmp, 3
+; #DIMS DYNAMIC sTmp, 2
 #DIM DYNAMIC iBlank
 
 CLEARLINE LINECOUNT
@@ -106,9 +103,9 @@ ELSE
 ENDIF
 
 ; 해더
+CALL 총력전_UI_줄추가(sHtml_end)
 
 ; 적 파티 프레임
-CALL 총력전_UI_줄추가(sHtml_end)
 TRYCCALLFORM 총력전_보스_UI_프레임_{총력전_보스}(선택종류_적군)
 CATCH
 	; 없으면 팀1 확인, 수 만큼 1자로
@@ -119,32 +116,10 @@ CATCH
 	; 이미지, 이름 + 체력만
 	CALL 총력전_UI_프레임_3(iTmp, iBlank, 15, 선택종류_적군)
 ENDCATCH
-CALL 총력전_UI_줄추가(sHtml_end)
-
 ; 바: 턴수, 코스트, 게임 종료
-sTmp = | |
-sTmp:1 = 턴:{총력전_턴수}/{총력전_턴_종료}
-sTmp += @"  %ALIGN_TEXT(sTmp:1, 10, "LEFT")% |"
-sTmp:1 = 코스트:{총력전_코스트}/{총력전_코스트_최대}
-sTmp += @"  %ALIGN_TEXT(sTmp:1, 12, "LEFT")% |"
-iTmp = 123 - 3 - 14 - 16 - 10 - 3
-; 종료 버튼
-IF 총력전_전투단계 == 총력전_전투단계_종료
-	iTmp -= 10
-	sTmp += @"%TOSTR_SPACE(iTmp)%"
-	CALL 총력전_UI_버튼("취소", 10, 1, -98, 8)
-	sTmp += @"%RESULTS%"
-ELSE
-	sTmp += @"%TOSTR_SPACE(iTmp)%"
-ENDIF
-IF 총력전_전투단계 == 총력전_전투단계_종료 || 총력전_전투단계 == 총력전_전투단계_플레이어
-	CALL 총력전_UI_버튼("나가기", 10, 1, -99, 8)
-ELSE
-	CALL 총력전_UI_버튼("취소", 10, 1, -99, 8)
-ENDIF
-sTmp += @"%RESULTS%"
-sTmp += @"| |"
-CALL 총력전_UI_줄추가(sTmp)
+CALL 총력전_UI_줄추가(sHtml_end)
+CALL 총력전_UI_바_상
+CALL 총력전_UI_줄추가(RESULTS)
 CALL 총력전_UI_줄추가(sHtml_end)
 
 ; 전투 로그
@@ -157,50 +132,8 @@ CALL 총력전_UI_텍스트(12, 115)
 
 ; 바: 다음턴, 텍스트 컨트롤러
 CALL 총력전_UI_줄추가(sHtml_end)
-sTmp = | |
-; 왼쪽
-; 양쪽 30
-VARSET iTmp, 0
-iTmp = 30
-IF 선택모드 == 1
-	iTmp:1 = 16
-	iTmp -= iTmp:1
-	CALL 총력전_UI_버튼("전 선택 취소", iTmp:1, 1, -2, 8)
-	sTmp += @"%RESULTS%"
-	iTmp:1 = 12
-	iTmp -= iTmp:1
-	CALL 총력전_UI_버튼("선택 리셋", iTmp:1, 1, -3, 8)
-	sTmp += @"%RESULTS%"
-	sTmp += @"%TOSTR_SPACE(iTmp)%"
-ELSE
-	; iTmp:2 = 10
-	; CALL 총력전_UI_버튼("이동", iTmp:2, 1, -2, 8)
-	; sTmp += @"%RESULTS%"
-	sTmp += @"%TOSTR_SPACE(iTmp)%"
-ENDIF
-; 중앙
-iTmp = 123 - 60 - 6
-; iTmp = 123 - 3 - iTmp:1 - iTmp:2 - iTmp:3 - (8 * 2) - 10 - 3
-IF 선택모드 == 1
-	CALL 총력전_UI_버튼("선택 종료", iTmp, 1, -1, 16)
-	sTmp += @"%RESULTS%"
-ELSE
-	CALL 총력전_UI_버튼("다음턴", iTmp, 1, -1, 16)
-	sTmp += @"%RESULTS%"
-	; sTmp += @"<font color='#CBCBA5'>%RESULTS%</font>"
-ENDIF
-; 오른쪽
-iTmp = 30 - 8 - 8 - 10
-sTmp += @"%TOSTR_SPACE(iTmp)%"
-CALL 총력전_UI_버튼("△", 8, 1, -5, 6)
-sTmp += @"%RESULTS%"
-CALL 총력전_UI_버튼("▽", 8, 1, -6, 6)
-sTmp += @"%RESULTS%"
-CALL 총력전_UI_버튼("최하단", 10, 1, -7, 6)
-sTmp += @"%RESULTS%"
-sTmp += @"| |"
-CALL 총력전_UI_줄추가(sTmp)
-
+CALL 총력전_UI_바_하(선택모드)
+CALL 총력전_UI_줄추가(RESULTS)
 CALL 총력전_UI_줄추가(sHtml_end)
 ; 아군 파티 프레임
 iTmp = 21
@@ -224,6 +157,155 @@ ENDIF
 CALL 총력전_UI_줄추가(sHtml_end)
 CALL 총력전_UI_출력
 
+; #region == 상/하 바 ==
+; ====================
+; 바: 턴수, 코스트, 게임 종료
+; 123 - 4 - 4
+@총력전_UI_바_상(너비 = 115, sPadStart = "| | ", sPadEnd = " | |")
+#DIM DYNAMIC 너비 ; sPad 를 뺀 너비
+#DIMS DYNAMIC sPadStart ; 줄 왼쪽 끝
+#DIMS DYNAMIC sPadEnd ; 줄 오른쪽 끝
+
+#DIM DYNAMIC iSect, 3
+#DIMS DYNAMIC sSect, 3
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp
+
+; 턴수
+sTmp = 턴:{총력전_턴수}/{총력전_턴_종료}
+iTmp = 12
+sSect:0 += @"%ALIGN_TEXT(sTmp, iTmp, "CENTER")%|"
+iSect:0 = iTmp + 1
+; 코스트
+sTmp = 코스트:{총력전_코스트}/{총력전_코스트_최대}
+iTmp = 14
+sSect:0 += @"%ALIGN_TEXT(sTmp, iTmp, "CENTER")%|"
+iSect:0 += iTmp + 1
+; 종료 버튼
+IF 총력전_전투단계 == 총력전_전투단계_종료
+	; 종료 취소
+	iTmp = 10
+	CALL 총력전_UI_버튼("취소", iTmp, 1, -98, 8)
+	sSect:2 = %RESULTS%
+	iSect:2 = iTmp
+	; 종료 확인
+	iTmp = 10
+	CALL 총력전_UI_버튼("나가기", iTmp, 1, -99, 8)
+	sSect:2 += @"%RESULTS%"
+	iSect:2 += iTmp
+ELSE
+	; 취소
+	iSect:2 = 15
+	CALL 총력전_UI_버튼("취소 / 나가기", iSect:2, 1, -99, 8)
+	sSect:2 = %RESULTS%
+ENDIF
+; 중안 공백 처리
+iSect:1 = 너비 - iSect:0 - iSect:2
+sSect:1 = %TOSTR_SPACE(iSect:1)%
+
+RESULTS = %sPadStart%%sSect:0%%sSect:1%%sSect:2%%sPadEnd%
+; CALL 총력전_UI_줄추가(RESULTS)
+
+; 바: 다음턴, 텍스트 컨트롤러
+@총력전_UI_바_하(선택모드 = 0, 너비 = 115, sPadStart = "| | ", sPadEnd = " | |")
+#DIM DYNAMIC 선택모드 ; (스킬)선택용 버튼으로 변경
+#DIM DYNAMIC 너비 ; sPad 를 뺀 너비
+#DIMS DYNAMIC sPadStart ; 줄 왼쪽 끝
+#DIMS DYNAMIC sPadEnd ; 줄 오른쪽 끝
+
+#DIM DYNAMIC iSect, 2 ; 0 = 좌/우, 1 = 중
+#DIMS DYNAMIC sSect, 3
+#DIM DYNAMIC iTmp, 3
+#DIMS DYNAMIC sTmp, 3
+
+; 턴 종료 강조, 필요하면 활성화
+; #DIM DYNAMIC 코스트합
+; #DIM DYNAMIC 시전가능
+
+; 미리 Section 나눠놓기 30:r:30
+; "[전 선택 취소] [선택 리셋]" = 26
+iSect:0 = 30
+iSect:1 = 너비 - iSect:0 * 2
+; 왼쪽: 선택 취소/리셋
+IF 선택모드 == 1
+	; 전 선택 취소
+	iTmp = 16
+	CALL 총력전_UI_버튼("전 선택 취소", iTmp, 1, -2, 8)
+	sSect:0 = %RESULTS%
+	iTmp:1 = iTmp
+	; 선택 리셋
+	iTmp = 12
+	CALL 총력전_UI_버튼("선택 리셋", iTmp, 1, -3, 8)
+	sSect:0 += @"%RESULTS%"
+	iTmp:1 += iTmp
+	; 공백 추가
+	iTmp = iSect:0 - iTmp:1
+	IF iTmp > 0
+		sSect:0 += @"%TOSTR_SPACE(iTmp)%"
+	ENDIF
+ELSE
+	sSect:0 = %TOSTR_SPACE(iSect:0)%
+ENDIF
+; 중: 다음턴
+IF 선택모드 == 1
+	CALL 총력전_UI_버튼("선택 종료", iSect:1, 1, -1, 16)
+	sSect:1 = %RESULTS%
+ELSE
+	; == 턴 종료 강조 ==
+	; IF 총력전_전투단계 != 총력전_전투단계_플레이어
+	; 	시전가능 = 1
+	; 	GOTO 확인스킵
+	; ENDIF
+	; ; 시전중인 코스트 합 계산
+	; FOR iTmp:1, 0, 총력전_캐릭터수
+	; 	iTmp = 총력전_스킬_시전:(iTmp:1) ; 캐릭터 번호
+	; 	SIF iTmp == -1
+	; 		BREAK
+	; 	코스트합 += 총력전_스킬_코스트:iTmp
+	; NEXT
+	; ; 시전 가능한 스킬 확인
+	; IF 총력전_코스트 - 코스트합 > 0
+	; 	FOR iTmp, 0, 총력전_캐릭터수
+	; 		; 행동불능, 소환수 무시 || 스킬 쿨 다운 1 이상
+	; 		SIF 총력전_상태:iTmp != 총력전_상태_보통 || 총력전_스킬_쿨다운:iTmp > 0 || FINDELEMENT(총력전_스킬_시전, iTmp) >= 0
+	; 			CONTINUE
+	; 		; 시전가능한 스킬 있으면 시전가능 = 1, BREAK
+	; 		; 코스트 0은 무시? 드히나 0 코스트 공격 스킬은?
+	; 		IF 총력전_팀:iTmp == 0 && 총력전_스킬_코스트:iTmp <= 총력전_코스트 - 코스트합
+	; 			시전가능 = 1
+	; 			BREAK
+	; 		ENDIF
+	; 	NEXT
+	; ENDIF
+	; $확인스킵
+	; IF 시전가능
+	; 	CALL 총력전_UI_버튼("다음턴", iSect:1, 1, -1, 16)
+	; ELSE
+	; 	CALL 총력전_UI_버튼("★ 다음턴 ★", iSect:1, 1, -1, 16)
+	; ENDIF
+	; sSect:1 = %RESULTS%
+	; == 위/아래 중 하나만 활성화 ==
+	CALL 총력전_UI_버튼("다음턴", iSect:1, 1, -1, 16)
+	sSect:1 = %RESULTS%
+ENDIF
+; 오른쪽: 텍스트 조정
+iTmp:0 = 8
+CALL 총력전_UI_버튼("△", iTmp:0, 1, -5, 6)
+sTmp:0 = %RESULTS%
+iTmp:1 = 8
+CALL 총력전_UI_버튼("▽", iTmp:1, 1, -6, 6)
+sTmp:1 = %RESULTS%
+iTmp:2 = 10
+CALL 총력전_UI_버튼("최하단", iTmp:2, 1, -7, 6)
+sTmp:2 = %RESULTS%
+; 공백 계산
+iTmp = iSect:0 - iTmp:0 - iTmp:1 - iTmp:2
+sSect:2 = %TOSTR_SPACE(iTmp)%%sTmp:0%%sTmp:1%%sTmp:2%
+
+RESULTS = %sPadStart%%sSect:0%%sSect:1%%sSect:2%%sPadEnd%
+; CALL 총력전_UI_줄추가(RESULTS)
+
+; #endregion == 상/하 바 ==
 
 ; #region == 프레임 0 ==
 ; 총력전 번호에 따라 증분(?) 순서대로 기본정보 배치

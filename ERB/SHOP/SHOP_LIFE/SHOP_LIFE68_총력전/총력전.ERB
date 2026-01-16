@@ -250,20 +250,15 @@ GOTO SEQUENCE_LOOP
 FOR iTmp, 0, 총력전_캐릭터수
 	CALL 총력전_스킬코스트(iTmp)
 NEXT
-CALL 총력전_UI_텍스트_추가("스킬 선택: 무기 선택으로 설정", 칼라_노랑)
-; testMove = -1
+; 첫턴이면 긴 설명
+IF 총력전_턴수 == 1
+	CALL 총력전_UI_텍스트_추가("스킬 선택: 무기 이름 선택으로 설정", 칼라_노랑)
+	CALL 총력전_UI_텍스트_추가("이후 준비되면 [다음턴] 선택", 칼라_노랑)
+ELSE
+	CALL 총력전_UI_텍스트_추가("스킬 선택(무기 이름 선택) -> [다음턴]", 칼라_노랑)
+ENDIF
 $INPUT_LOOP
-; [IF_DEBUG]
-; DEBUGCLEAR
-; CALL DEBUG_총력전_전
-; [ENDIF]
-; 타입(버튼 활성화)
-; IF testMove >= 0
-; 	CALL 총력전_UI_Main(총력전_선택_전체)
-; 	; CALL 총력전_UI_Main(총력전_선택_ 아군지역)
-; ELSE
-; 	CALL 총력전_UI_Main(총력전_선택_캐릭터)
-; ENDIF
+
 CALL 총력전_UI_Main(총력전_선택_캐릭터, 총력전_선택_캐릭터)
 
 INPUT
