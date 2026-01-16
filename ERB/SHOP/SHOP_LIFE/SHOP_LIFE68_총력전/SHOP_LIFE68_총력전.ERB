@@ -153,32 +153,54 @@ NEXT
 ; 보스가 있는지 확인, 없으면 메세지(키보토스는 평?화로운 상태)
 ; 아님 총력전 클리어 플레그?
 
-; 디버그용 TEST CODE
-; 총력전_상태:1 = 1
-; 총력전_ID:1 = 0
-; 총력전_이름:1 = 몰?루
-; 총력전_이미지:1 = 얼굴_의복_통상_22
-
 ; 페이지 넘기기 필요
+보스 = -1
 $INPUTLOOP
+CLEARLINE LINECOUNT - FIRST_LINE
 CALL SINGLE_DRAWLINE
 PRINTL 토벌할 대상을 선택하세요
 CALL SINGLE_DRAWLINE
 PRINTL
 CALL 총력전_UI_프레임_0(3, 0, 0, 총력전_선택_캐릭터)
 CALL 총력전_UI_출력
-; CALL 보스_선택_이미지
-PRINTBUTTON "[ 돌아간다 ]", -1
+IF 보스 >= 0
+	PRINTL
+	; 보스 설명
+	TRYCCALLFORM 총력전_보스_설명_{보스}
+		PRINTL
+	CATCH
+		CALLFORM 총력전_보스_이름_{보스}
+		PRINTFORML [ %ALIGN_TEXT(RESULTS,14,"CENTER")% ]
+		PRINTL
+	ENDCATCH
+	PRINTBUTTON "[ 결정 ]", -1
+	PRINT   
+	PRINTBUTTON "[ 선택 취소 ]", -2
+	PRINT   
+ENDIF
+PRINTBUTTON "[ 돌아간다 ]", -99
 PRINTL
 INPUT
 
-IF RESULT == -1
-	CALL 총력전_해제
-	RETURN
-ENDIF
+SELECTCASE RESULT
+	CASE -1 ; 결정
+	CASE -2 ; 선택 취소
+		보스 = -1
+		GOTO INPUTLOOP
+	CASE -99
+		CALL 총력전_해제
+		RETURN
+	CASE IS < 0
+		; lazy bug prevention
+		GOTO INPUTLOOP
+	CASE IS < 3
+		보스 = 총력전_ID:RESULT
+		; +가능한 보스인지 확인?
+		GOTO INPUTLOOP
+	CASEELSE
+		GOTO INPUTLOOP
+ENDSELECT
 
-DEBUGPRINTFORML selected boss id: {총력전_ID:RESULT}
-보스 = 총력전_ID:RESULT
 ; 총력전 창 정리
 CALL 총력전_해제_기본
 CLEARLINE LINECOUNT - FIRST_LINE
