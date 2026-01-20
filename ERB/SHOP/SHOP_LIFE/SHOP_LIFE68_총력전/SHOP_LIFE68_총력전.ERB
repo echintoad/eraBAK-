@@ -122,38 +122,37 @@ RETURN 0
 #DIM FIRST_LINE
 #DIM 보스
 
-#DIM 보스수
-#DIM 페이지
+#DIM DYNAMIC 표시
+#DIM CONST 보스선택_최대 = 3
+#DIM DYNAMIC 페이지
+#DIM DYNAMIC 다음페이지가능 ; bool
 #DIM iTmp
-
-CALL 총력전_해제
 
 FIRST_LINE = LINECOUNT
 
-; 보스 리스트 설정
-; 임시
-; VARSET 총력전_보스_활동, -1
-; 총력전_보스_활동:0 = 0
-
+$SETPAGE
+CALL 총력전_해제
+다음페이지가능 = 0
+표시 = 0
 ; 보스 활동 에서 찾기
-FOR iTmp, 0, 20
+FOR iTmp, 페이지 * 보스선택_최대, (페이지 + 1) * 보스선택_최대 + 1
 	IF 총력전_보스_활동:iTmp == -1
 		BREAK
 	ENDIF
+	IF iTmp == (페이지 + 1) * 보스선택_최대
+		다음페이지가능 = 1
+		BREAK
+	ENDIF
 	; UI 프레임에 나오고 버튼 활성화
-	보스수 ++
-	총력전_상태:iTmp = 1
-	총력전_ID:iTmp = 총력전_보스_활동:iTmp
+	총력전_상태:표시 = 1
+	총력전_ID:표시 = 총력전_보스_활동:iTmp
 	CALLFORM 총력전_보스_이름_{총력전_보스_활동:iTmp}
-	총력전_이름:iTmp = %RESULTS%
+	총력전_이름:표시 = %RESULTS%
 	CALLFORM 총력전_보스_이미지_{총력전_보스_활동:iTmp}
-	총력전_이미지:iTmp = %RESULTS%
+	총력전_이미지:표시 = %RESULTS%
+	표시 ++
 NEXT
 
-; 보스가 있는지 확인, 없으면 메세지(키보토스는 평?화로운 상태)
-; 아님 총력전 클리어 플레그?
-
-; 페이지 넘기기 필요
 보스 = -1
 $INPUTLOOP
 CLEARLINE LINECOUNT - FIRST_LINE
@@ -163,6 +162,20 @@ CALL SINGLE_DRAWLINE
 PRINTL
 CALL 총력전_UI_프레임_0(3, 0, 0, 총력전_선택_캐릭터)
 CALL 총력전_UI_출력
+; 페이지 설정
+IF 페이지 || 다음페이지가능
+	PRINTL
+	IF 페이지 > 0
+		PRINTBUTTON "[ 이전페이지 ]", -3
+	ELSE
+		PRINTFORM %TOSTR_SPACE(14)%
+	ENDIF
+	PRINTFORM %ALIGN_TEXT(@"page {페이지}",12,"CENTER")%
+	IF 다음페이지가능
+		PRINTBUTTON "[ 다음페이지 ]", -4
+	ENDIF
+	PRINTL
+ENDIF
 IF 보스 >= 0
 	PRINTL
 	; 보스 설명
@@ -187,6 +200,12 @@ SELECTCASE RESULT
 	CASE -2 ; 선택 취소
 		보스 = -1
 		GOTO INPUTLOOP
+	CASE -3 ; 이전페이지
+		페이지 --
+		GOTO SETPAGE
+	CASE -4 ; 다음페이지
+		페이지 ++
+		GOTO SETPAGE
 	CASE -99
 		CALL 총력전_해제
 		RETURN
