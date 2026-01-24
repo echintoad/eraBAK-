@@ -35,23 +35,33 @@ PRINTW ...약탈 하기 좋은 기회인 거 같다.
 ; RETURN 1
 
 ; 보스 프레임
+; 사용한 총력전_UI_줄추가 만큼 RESULT
 @총력전_보스_UI_프레임_10(선택종류_적군 = 0)
 #DIM DYNAMIC 선택종류_적군
 #DIM CONST iSpace = 120
+#DIM DYNAMIC 줄수, 2
 #DIM DYNAMIC iBlank
 #DIMS DYNAMIC sTmp
 
 ; 15 - 1
 iBlank = 17
-IF 총력전_전투단계 == 총력전_전투단계_플레이어
-	CALL 총력전_UI_프레임_3(1, iBlank, 8, 선택종류_적군)
+IF FLAG:화상설정
+	줄수:0 = 8
+	줄수:1 = 6
 ELSE
-	CALL 총력전_UI_프레임_3(1, iBlank, 8, -1)
+	줄수:0 = 5
+	줄수:1 = 5
+ENDIF
+IF 총력전_전투단계 == 총력전_전투단계_플레이어
+	CALL 총력전_UI_프레임_3(1, iBlank, 줄수:0, 선택종류_적군)
+ELSE
+	CALL 총력전_UI_프레임_3(1, iBlank, 줄수:0, -1)
 ENDIF
 sTmp = |-|%TOSTR_REPEAT("-",iSpace - 3)%|-|
-HTML_PRINT sTmp
+CALL 총력전_UI_줄추가(sTmp)
 iBlank = 10
-CALL 총력전_UI_프레임_3(5, iBlank, 6, 선택종류_적군)
+CALL 총력전_UI_프레임_3(5, iBlank, 줄수:1, 선택종류_적군)
+RETURN 줄수:0 + 줄수:1
 
 ; #endregion
 
