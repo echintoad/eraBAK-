@@ -1340,18 +1340,18 @@ ELSE
 	너비스킬 = iTmp - 너비스탯
 ENDIF
 
-FOR iTmp, 0, 7
-	; /nobr 은 아직 필요 없는듯?
-	sHtml:iTmp = <p align='right'><nobr>
-NEXT
+IF FLAG:화상설정
+	FOR iTmp, 0, 7
+		; /nobr 은 아직 필요 없는듯?
+		sHtml:iTmp = <p align='right'><nobr>
+	NEXT
+ENDIF
 
 ; 이미지
 IF FLAG:화상설정 && 캐릭터 >= 0
 	sHtml:0 += @"%sPadStart%%TOSTR_SPACE(너비이미지)%%sDiv%"
 	sHtml:1 += @"%sBreak%%TOSTR_SPACE(너비이미지)%%sBreak%"
-	; sHtml:2 += @"%sPadStart%%TOSTR_SPACE(너비이미지)%%sDiv%"
 	sHtml:3 += @"%sBreak%%TOSTR_SPACE(너비이미지)%%sBreak%"
-	; sHtml:4 += @"%sPadStart%%TOSTR_SPACE(너비이미지)%%sDiv%"
 	sHtml:5 += @"%sBreak%%TOSTR_SPACE(너비이미지)%%sBreak%"
 	sHtml:6 += @"%sPadStart%%TOSTR_SPACE(너비이미지)%%sDiv%"
 	sTmp = %총력전_이미지:캐릭터%
