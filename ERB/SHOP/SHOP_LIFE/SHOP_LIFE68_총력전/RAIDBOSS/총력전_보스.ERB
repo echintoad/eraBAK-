@@ -7,6 +7,7 @@ VARSET 총력전_보스_활동, -1
 VARSET 총력전_보스_활동_쿨다운, -1
 ; 비나 이벤트위해 -2 설정
 총력전_보스_활동_쿨다운:0 = -2
+; 총력전_보스_활동_쿨다운:1 = 2
 ; 디버그 보스
 총력전_보스_활동_쿨다운:10 = 2
 총력전_보스_활동_쿨다운:11 = 2
@@ -51,44 +52,90 @@ NEXT
 
 ; 간단한 코인 보상
 @총력전_보스_보상_공통코인(lvl = 0)
-#DIM DYNAMIC lvl ; 0=적은 코인, 1=많은 코인 보상
+#DIM DYNAMIC lvl ; 0=적은 코인, 2=많은 코인 보상
 #DIM DYNAMIC 보상코인, 2 ; 코인, 상급코인
 ; clamp
-lvl = LIMIT(lvl, 0, 1)
+lvl = LIMIT(lvl, 0, 2)
 SELECTCASE 총력전_보스_난이도
 	CASE 0 ; HARD: 5~6
 		SELECTCASE lvl
 			CASE 0
-				보상코인:0 = RAND:3
+				보상코인:0 = RAND:4
 			CASE 1
+				보상코인:0 = 3
+				보상코인:0 += RAND:3
+			CASE 2
 				보상코인:0 = 5
-				보상코인:0 += RAND:2
+				보상코인:0 += RAND:4
 		ENDSELECT
 	CASE 1 ; HARDCORE: 7~8, 0~1
 		SELECTCASE lvl
 			CASE 0
-				보상코인:0 = 4
+				보상코인:0 = 3
+				보상코인:0 += RAND:6
+			CASE 1
+				보상코인:0 = 6
 				보상코인:0 += RAND:4
+				보상코인:1 = RAND:2
 			CASE 1
 				보상코인:0 = 7
-				보상코인:0 += RAND:2
-				보상코인:1 += RAND:2
+				보상코인:0 += RAND:7
+				보상코인:1 = 1
+				보상코인:1 += RAND:3
 		ENDSELECT
 	CASE 2 ; EXTREME: 10~12, 1~5
-		보상코인:0 = 10
-		보상코인:0 += RAND:3
-		보상코인:1 = 1
-		보상코인:1 += RAND:5
+		SELECTCASE lvl
+			CASE 0
+				보상코인:0 = 6
+				보상코인:0 += RAND:6
+				보상코인:1 = RAND:3
+			CASE 1
+				보상코인:0 = 9
+				보상코인:0 += RAND:5
+				보상코인:1 = 1
+				보상코인:1 += RAND:4
+			CASE 1
+				보상코인:0 = 11
+				보상코인:0 += RAND:9
+				보상코인:1 = 2
+				보상코인:1 += RAND:5
+		ENDSELECT
 	CASE 3 ; INSANE: 15~20, 4~9
-		보상코인:0 = 15
-		보상코인:0 += RAND:6
-		보상코인:1 = 4
-		보상코인:1 += RAND:6
+		SELECTCASE lvl
+			CASE 0
+				보상코인:0 = 9
+				보상코인:0 += RAND:11
+				보상코인:1 = 2
+				보상코인:1 += RAND:4
+			CASE 1
+				보상코인:0 = 13
+				보상코인:0 += RAND:10
+				보상코인:1 = 4
+				보상코인:1 += RAND:5
+			CASE 1
+				보상코인:0 = 16
+				보상코인:0 += RAND:15
+				보상코인:1 = 5
+				보상코인:1 += RAND:9
+		ENDSELECT
 	CASE 4 ; TORMENT: 21~33, 8~14
-		보상코인:0 = 21
-		보상코인:0 += RAND:13
-		보상코인:1 = 8
-		보상코인:1 += RAND:7
+		SELECTCASE lvl
+			CASE 0
+				보상코인:0 = 12
+				보상코인:0 += RAND:14
+				보상코인:1 = 5
+				보상코인:1 += RAND:8
+			CASE 1
+				보상코인:0 = 18
+				보상코인:0 += RAND:13
+				보상코인:1 = 8
+				보상코인:1 += RAND:11
+			CASE 1
+				보상코인:0 = 21
+				보상코인:0 += RAND:15
+				보상코인:1 = 10
+				보상코인:1 += RAND:16
+		ENDSELECT
 ENDSELECT
 ; 텍스트 추가
 CALL 총력전_보상_코인(보상코인:0, 보상코인:1)
