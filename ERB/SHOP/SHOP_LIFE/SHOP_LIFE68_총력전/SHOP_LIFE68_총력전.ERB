@@ -170,7 +170,7 @@ IF 페이지 || 다음페이지가능
 	ELSE
 		PRINTFORM %TOSTR_SPACE(14)%
 	ENDIF
-	PRINTFORM %ALIGN_TEXT(@"page {페이지}",12,"CENTER")%
+	PRINTFORM %ALIGN_TEXT(@"page {페이지+1}",12,"CENTER")%
 	IF 다음페이지가능
 		PRINTBUTTON "[ 다음페이지 ]", -4
 	ENDIF
