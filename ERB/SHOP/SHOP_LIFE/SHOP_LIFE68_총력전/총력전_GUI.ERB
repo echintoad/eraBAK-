@@ -34,7 +34,10 @@
 
 #DIM DYNAMIC 시작위치_0 = -1 ; 한줄
 #DIM DYNAMIC 시작위치_1, 2 ; 두줄
-#DIM DYNAMIC 줄수 ; 몇줄이 필요한지
+#DIM DYNAMIC 보스줄수 ; 보스쪽 HTML 줄수, 기록용
+#DIM DYNAMIC 캐릭터줄수 ; 캐릭터쪽 HTML 줄수, 계산용
+#DIM DYNAMIC 텍트스줄수 ; 텍스트 HTML 줄수, 계산용
+#DIM DYNAMIC 줄수 ; 캐릭터 몇줄이 필요한지
 #DIMS DYNAMIC sHtml_end ; 시작과 끝 부분
 #DIM DYNAMIC iTmp, 3
 ; #DIMS DYNAMIC sTmp, 2
@@ -106,15 +109,22 @@ ENDIF
 CALL 총력전_UI_줄추가(sHtml_end)
 
 ; 적 파티 프레임
+RESULT = 0
 TRYCCALLFORM 총력전_보스_UI_프레임_{총력전_보스}(선택종류_적군)
+	보스줄수 = RESULT
 CATCH
 	; 없으면 팀1 확인, 수 만큼 1자로
 	iTmp = MATCH(총력전_팀, 1)
 	iBlank = FINDELEMENT(총력전_팀, 1)
 	iBlank = 총력전_위치:iBlank
 	; DEBUGPRINTFORML iBlank = {iBlank}
+	IF FLAG:화상설정
+		보스줄수 = 15
+	ELSE
+		보스줄수 = 5
+	ENDIF
 	; 이미지, 이름 + 체력만
-	CALL 총력전_UI_프레임_3(iTmp, iBlank, 15, 선택종류_적군)
+	CALL 총력전_UI_프레임_3(iTmp, iBlank, 보스줄수, 선택종류_적군)
 ENDCATCH
 ; 바: 턴수, 코스트, 게임 종료
 CALL 총력전_UI_줄추가(sHtml_end)
@@ -122,8 +132,17 @@ CALL 총력전_UI_바_상
 CALL 총력전_UI_줄추가(RESULTS)
 CALL 총력전_UI_줄추가(sHtml_end)
 
+; 줄? 계산
+IF FLAG:화상설정
+	캐릭터줄수 = 21
+ELSE
+	캐릭터줄수 = 17 ; 15
+ENDIF
+; 전체 허용 줄(48) - 캐릭터 - 보스
+텍트스줄수 = 48 - 캐릭터줄수 - 보스줄수
+
 ; 전투 로그
-CALL 총력전_UI_텍스트(12, 115)
+CALL 총력전_UI_텍스트(텍트스줄수, 115)
 ; CALL 총력전_UI_텍스트(12, 115, 2)
 ; CALL 총력전_UI_텍스트_단선(1, 115, "| ) ", " ( |")
 ; HTML_PRINT RESULTS
@@ -136,20 +155,19 @@ CALL 총력전_UI_바_하(선택모드)
 CALL 총력전_UI_줄추가(RESULTS)
 CALL 총력전_UI_줄추가(sHtml_end)
 ; 아군 파티 프레임
-iTmp = 21
 IF 줄수 == 2
 	IF 총력전_캐릭터정보 == -1
-		CALL 총력전_UI_프레임_2(5, 시작위치_1, iTmp, 선택종류_아군)
+		CALL 총력전_UI_프레임_2(5, 시작위치_1, 캐릭터줄수, 선택종류_아군)
 	ELSE
-		CALL 총력전_UI_프레임_2(5, 시작위치_1, iTmp - 8, 선택종류_아군)
+		CALL 총력전_UI_프레임_2(5, 시작위치_1, 캐릭터줄수 - 8, 선택종류_아군)
 		CALL 총력전_UI_줄추가(sHtml_end)
 		CALL 총력전_UI_부품_캐릭터정보_0(총력전_캐릭터정보)
 	ENDIF
 ELSE
 	IF 총력전_캐릭터정보 == -1
-		CALL 총력전_UI_프레임_2(5, 시작위치_0, iTmp, 선택종류_아군)
+		CALL 총력전_UI_프레임_2(5, 시작위치_0, 캐릭터줄수, 선택종류_아군)
 	ELSE
-		CALL 총력전_UI_프레임_2(5, 시작위치_0, iTmp - 8, 선택종류_아군)
+		CALL 총력전_UI_프레임_2(5, 시작위치_0, 캐릭터줄수 - 8, 선택종류_아군)
 		CALL 총력전_UI_줄추가(sHtml_end)
 		CALL 총력전_UI_부품_캐릭터정보_0(총력전_캐릭터정보)
 	ENDIF	
@@ -368,7 +386,6 @@ IF FLAG:화상설정
 	ENDIF
 ELSE
 	CALL 총력전_UI_줄추가(sHtml_blank)
-CALL 총력전_UI_줄추가(sHtml_end)
 	CALL 총력전_UI_줄(인원수, 너비, 0, 시작번호, "이름_0", iTmp, sTmp, bBtn)
 	CALL 총력전_UI_줄추가(RESULTS)
 	CALL 총력전_UI_줄추가(sHtml_blank)
@@ -548,7 +565,7 @@ FOR iTmp, 0, 줄수
 			캐릭터있음:iTmp = 1
 		ENDIF
 		; 화상 확인
-		IF 화상있음:iTmp == 0 && 캐릭번호 >= 0 && STRLENS(총력전_이미지:캐릭번호) > 0
+		IF FLAG:화상설정 && 화상있음:iTmp == 0 && 캐릭번호 >= 0 && STRLENS(총력전_이미지:캐릭번호) > 0
 			화상있음:iTmp = 1
 		ENDIF		
 		; 보호막 있는지 확인
@@ -623,6 +640,10 @@ FOR iTmp, 0, 줄수
 	IF 캐릭터있음:iTmp
 		cell_height_remainder = cell_height_line:iTmp
 		; 이름 버튼
+		IF !FLAG:화상설정 && cell_height_line:iTmp > 6
+			CALL 총력전_UI_줄추가(sHtml_blank)
+			cell_height_remainder --
+		ENDIF
 		CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "이름_1", iTmp, sTmp, bBtn)
 		CALL 총력전_UI_줄추가(RESULTS)
 		cell_height_remainder --
@@ -737,6 +758,7 @@ NEXT
 
 #DIMS DYNAMIC sHtml_end ; 줄 사이 브레이크
 #DIMS DYNAMIC sHtml_blank ; 캐릭터 사이 선 있는 부분
+#DIM DYNAMIC cell_height_remainder ; 남은 셀 높이
 #DIM DYNAMIC cell_height_line, 6 ; 줄당 셀 높이
 #DIM DYNAMIC 엄폐물있음, 6 ; 엄폐물 있는지
 #DIM DYNAMIC 보호막있음, 6 ; 보호막 있는지
@@ -798,26 +820,31 @@ cell_height_line:(줄수 - 1) = cell_height - iTmp:1 * (줄수 - 1)
 
 $출력
 FOR iTmp, 0, 줄수
+	cell_height_remainder = cell_height_line:iTmp ; 이미지 사이즈
+	IF !FLAG:화상설정
+		CALL 총력전_UI_줄추가(sHtml_blank)
+		cell_height_remainder --
+	ENDIF
 	; 이름 버튼
 	CALL 총력전_UI_줄(인원수, 너비, 1, 시작위치:iTmp, "이름_1", iTmp, sTmp, bBtn)
 	CALL 총력전_UI_줄추가(RESULTS)
+	cell_height_remainder -= 2 ; 체력줄 미리 제거
 	; 이미지
-	iTmp:1 = cell_height_line:iTmp - 2 ; 이미지 사이즈
 	SIF 엄폐물있음:iTmp
-		iTmp:1 --
+		cell_height_remainder --
 	SIF 보호막있음:iTmp
-		iTmp:1 --
+		cell_height_remainder --
 	; 이미지 줄 출력
 	; 6보다 낮으면 빈 공간 출력
 	IF FLAG:화상설정
-		IF iTmp:1 < 4
+		IF cell_height_remainder < 4
 			GOTO IMGBLANK
 		ENDIF
-		CALL 총력전_UI_프레임_0_이미지(인원수, 너비, sHtml_blank, 1, 시작위치:iTmp, iTmp:1)
+		CALL 총력전_UI_프레임_0_이미지(인원수, 너비, sHtml_blank, 1, 시작위치:iTmp, cell_height_remainder)
 	ELSE
 		$IMGBLANK
 		; 빈공간
-		FOR iTmp:2, 0, iTmp:1
+		FOR iTmp:1, 0, cell_height_remainder
 			CALL 총력전_UI_줄추가(sHtml_blank)
 		NEXT
 	ENDIF
@@ -836,8 +863,8 @@ NEXT
 
 ; #region == HTML ==
 ; 총력전 전용(?) HTML 출력 보조 함수
-; 한줄씩 출력하는 것 보다, 모아서 한번에
-; 출력 중간에 계산 없게
+; 한줄씩 출력하는 것 보다, 중간에 계산 없게
+; 모은후 한번에 출력
 ; ==================
 ; CLEAR -> HTML 전체 출력
 @총력전_UI_출력
@@ -1286,24 +1313,32 @@ ENDSELECT
 
 
 ; 오른쪽으로 정렬, 이미지 후로 글자 필요 없게
-@총력전_UI_부품_캐릭터정보_0(캐릭터, sPadStart = "| | ", sPadEnd = "| |  ", sDiv = " | | ", sBreak = " |=| ")
+@총력전_UI_부품_캐릭터정보_0(캐릭터, sPadStart = "| | ", sPadEnd = "| | ", sDiv = " | | ", sBreak = " |=| ", iPadEnd = 40)
 #DIM 캐릭터
 ; #DIM 줄수 ; 5?
+; #DIM 너비 ; sPad 를 뺀 너비
 #DIMS DYNAMIC sPadStart ; 줄 왼쪽 끝
 #DIMS DYNAMIC sPadEnd ; 줄 오른쪽 끝
 #DIMS DYNAMIC sDiv ; 사이 부분
 #DIMS DYNAMIC sBreak ; 이미지 주변용
+#DIM DYNAMIC iPadEnd ; 끝 부분 추가 공간, 1~2 픽셀 밀리는거 고치기용
 
-#DIM 너비이미지 = 14
-#DIM 너비스탯 = 38
-#DIM 너비스킬
+#DIM DYNAMIC 너비이미지 = 14
+#DIM DYNAMIC 너비스탯 = 42
+#DIM DYNAMIC 너비스킬
 #DIMS DYNAMIC sHtml, 7
-; #DIM DYNAMIC iPicWidth = 8
-#DIM DYNAMIC iTmp, 2
+#DIM DYNAMIC iTmp, 3
 #DIMS DYNAMIC sTmp, 8
 
-iTmp = STRLENS(sDiv) * 2
-너비스킬 = 117 - 너비이미지 - 너비스탯 - iTmp 
+; 너비 계산
+IF FLAG:화상설정
+	iTmp = STRLENS(sDiv) * 2
+	너비스킬 = 116 - 너비이미지 - 너비스탯 - iTmp
+ELSE
+	너비스탯 = 51
+	iTmp = 116 - STRLENS(sDiv)
+	너비스킬 = iTmp - 너비스탯
+ENDIF
 
 FOR iTmp, 0, 7
 	; /nobr 은 아직 필요 없는듯?
@@ -1311,14 +1346,14 @@ FOR iTmp, 0, 7
 NEXT
 
 ; 이미지
-sHtml:0 += @"%sPadStart%%TOSTR_SPACE(너비이미지)%%sDiv%"
-sHtml:1 += @"%sBreak%%TOSTR_SPACE(너비이미지)%%sBreak%"
-; sHtml:2 += @"%sPadStart%%TOSTR_SPACE(너비이미지)%%sDiv%"
-sHtml:3 += @"%sBreak%%TOSTR_SPACE(너비이미지)%%sBreak%"
-; sHtml:4 += @"%sPadStart%%TOSTR_SPACE(너비이미지)%%sDiv%"
-sHtml:5 += @"%sBreak%%TOSTR_SPACE(너비이미지)%%sBreak%"
-sHtml:6 += @"%sPadStart%%TOSTR_SPACE(너비이미지)%%sDiv%"
-IF 캐릭터 >= 0
+IF FLAG:화상설정 && 캐릭터 >= 0
+	sHtml:0 += @"%sPadStart%%TOSTR_SPACE(너비이미지)%%sDiv%"
+	sHtml:1 += @"%sBreak%%TOSTR_SPACE(너비이미지)%%sBreak%"
+	; sHtml:2 += @"%sPadStart%%TOSTR_SPACE(너비이미지)%%sDiv%"
+	sHtml:3 += @"%sBreak%%TOSTR_SPACE(너비이미지)%%sBreak%"
+	; sHtml:4 += @"%sPadStart%%TOSTR_SPACE(너비이미지)%%sDiv%"
+	sHtml:5 += @"%sBreak%%TOSTR_SPACE(너비이미지)%%sBreak%"
+	sHtml:6 += @"%sPadStart%%TOSTR_SPACE(너비이미지)%%sDiv%"
 	sTmp = %총력전_이미지:캐릭터%
 	IF STRLENS(sTmp) == 0
 		IF 총력전_상태:캐릭터 == 총력전_상태_소환 || 총력전_상태:캐릭터 == 총력전_상태_소한_비공격
@@ -1336,56 +1371,85 @@ IF 캐릭터 >= 0
 		CALL 총력전_UI_이미지(sTmp, 너비이미지 * 50, 680, -390)
 		sHtml:4 += @"%RESULTS%%TOSTR_SPACE(iTmp)%"
 	ENDIF
+ELSE
+	FOR iTmp, 0, 7
+		sHtml:iTmp += @"%sPadStart%"
+	NEXT
 ENDIF
 
 ; 스탯
 IF 캐릭터 >= 0
 	; 이름
-	CALL 총력전_UI_버튼(총력전_이름:캐릭터, 너비스탯 - 1, -1, -2, 14, "LEFT")
+	CALL 총력전_UI_버튼(총력전_이름:캐릭터, 너비스탯, -1, -2, 14, "LEFT")
 	sHtml:0 += @"%RESULTS%"
 
-	; 체력
-	sTmp = {총력전_최대체력:캐릭터}
-	iTmp = STRLENS(sTmp)
-	; iTmp/iTmp(iTmp[+/-]1~5?)
-	sHtml:1 += @"HP:%ALIGN_TEXT(총력전_체력:캐릭터, iTmp, "RIGHT")%"
-	iTmp:1 = iTmp * 2 + 1
-	IF iTmp:1 <= 너비스탯
-		iTmp = 너비스탯 - iTmp - 5
-		CALL 총력전_UI_스탯_0(캐릭터, iTmp, "최대체력")
-		sHtml:1 += @"/%RESULTS%"
+	; 체력 + 보호막
+	iTmp:0 = 총력전_상태효과_합계(캐릭터, 상효_종류_보호막, 총력전_방식_지속)
+	iTmp:1 = GETVAR_RAIDSTAT_SUM(캐릭터, "최대체력")
+	; 텍스트
+	IF iTmp:0 > 0
+		sTmp = S:{iTmp} HP:{총력전_체력:캐릭터}/{iTmp:1}({총력전_최대체력_최초:캐릭터})
+	ELSE
+		sTmp = HP:{총력전_체력:캐릭터}/{iTmp:1}({총력전_최대체력_최초:캐릭터})
 	ENDIF
-
-	; 공방
-	iTmp = (너비스탯 - 1) / 2
-	iTmp:1 = 너비스탯 - iTmp * 2
+	SIF 너비스탯 >= STRLENS(sTmp)
+		GOTO SKIP_HPSHIELD
+	; 텍스트
+	IF iTmp:0 > 0
+		sTmp = S:{iTmp} HP:{총력전_체력:캐릭터}/{iTmp:1}
+	ELSE
+		sTmp = HP:{총력전_체력:캐릭터}/{iTmp:1}
+	ENDIF
+	SIF 너비스탯 >= STRLENS(sTmp)
+		GOTO SKIP_HPSHIELD
+	IF iTmp:0 > 0
+		sTmp = S:{iTmp} HP:{총력전_체력:캐릭터}
+	ELSE
+		sTmp = HP:{총력전_체력:캐릭터}
+	ENDIF
+	; SIF 너비스탯 >= STRLENS(sTmp)
+	; 	GOTO SKIP_HPSHIELD
+	$SKIP_HPSHIELD
+	sHtml:1 += @"%ALIGN_TEXT(sTmp, 너비스탯, "LEFT")%"
+	; 공 방 치유
+	iTmp = 너비스탯 / 3
+	iTmp:1 = 너비스탯 - iTmp * 3
 	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 4, "공")
-	sHtml:2 += @"공:%RESULTS%"
-	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 3, "방")
-	sHtml:2 += @"방:%RESULTS%%TOSTR_SPACE(iTmp:1)%"
-	; 명회
-	; iTmp = (너비스탯 - 1) / 2
-	; iTmp:1 = 너비스탯 - iTmp * 2
-	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 4, "명")
-	sHtml:3 += @"명:%RESULTS%"
-	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 3, "회")
-	sHtml:3 += @"회:%RESULTS%%TOSTR_SPACE(iTmp:1)%"
-	; 치유
-	iTmp = 너비스탯
-	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 6, "치유")
-	sHtml:4 += @"치유:%RESULTS%"
-	; 치명 치저
-	iTmp = (너비스탯 - 1) / 2
-	; iTmp:1 = 너비스탯 - iTmp * 2
+	sHtml:2 += @"공:%RESULTS% "
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 4, "방")
+	sHtml:2 += @"방:%RESULTS% "
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 5, "치유")
+	sHtml:2 += @"치유:%RESULTS%%TOSTR_SPACE(iTmp:1)%"
+	; 치명 치저 명
+	; iTmp = 너비스탯 / 3
+	; iTmp:1 = 너비스탯 - iTmp * 3
 	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 6, "치명")
-	sHtml:5 += @"치명:%RESULTS%"
-	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 9, "치명저항")
-	sHtml:5 += @"치명저항:%RESULTS%%TOSTR_SPACE(iTmp:1)%"
-	; 치피 치피저
+	sHtml:3 += @"치명:%RESULTS% "
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 6, "치명저항")
+	sHtml:3 += @"치저:%RESULTS% "
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 3, "명")
+	sHtml:3 += @"명:%RESULTS%%TOSTR_SPACE(iTmp:1)%"
+	; 치피 치피저 회
+	; iTmp = 너비스탯 / 3
+	; iTmp:1 = 너비스탯 - iTmp * 3
 	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 6, "치피")
-	sHtml:6 += @"치피:%RESULTS%"
-	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 9, "치피저항")
-	sHtml:6 += @"치피저항:%RESULTS%%TOSTR_SPACE(iTmp:1)%"
+	sHtml:4 += @"치피:%RESULTS% "
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 8, "치피저항")
+	sHtml:4 += @"치피저:%RESULTS% "
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 3, "회")
+	sHtml:4 += @"회:%RESULTS%%TOSTR_SPACE(iTmp:1)%"
+	; 군제어
+	sTmp = 군중제어:{총력전_군중제어:캐릭터}/
+	iTmp = 너비스탯 - STRLENS(sTmp)
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp, "CC최대")
+	sHtml:5 += @"%sTmp%%RESULTS%"
+	; 군강화 군저항
+	iTmp = 너비스탯 / 2
+	iTmp:1 = 너비스탯 - iTmp * 2
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 6, "CC강")
+	sHtml:6 += @"군강:%RESULTS% "
+	CALL 총력전_UI_스탯_0(캐릭터, iTmp - 5, "CC저")
+	sHtml:6 += @"군저:%RESULTS%%TOSTR_SPACE(iTmp:1)%"
 ELSE
 	FOR iTmp, 0, 7
 		sHtml:iTmp += @"%TOSTR_SPACE(너비스탯)%"
@@ -1426,7 +1490,7 @@ FOR iTmp, 1, 7
 NEXT
 
 FOR iTmp, 0, 7
-	sHtml:iTmp += @"%sPadEnd%"
+	sHtml:iTmp += @"%sPadEnd%<shape type='space' param='{iPadEnd}'>"
 NEXT
 
 FOR iTmp, 0, 7
@@ -2123,10 +2187,10 @@ ENDIF
 #DIMS DYNAMIC sTmp
 
 IF 너비 > 6
-	sTmp = HP:{총력전_최대체력:캐릭터}
+	sTmp = HP:{GETVAR_RAIDSTAT_SUM(캐릭터, "최대체력")}
 	sTmp = %ALIGN_TEXT(sTmp, 너비, "CENTER")%
 ELSE
-	sTmp = {총력전_최대체력:캐릭터}
+	sTmp = {GETVAR_RAIDSTAT_SUM(캐릭터, "최대체력")}
 	sTmp = %ALIGN_TEXT(sTmp, 너비, "CENTER")%
 ENDIF
 
@@ -2149,7 +2213,7 @@ RESULTS = %sTmp%
 
 ; 스탯값
 초기스탯값 = GETVAR_RAIDSTAT_INIT(캐릭터, 스탯이름)
-스탯값 = GETVAR_RAIDSTAT(캐릭터, 스탯이름) + GETVAR_RAIDSTAT_EFFECT(캐릭터, 스탯이름)
+스탯값 = GETVAR_RAIDSTAT_SUM(캐릭터, 스탯이름)
 iDif = 스탯값 - 초기스탯값
 IF iDif > 0
 	sDif = +{iDif}
@@ -2168,13 +2232,25 @@ IF STRLENS(sTmp) <= 너비
 	RESULTS = %스탯문자열%({초기스탯값}%sDif%)%TOSTR_SPACE(iTmp)%
 	RETURN
 ENDIF
-sTmp = {스탯값}(%sDif%)
+IF iDif != 0
+	sTmp = {스탯값}(%sDif%)
+ELSE
+	sTmp = {스탯값}
+ENDIF
 IF STRLENS(sTmp) <= 너비
 	iTmp = 너비 - STRLENS(sTmp)
 	RESULTS = %스탯문자열%(%sDif%)%TOSTR_SPACE(iTmp)%
 	RETURN
 ENDIF
-RESULTS = %ALIGN_TEXT(스탯문자열, 너비, "LEFT")%
+; <font> 떄문에 작동 안할거임...
+; RESULTS = %ALIGN_TEXT(스탯문자열, 너비, "LEFT")%
+IF iDif > 0
+	RESULTS = %ALIGN_TEXT(@"{스탯값}+", 너비, "LEFT")%
+ELSEIF iDif < 0
+	RESULTS = %ALIGN_TEXT(@"{스탯값}-", 너비, "LEFT")%
+ELSE
+	RESULTS = %ALIGN_TEXT(@"{스탯값}", 너비, "LEFT")%
+ENDIF
 
 ; 총력전_스킬_조준, 위치, 범위 참조후
 ; + 아군 버프 선택?
