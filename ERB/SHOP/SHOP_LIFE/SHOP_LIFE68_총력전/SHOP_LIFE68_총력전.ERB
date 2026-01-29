@@ -129,6 +129,9 @@ RETURN 0
 #DIM iTmp
 
 FIRST_LINE = LINECOUNT
+[IF_DEBUG]
+CALL 총력전_보스활동_추가(99) ; 훈련용 허수아비 추가
+[ENDIF]
 
 $SETPAGE
 CALL 총력전_해제
@@ -183,7 +186,7 @@ IF 보스 >= 0
 		PRINTL
 	CATCH
 		CALLFORM 총력전_보스_이름_{보스}
-		PRINTFORML [ %ALIGN_TEXT(RESULTS,14,"CENTER")% ]
+		PRINTFORML [%ALIGN_TEXT(RESULTS,16,"CENTER")%]
 		PRINTL
 	ENDCATCH
 	PRINTBUTTON "[ 결정 ]", -1
@@ -208,6 +211,9 @@ SELECTCASE RESULT
 		GOTO SETPAGE
 	CASE -99
 		CALL 총력전_해제
+		[IF_DEBUG]
+		CALL 총력전_보스활동_제거(99) ; 훈련용 허수아비 제거
+		[ENDIF]
 		RETURN
 	CASE IS < 0
 		; lazy bug prevention
@@ -240,7 +246,7 @@ CALL SINGLE_DRAWLINE
 PRINTL 난이도를 선택하세요
 CALL SINGLE_DRAWLINE
 TRYCALLFORM 총력전_보스_이름_{보스}
-PRINTFORML [%ALIGN_TEXT(RESULTS,14,"CENTER")%]
+PRINTFORML [%ALIGN_TEXT(RESULTS,16,"CENTER")%]
 PRINTL
 PRINT 선택한 난이도 : 
 SELECTCASE 총력전_보스_난이도
@@ -404,6 +410,9 @@ IF RESULT == -1
 ELSEIF RESULT == -2
 	; 돌아간다
 	CALL 총력전_해제
+	[IF_DEBUG]
+	CALL 총력전_보스활동_제거(99) ; 훈련용 허수아비 제거
+	[ENDIF]
 	배치인원수 = 0
 	배치완료 = 0
 	RETURN 1
@@ -416,6 +425,9 @@ ELSEIF RESULT == -3
 		CALL 총력전_실행 ;(보스)
 		; 리셋
 		CALL 총력전_해제
+		[IF_DEBUG]
+		CALL 총력전_보스활동_제거(99) ; 훈련용 허수아비 제거
+		[ENDIF]
 		CALL SYSTEM_AUTOSAVE
 	RETURN
 	ELSE

@@ -1871,7 +1871,7 @@ iTmp = 총력전_캐릭터상태(캐릭터)
 IF bBtn == 총력전_선택_전체
 	RETURNF 1
 ELSEIF bBtn == 총력전_선택_캐릭터
-	IF iTmp == 총력전_상태_보통 || iTmp == 총력전_상태_보스 || iTmp == 총력전_상태_소환	|| iTmp == 총력전_상태_소한_비공격
+	IF iTmp == 총력전_상태_보통 || iTmp == 총력전_상태_보스 || iTmp == 총력전_상태_보스_비공격 || iTmp == 총력전_상태_소환	|| iTmp == 총력전_상태_소한_비공격
 		RETURNF 1
 	ELSE
 		RETURNF 0
