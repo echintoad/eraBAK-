@@ -1,0 +1,319 @@
+﻿[IF_DEBUG]
+;-------------------------------------------------
+; 총력전 밸런스용
+;-------------------------------------------------
+; #region Self Buff 0
+@RAIDDEBUG_selfbuff_0
+#DIM DYNAMIC FIRST_LINE
+#DIM DYNAMIC isFirstRun = 1
+#DIM DYNAMIC iSkillStart = -1
+#DIM DYNAMIC iSkillRepeat = -1
+#DIM iRunNumber = 400
+#DIM DYNAMIC iTurnNumber = 1
+
+#DIM DYNAMIC iDmgTurn, 3 ; 턴당 대미지
+#DIM DYNAMIC iDmgCast, 3 ; 스킬 시전당 대미지
+#DIM DYNAMIC iDmgCast_Cnt ; 스킬 시전 턴 카운터
+#DIM DYNAMIC iDmgCost, 3 ; 코스트 당 대미지
+
+#DIM DYNAMIC iBoss
+#DIM DYNAMIC iChara, 2
+#LOCALSIZE 4
+#LOCALSSIZE 1
+
+FIRST_LINE = LINECOUNT
+
+CALL 총력전_해제
+; 보스 설정
+CALL RAIDDEBUG_boss(10)
+; 기본 캐릭터 설정
+CALL RAIDDEBUG_chara
+iChara = RESULT
+iChara:1 = CHARANUM
+ADDVOIDCHARA
+COPYCHARA iChara, iChara:1
+
+; 고정 설정
+CALL 총력전_초기화_범위
+총력전_ID:0 = iChara
+총력전_ID:1 = iChara:1
+총력전_상태:0 = 총력전_상태_보통
+총력전_상태:1 = 총력전_상태_행동불능 ; 기존 스탯 기록용
+
+$SETCHARA
+IF !isFirstRun
+	; 캐릭터 설정
+	CALL RAIDDEBUG_chara(iChara)
+	; 무기 설정
+	PRINTL 무기 번호 설정
+	PRINTBUTTON "[ 유지 ] ", -1
+	PRINTFORM 지금 무기번호:{TALENT:iChara:웨폰}(-1 이면 기존 무기 유지)
+	INPUT
+	; CLEARLINE 2
+	IF RESULT != -1
+		LOCAL = RESULT
+		TRYCALLFORM 무기_착용_{TALENT:iChara:웨폰}(iChara,-1)
+		TRYCALLFORM 무기_착용_{LOCAL}(iChara,1)
+		TALENT:iChara:웨폰 = LOCAL
+	ENDIF
+ENDIF
+
+; CALL DEBUG_총력전_스탯(0)
+; CALL DEBUG_총력전_스탯(10)
+; WAIT
+
+$SETRUNNUMBER
+iRunNumber = MAX(iRunNumber, 1)
+CALL SINGLE_DRAWLINE
+IF iSkillStart >= 0
+	CALL WEAPON_NAME(TALENT:iChara:웨폰)
+	PRINTFORML 무기: %RESULTS%({TALENT:iChara:웨폰})
+	RESULTS = ""
+	RESULT = 0
+	TRYCALLFORM 총력전_스킬_{TALENT:iChara:웨폰 + 1000}_설명
+	PRINTFORML %RESULTS%
+	TRYCALLFORM 총력전_스킬_{TALENT:iChara:웨폰 + 1000}_코스트
+	PRINTFORML 코스트: {RESULT}
+	PRINTL ---------------
+	PRINTFORML 턴당 대미지 {iDmgTurn:2}
+	PRINTL ---------------
+	PRINTFORM 턴 {iSkillStart}에 스킬 시전
+	IF iSkillRepeat >= 0
+		PRINTFORML 후 {iSkillRepeat}턴 마다 추가 시전
+	ELSE
+		PRINTL
+	ENDIF
+ENDIF
+PRINTFORML {iTurnNumber}턴 테스트
+PRINTFORML {iRunNumber}번 반복
+PRINTL
+IF !isFirstRun
+	PRINTBUTTON " [ 무기 + 캐릭터 설정 ] ", 1
+	PRINTBUTTON " [ 턴당 대미지 변경 ] ", 5
+	PRINTL
+	PRINTBUTTON " [ 스킬 시작 턴 ] ", 2
+	PRINTBUTTON " [ 스킬 재시전 턴 ] ", 3
+	PRINTBUTTON " [ 턴 회수 변경 ]  ", 4
+ENDIF
+PRINTBUTTON " [ 반복 회수 변경 ]", 6
+PRINTL
+PRINTBUTTON " [ 시작 ] ", 0
+INPUT
+CLEARLINE 1
+SELECTCASE RESULT
+	CASE 0
+		GOTO STARTRUN
+	CASE 1
+		CLEARLINE LINECOUNT - FIRST_LINE
+		GOTO SETCHARA
+	CASE 2
+		PRINTL 스킬 시작 턴
+		PRINTL -1 이면 스킬 시전 없음
+		INPUT
+		iSkillStart = RESULT
+	CASE 3
+		PRINTL 스킬 재시전 턴 (시작 + n)
+		PRINTL  -1 이면 재시전 없음
+		INPUT
+		iSkillRepeat = RESULT
+	CASE 4
+		PRINTL 테스트당 턴수
+		INPUT
+		iTurnNumber = MAX(RESULT, 1)
+	CASE 5
+		PRINTL 턴당 대미지
+		INPUT
+		iDmgTurn:2 = MAX(RESULT, 0)
+	CASE 6
+		PRINTL 테스트 반복 회수
+		INPUT
+		iRunNumber = MAX(RESULT, 1)
+ENDSELECT
+GOTO SETRUNNUMBER
+$STARTRUN
+SKIPDISP 1
+
+; 무기 평균
+iDmgTurn = 0
+; 전 테스트 효과 제거
+FOR LOCAL, 0, 총력전_상태효과수
+	CALL 총력전_상태효과_제거(0, 0)
+NEXT
+FOR LOCAL, 0, 총력전_카운터수
+	CALL 총력전_카운터_제거(0, 0)
+NEXT
+총력전_공격잔여:0 = 0
+총력전_스킬_가변:0 = 0
+CALL 총력전_초기화_스탯_전
+FOR LOCAL:2, 0, iRunNumber
+	총력전_전투단계 = 총력전_전투단계_기본공격
+	CALL 총력전_시퀀스_기본공격(0, 0)
+	; 대미지 기록
+	iDmgTurn += 총력전_최대체력:10 - 총력전_체력:10
+	총력전_체력:10 = 총력전_최대체력:10
+NEXT
+iDmgTurn:1 = iDmgTurn:0 / iRunNumber
+iDmgTurn = 0
+VARSET iDmgCast, 0
+iDmgCast_Cnt = 0
+
+; 스킬 평균
+SIF 총력전_ID:0 >= 0
+	CALL 총력전_초기화_캐릭터정보(0)
+SIF isFirstRun || 총력전_스킬_번호:0 == -1
+	GOTO ENDTEST
+DEBUGPRINTFORML ---
+FOR LOCAL:2, 0, iRunNumber
+	; 전 테스트 효과 제거
+	FOR LOCAL, 0, 총력전_상태효과수
+		CALL 총력전_상태효과_제거(0, 0)
+	NEXT
+	FOR LOCAL, 0, 총력전_카운터수
+		CALL 총력전_카운터_제거(0, 0)
+	NEXT
+	총력전_공격잔여:0 = 0
+	총력전_스킬_가변:0 = 0
+	; 스탯 계산
+	CALL 총력전_초기화_스탯_전
+	TRYCCALLFORM DEBUG_총력전_스킬_{총력전_스킬_번호:0}_초기(0)
+	CATCH
+		TRYCALLFORM 총력전_스킬_{총력전_스킬_번호:0}_초기(0)
+	ENDCATCH
+	FOR LOCAL:1, 0, iTurnNumber
+		; 총력전_시퀀스
+		; 적군 군중제어 감소
+		; CALL 총력전_처리_군중제어_감소(iTmp)
+		; CALL 총력전_시퀀스_스킬시전_엄폐물
+		총력전_전투단계 = 총력전_전투단계_플레이어
+		; CALL 총력전_시퀀스_플레이어
+		총력전_전투단계 = 총력전_전투단계_스킬
+		; CALL 총력전_시퀀스_스킬시전(총력전_상태_보통)
+		IF iSkillStart >= 0
+			IF LOCAL:2 == 0
+				DEBUGPRINTFORML 턴 = {LOCAL:1}, 스킬 시작 = {iSkillStart}, 스킬 재 시전 = {iSkillRepeat}
+				DEBUGPRINTFORML {(LOCAL:1 - iSkillStart) % iSkillRepeat}
+			ENDIF
+			LOCAL:3 = (LOCAL:1 - iSkillStart) % iSkillRepeat
+			IF (iSkillRepeat == -1 && iSkillStart == LOCAL:1) || (iSkillRepeat >= 0 && iSkillStart <= LOCAL:1 && LOCAL:3 == 0)
+				IF LOCAL:2 == 0
+					iDmgCast_Cnt += 1
+					DEBUGPRINTFORML 스킬 처리:%총력전_스킬_이름:0%, 코스트:{총력전_스킬_코스트:0}
+				ENDIF
+				CALL RAIDDEBUG_처리_스킬(0)
+			ENDIF
+		ENDIF
+		; trycall 디버그 스킬
+		총력전_전투단계 = 총력전_전투단계_기본공격
+		CALL 총력전_시퀀스_기본공격(0, 0)
+		; 아군 군중제어 감소
+		; CALL 총력전_처리_군중제어_감소(iTmp)
+		총력전_전투단계 = 총력전_전투단계_보스스킬
+		; CALL 총력전_시퀀스_스킬시전(총력전_상태_보스)
+		총력전_전투단계 = 총력전_전투단계_보스공격
+		; CALL 총력전_시퀀스_기본공격(1, 10)
+		; 상태효과 적용: 턴
+		FOR LOCAL, 0, 총력전_캐릭터수
+			CALL 총력전_상태효과_적용_기타(LOCAL, 총력전_방식_턴)
+		NEXT
+		; 상태이상/카운터 소비: 턴
+		FOR LOCAL, 0, 총력전_캐릭터수
+			CALL 총력전_카운터_증가(LOCAL, -1, 총력전_방식_턴)
+			CALL 총력전_카운터_소비(LOCAL, 총력전_방식_턴)
+			CALL 총력전_상태효과_소비(LOCAL, 총력전_방식_턴)
+			CALL 총력전_엄폐물_소비(LOCAL, 총력전_방식_턴, 1)
+		NEXT
+		FOR LOCAL, 0, 총력전_캐릭터수
+			총력전_스탯상태:LOCAL = 0
+			CALL 총력전_초기화_스탯_상효(LOCAL)
+		NEXT
+		; 대미지 기록
+		IF LOCAL:2 == 0
+			DEBUGPRINTFORML 공격 잔여:{총력전_공격잔여:0}
+			DEBUGPRINTFORML 턴 대미지:{총력전_최대체력:10 - 총력전_체력:10}
+			DEBUGPRINTFORML ---
+		ENDIF
+		iDmgTurn += 총력전_최대체력:10 - 총력전_체력:10
+		IF iSkillStart >= 0 || iSkillStart >= LOCAL:1
+			iDmgCast += 총력전_최대체력:10 - 총력전_체력:10
+		ENDIF
+		총력전_체력:10 = 총력전_최대체력:10
+	NEXT
+NEXT
+$ENDTEST
+; 계산
+DEBUGPRINTFORML 총 대미지:{iDmgTurn}
+DEBUGPRINTFORML 기본 공격 평균 대미지:{iDmgTurn:1}
+DEBUGPRINTFORML 총 스킬 대미지:{iDmgCast}
+DEBUGPRINTFORML 시전 회수:{iDmgCast_Cnt}
+iDmgTurn = iDmgTurn / (iRunNumber * iTurnNumber)
+iDmgCast_Cnt = MAX(1, iDmgCast_Cnt)
+IF iSkillRepeat == -1
+	LOCAL = MAX(1, iTurnNumber)
+ELSE
+	LOCAL = iSkillRepeat
+ENDIF
+iDmgCast:0 = iDmgCast / (iRunNumber * iDmgCast_Cnt)
+iDmgCast:1 = iDmgCast - iDmgTurn:1 * LOCAL
+iDmgCast:2 = iDmgCast - iDmgTurn:2 * LOCAL
+IF 총력전_스킬_코스트:0 > 0
+	iDmgCost:0 = iDmgCast:0 / 총력전_스킬_코스트:0
+	iDmgCost:1 = iDmgCast:1 / 총력전_스킬_코스트:0
+	iDmgCost:2 = iDmgCast:2 / 총력전_스킬_코스트:0
+ENDIF
+IF isFirstRun
+	iDmgTurn:2 = iDmgTurn:1
+	isFirstRun = 0
+	iSkillStart = 0
+ENDIF
+SKIPDISP 0
+; 리포트
+CLEARLINE LINECOUNT - FIRST_LINE
+; 보스 스탯
+CALL SINGLE_DRAWLINE
+PRINTL 보스 스탯
+PRINTFORML 방어력:{총력전_방어력_최초:10}, 회피율:{총력전_회피율_최초:10}, 치명 저항:{총력전_치명타_저항_최초:10}, 치명 대미지 저항:{총력전_치명타_대미지_저항_최초:10}
+; 비교 대상
+CALL SINGLE_DRAWLINE
+; 기존 스탯?
+PRINTL 기존 스탯
+PRINTFORML 공격력:{총력전_공격력_최초:1}, 명중률:{총력전_명중률_최초:1}, 치명타:{총력전_치명타_최초:1}, 치명타 대미지:{총력전_치명타_대미지_최초:1}, 
+PRINTL 기존 결과
+PRINTFORML 턴당 대미지{iDmgTurn:2}
+CALL SINGLE_DRAWLINE
+; 이번 런 스탯
+PRINTFORM ({NO:iChara}) 
+SIF STRLENS(총력전_이름:0)
+	PRINTFORM 런:%총력전_이름:0%, 
+PRINTFORML 스킬:%총력전_스킬_이름:0%, 코스트:{총력전_스킬_코스트:0}
+PRINTFORM 공격력:{총력전_공격력_최초:0}(
+SIF 총력전_공격력_최초:0 > 총력전_공격력_최초:1
+	PRINT +
+PRINTFORM {총력전_공격력_최초:0 - 총력전_공격력_최초:1}), 
+PRINTFORM 명중률:{총력전_명중률_최초:0}(
+SIF 총력전_명중률_최초:0 > 총력전_명중률_최초:1
+	PRINT +
+PRINTFORM {총력전_명중률_최초:0 - 총력전_명중률_최초:1}), 
+PRINTFORM 치명타:{총력전_치명타_최초:0}(
+SIF 총력전_치명타_최초:0 > 총력전_치명타_최초:1
+	PRINT +
+PRINTFORM {총력전_치명타_최초:0 - 총력전_치명타_최초:1}), 
+PRINTFORM 치명타 대미지:{총력전_치명타_대미지_최초:0}(
+SIF 총력전_치명타_대미지_최초:0 > 총력전_치명타_대미지_최초:1
+	PRINT +
+PRINTFORML {총력전_치명타_대미지_최초:0 - 총력전_치명타_대미지_최초:1})
+
+PRINTFORML %"턴당 대미지:", 15, LEFT%{iDmgTurn:0, 5, LEFT}%"턴당 대미지(기본 공격만):", 26, LEFT%{iDmgTurn:1, 5, LEFT}
+PRINTFORML %"시전 대미지:", 15, LEFT%{iDmgCast:0, 5, LEFT}%"시전 대미지(기존 비교):", 26, LEFT%{iDmgCast:2, 5, LEFT}%"시전 대미지(+무기 기본 공격 비교):", 37, LEFT%{iDmgCast:1}
+PRINTFORML %"코스트 대미지:", 15, LEFT%{iDmgCost:0, 5, LEFT}%"코스트 대미지(기존 비교):", 26, LEFT%{iDmgCost:2, 5, LEFT}%"코스트 대미지(+무기 기본 공격 비교):", 37, LEFT%{iDmgCost:1}
+CALL SINGLE_DRAWLINE
+PRINTBUTTON "[ 종료 ] ", 0
+PRINTBUTTON " [ 다음 테스트 ]", 1
+INPUT
+CLEARLINE 1
+IF RESULT == 1
+	GOTO SETCHARA
+ENDIF
+CALL 총력전_해제
+DELALLCHARA
+; #endregion
+[ENDIF]
