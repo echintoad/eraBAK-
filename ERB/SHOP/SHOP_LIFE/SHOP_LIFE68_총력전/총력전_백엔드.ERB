@@ -2757,11 +2757,11 @@ FOR iTmp, 0, 총력전_캐릭터수
 	; 앞 + 뒤
 	SELECTCASE iTmp / 줄당캐릭터수
 		CASE 0
-			iTmp:2 = iTmp + 줄당캐릭터수 * 2
-			IF iTmp:2 < 총력전_캐릭터수
-				총력전_범위:iTmp:(iTmp:1) = iTmp:2
-				iTmp:1 ++
-			ENDIF
+			; iTmp:2 = iTmp + 줄당캐릭터수 * 2
+			; IF iTmp:2 < 총력전_캐릭터수
+			; 	총력전_범위:iTmp:(iTmp:1) = iTmp:2
+			; 	iTmp:1 ++
+			; ENDIF
 			iTmp:2 = iTmp + 줄당캐릭터수
 			IF iTmp:2 < 총력전_캐릭터수
 				총력전_범위:iTmp:(iTmp:1) = iTmp:2
@@ -2779,11 +2779,11 @@ FOR iTmp, 0, 총력전_캐릭터수
 				총력전_범위:iTmp:(iTmp:1) = iTmp:2
 				iTmp:1 ++
 			ENDIF
-			iTmp:2 = iTmp - 줄당캐릭터수 * 2
-			IF iTmp:2 >= 0
-				총력전_범위:iTmp:(iTmp:1) = iTmp:2
-				iTmp:1 ++
-			ENDIF
+			; iTmp:2 = iTmp - 줄당캐릭터수 * 2
+			; IF iTmp:2 >= 0
+			; 	총력전_범위:iTmp:(iTmp:1) = iTmp:2
+			; 	iTmp:1 ++
+			; ENDIF
 	ENDSELECT
 NEXT
 
