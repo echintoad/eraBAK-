@@ -440,16 +440,12 @@ IF 회피 > 0 && 공 >= 0
 ENDIF
 
 ; 방어력 처리: 공격력 % 감소
-; 임시?: 대미지 - 방어력
-; MIN=0, MAX=85, a=100,000, b=135
-; 50 = 7%, 200 = 34%, 500 = 65%
-; 스탯 최대 300후
 ; MIN=0 MAX=95 a=85,000 b=150
 ; 50=10% 200=42% 500=75%
-; x = 방어력 - 공격력/2
+; x = 방어력 - 공격력/4
 IF 공 >= 0
-	; 방어력 - 공격력/2
-	iTmp = GETVAR_RAIDSTAT_SUM(수, "방어력") - GETVAR_RAIDSTAT_SUM(공, "공격력")/2
+	; 방어력 - 공격력/4
+	iTmp = GETVAR_RAIDSTAT_SUM(수, "방어력") - GETVAR_RAIDSTAT_SUM(공, "공격력")/4
 	iTmp = MAX(iTmp, 0)
 	; 최소 대미지 1
 	[IF_DEBUG]
