@@ -145,6 +145,7 @@ NEXT
 총력전_공격잔여:0 = 0
 총력전_스킬_가변:0 = 0
 CALL 총력전_초기화_스탯_전
+CALL DEBUG_총력전_스탯(0)
 FOR LOCAL:2, 0, iRunNumber
 	총력전_전투단계 = 총력전_전투단계_기본공격
 	CALL 총력전_시퀀스_기본공격(0, 0)
@@ -227,14 +228,16 @@ FOR LOCAL:2, 0, iRunNumber
 			CALL 총력전_초기화_스탯_상효(LOCAL)
 		NEXT
 		; 대미지 기록
+		iDmgTurn += 총력전_최대체력:10 - 총력전_체력:10
+		IF iSkillStart == 0 || iSkillStart <= LOCAL:1
+			iDmgCast += 총력전_최대체력:10 - 총력전_체력:10
+		ENDIF
 		IF LOCAL:2 == 0
 			DEBUGPRINTFORML 공격 잔여:{총력전_공격잔여:0}
 			DEBUGPRINTFORML 턴 대미지:{총력전_최대체력:10 - 총력전_체력:10}
+			DEBUGPRINTFORML 총 대미지:{iDmgTurn}
+			DEBUGPRINTFORML 스킬 대미지:{iDmgCast}
 			DEBUGPRINTFORML ---
-		ENDIF
-		iDmgTurn += 총력전_최대체력:10 - 총력전_체력:10
-		IF iSkillStart >= 0 || iSkillStart >= LOCAL:1
-			iDmgCast += 총력전_최대체력:10 - 총력전_체력:10
 		ENDIF
 		총력전_체력:10 = 총력전_최대체력:10
 	NEXT
