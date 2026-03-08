@@ -173,8 +173,7 @@ ELSE
 	ENDIF	
 ENDIF
 CALL 총력전_UI_줄추가(sHtml_end)
-CALL 총력전_UI_출력
-
+CALL 총력전_UI_출력(1)
 ; #region == 상/하 바 ==
 ; ====================
 ; 바: 턴수, 코스트, 게임 종료
@@ -867,12 +866,16 @@ NEXT
 ; 모은후 한번에 출력
 ; ==================
 ; CLEAR -> HTML 전체 출력
-@총력전_UI_출력
+@총력전_UI_출력(delay = 0)
+#DIM DYNAMIC delay
 #DIM DYNAMIC iTmp
 CLEARLINE
 FOR iTmp, 0, 총력전_HTML_출력줄수
 	HTML_PRINT 총력전_HTML:iTmp
 NEXT
+IF delay > 0
+	AWAIT delay
+ENDIF
 총력전_HTML_출력줄수 = 0
 
 ; HTML 줄 추가
