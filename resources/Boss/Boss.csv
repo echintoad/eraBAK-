@@ -2,7 +2,7 @@
 ;선택용 화상
 
 Boss_0_F,Binah_F.webp,0,0,240,200
-;Boss_1_F,Boss_1_F.webp,0,0,240,200
+Boss_1_F,Boss_1_F.webp,0,0,240,200
 Boss_10_F,Boss_10_F.webp,0,0,200,240
 Boss_11_F,Boss_11_F.webp,0,0,200,240
 Boss_99_F,Boss_99.webp,0,0,240,200
@@ -11,6 +11,9 @@ Boss_99_F,Boss_99.webp,0,0,240,200
 ;전투용 화상
 
 비나,Binah.webp,0,0,600,200
+Boss_1_S_0,Boss_1_S_0.webp,0,0,240,240
+Boss_1_S_1,Boss_1_S_1.webp,0,0,240,240
+Boss_1_EFX,Boss_1_EFX.webp,0,0,300,162
 Boss_10_S,Boss_10_S.webp,0,0,240,200
 Boss_10_S_0,Boss_10_S_0.webp,0,0,227,226
 Boss_10_S_1,Boss_10_S_1.webp,0,0,227,226
