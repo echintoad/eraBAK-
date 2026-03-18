@@ -2,17 +2,6 @@
 ; 총력전용 디버그
 ; =================
 [IF_DEBUG]
-@DEBUG_총력전_RESULT
-VARSET RESULT, -1
-RESULT:0 = 2
-RESULT:1 = 4
-RESULT:2 = 6
-; DEBUGPRINTFORML test:{RESULT:0}:{RESULT:1}:{RESULT:2}:{RESULT:3}:{RESULT:4}
-; test:0:4:6:-1:-1
-; ???
-RETURN 3
-; test:3:4:6:-1:-1
-
 @DEBUG_총력전_전
 #DIM CONST wid = 40
 #DIM DYNAMIC iTmp
@@ -168,7 +157,7 @@ SELECTCASE 상태효과종류
 		RESULTS = 받는대미지
 		RETURN
 	CASE 상효_종류_받는대미지량백분율
-		RESULTS = 받는대미지백분율
+		RESULTS = 받는댐백분
 		RETURN
 	CASE 상효_종류_치유강화
 		RESULTS = 치유강화
@@ -205,9 +194,9 @@ SELECTCASE 상태효과종류
 	CASE 상효_종류_대미지
 		RESULTS = 대미지
 		RETURN
-	CASE 상효_종류_군중제어
-		RESULTS = 군중제어
-		RETURN
+	; CASE 상효_종류_군중제어
+	; 	RESULTS = 군중제어
+	; 	RETURN
 	; CASE 상효_종류_기절
 		; RESULTS = 기절
 		; RETURN
