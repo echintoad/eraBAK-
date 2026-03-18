@@ -15,6 +15,7 @@ VARSET 총력전_보스_활동_퇴장, -1
 
 
 ;-------------------------------------------------
+; #region 활동
 ; 총력전_보스_활동 에 추가
 ; 중복 확인
 ;-------------------------------------------------
@@ -47,10 +48,91 @@ FOR iTmp, 0, RESULT
 		CALL ARRAYREMOVE_VAL(총력전_보스_활동, iTmp, 1, -1)
 	ENDIF
 NEXT
+; #endregion
 
+;-------------------------------------------------
+; #region 보스 스킬
+;-------------------------------------------------
+; 보스 스킬 시전후 정리
+; 보스 스킬 쿨다운, 시전스킬, 시전중, 조준 처리
+@총력전_보스_스킬종료(최소쿨 = 2)
+#DIM DYNAMIC 최소쿨
+
+#DIM DYNAMIC iTmp
+; 쿨다운 처리
+VARSIZE 총력전_보스_쿨다운
+FOR iTmp, 0, RESULT
+	IF 총력전_보스_쿨다운:iTmp >= 0
+		총력전_보스_쿨다운:iTmp = MAX(총력전_보스_쿨다운:iTmp, 최소쿨)
+	ENDIF
+NEXT
+총력전_보스_시전스킬 = -1
+총력전_보스_시전중 = 0
+; 보스 찾기
+FOR iTmp, 0, 총력전_캐릭터수
+	SIF 총력전_상태:iTmp == 총력전_상태_보스 || 총력전_상태:iTmp == 총력전_상태_보스_비공격
+		CALL 총력전_목표_조준_취소(iTmp)
+	; 임시 보스 소환수 조준 취소
+	IF 총력전_상태:iTmp == 총력전_상태_소환 || 총력전_상태:iTmp == 총력전_상태_소한_비공격
+		SIF 총력전_팀 == 1
+			CALL 총력전_목표_조준_취소(iTmp)
+	ENDIF
+NEXT
+; #endregion
+
+;-------------------------------------------------
+; #region 보상
+;-------------------------------------------------
+@총력전_보상_코인(기본, 상급)
+#DIM 기본
+#DIM 상급
+
+#DIMS DYNAMIC sTmp
+
+IF 기본 > 0
+	; 155,총력전 코인,2000
+	ITEM:155 += 기본
+	sTmp = 총력전 코인 {기본}개 획득
+	CALL 총력전_UI_텍스트_추가(sTmp, 칼라_주석)
+	; UI 업데이트
+	CALL 총력전_UI_Main(0)
+	WAITANYKEY
+ENDIF
+IF 상급 > 0
+	; 156,상급 총력전 코인,8000
+	ITEM:156 += 상급
+	sTmp = 상급 총력전 코인 {상급}개 획득
+	CALL 총력전_UI_텍스트_추가(sTmp, 칼라_주석)
+	; UI 업데이트
+	CALL 총력전_UI_Main(0)
+	WAITANYKEY
+ENDIF
+
+; -1 이면 여기서 무작위로
+@총력전_보상_장비(티어, 타입 = -1)
+#DIM 티어
+#DIM 타입
+
+#DIM DYNAMIC 획득장비
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp
+
+SIF 타입 == -1
+	타입 = RAND:9
+
+획득장비 = 9 * (티어 - 1) + 타입
+장비:획득장비 ++
+sTmp = %장비티어(획득장비)% %장비타입(획득장비)%「%장비이름(획득장비)%」획득
+CALL 총력전_UI_텍스트_추가(sTmp, 칼라_주석)
+; UI 업데이트
+CALL 총력전_UI_Main(0)
+WAITANYKEY
+; #endregion
+
+;-------------------------------------------------
 ; #region 공통 보상
 ; 계산 필요
-
+;-------------------------------------------------
 ; 간단한 코인 보상
 @총력전_보스_보상_공통코인(lvl = 0)
 #DIM DYNAMIC lvl ; 0=적은 코인, 2=많은 코인 보상
@@ -58,84 +140,62 @@ NEXT
 ; clamp
 lvl = LIMIT(lvl, 0, 2)
 SELECTCASE 총력전_보스_난이도
-	CASE 0 ; HARD: 5~6
+	CASE 0 ; HARD
 		SELECTCASE lvl
 			CASE 0
-				보상코인:0 = RAND:4
+				보상코인:0 = 1 + RAND:3
 			CASE 1
-				보상코인:0 = 3
-				보상코인:0 += RAND:3
+				보상코인:0 = 4 + RAND:3
 			CASE 2
-				보상코인:0 = 5
-				보상코인:0 += RAND:4
-		ENDSELECT
-	CASE 1 ; HARDCORE: 7~8, 0~1
-		SELECTCASE lvl
-			CASE 0
-				보상코인:0 = 3
-				보상코인:0 += RAND:6
-			CASE 1
-				보상코인:0 = 6
-				보상코인:0 += RAND:4
+				보상코인:0 = 5 + RAND:4
 				보상코인:1 = RAND:2
-			CASE 1
-				보상코인:0 = 7
-				보상코인:0 += RAND:7
-				보상코인:1 = 1
-				보상코인:1 += RAND:3
 		ENDSELECT
-	CASE 2 ; EXTREME: 10~12, 1~5
+	CASE 1 ; HARDCORE
 		SELECTCASE lvl
 			CASE 0
-				보상코인:0 = 6
-				보상코인:0 += RAND:6
-				보상코인:1 = RAND:3
+				보상코인:0 = 4 + RAND:5
 			CASE 1
-				보상코인:0 = 9
-				보상코인:0 += RAND:5
-				보상코인:1 = 1
-				보상코인:1 += RAND:4
-			CASE 1
-				보상코인:0 = 11
-				보상코인:0 += RAND:9
-				보상코인:1 = 2
-				보상코인:1 += RAND:5
+				보상코인:0 = 6 + RAND:4
+				보상코인:1 = RAND:2
+			CASE 2
+				보상코인:0 = 8 + RAND:6
+				보상코인:1 = 1 + RAND:3
 		ENDSELECT
-	CASE 3 ; INSANE: 15~20, 4~9
+	CASE 2 ; EXTREME
 		SELECTCASE lvl
 			CASE 0
-				보상코인:0 = 9
-				보상코인:0 += RAND:11
-				보상코인:1 = 2
-				보상코인:1 += RAND:4
+				보상코인:0 = 7 + RAND:6
+				보상코인:1 = 1 + RAND:3
 			CASE 1
-				보상코인:0 = 13
-				보상코인:0 += RAND:10
-				보상코인:1 = 4
-				보상코인:1 += RAND:5
-			CASE 1
-				보상코인:0 = 16
-				보상코인:0 += RAND:15
-				보상코인:1 = 5
-				보상코인:1 += RAND:9
+				보상코인:0 = 8 + RAND:7
+				보상코인:1 = 1 + RAND:3
+			CASE 2
+				보상코인:0 = 11 + RAND:9
+				보상코인:1 = 2 + RAND:6
 		ENDSELECT
-	CASE 4 ; TORMENT: 21~33, 8~14
+	CASE 3 ; INSANE
 		SELECTCASE lvl
 			CASE 0
-				보상코인:0 = 12
-				보상코인:0 += RAND:14
-				보상코인:1 = 5
-				보상코인:1 += RAND:8
+				보상코인:0 = 11 + RAND:11
+				보상코인:1 = 4 + RAND:4
 			CASE 1
-				보상코인:0 = 18
-				보상코인:0 += RAND:13
-				보상코인:1 = 8
-				보상코인:1 += RAND:11
+				보상코인:0 = 13 + RAND:11
+				보상코인:1 = 4 + RAND:5
+			CASE 2
+				보상코인:0 = 16 + RAND:12
+				보상코인:1 = 5 + RAND:7
+		ENDSELECT
+	CASE 4 ; TORMENT
+		SELECTCASE lvl
+			CASE 0
+				보상코인:0 = 15 + RAND:15
+				보상코인:1 = 9 + RAND:8
 			CASE 1
-				보상코인:0 = 21
-				보상코인:0 += RAND:15
-				보상코인:1 = 10
-				보상코인:1 += RAND:16
+				보상코인:0 = 20 + RAND:14
+				보상코인:1 = 9 + RAND:8
+			CASE 2
+				보상코인:0 = 23 + RAND:16
+				보상코인:1 = 10 + RAND:9
 		ENDSELECT
 ENDSELECT
 ; 텍스트 추가
@@ -143,65 +203,135 @@ CALL 총력전_보상_코인(보상코인:0, 보상코인:1)
 
 ; 간단한 장비 보상
 @총력전_보스_보상_공통장비(lvl = 0)
-#DIM DYNAMIC lvl ; 0=적은 장비, 1=많은 장비 보상
-#DIM DYNAMIC 보상장비, 6 ; 0=T0, 1=T1 ... T6
+#DIM DYNAMIC lvl ; 0=적은 장비, 2=많은 장비 보상
+#DIM DYNAMIC 보상장비, 6 ; 0=T1, 1=T2 ... T6
 #DIM DYNAMIC iTmp, 2
 
-lvl = LIMIT(lvl, 0, 1)
+lvl = LIMIT(lvl, 0, 2)
 SELECTCASE 총력전_보스_난이도
-	CASE 0 ; HARD
-		SELECTCASE lvl
-			; CASE 0
-			CASE 1
-				SIF RAND:100 < 25
-					보상장비:0 = 1
-				SIF RAND:100 < 25
-					보상장비:0 = 1
-			CASE 2
-				보상장비:0 = 1 + RAND:2
-				SIF RAND:100 < 25
-					보상장비:0 += 1
-		ENDSELECT
-	CASE 1 ; HARDCORE
+	CASE 0 ; HARD T1, T2
 		SELECTCASE lvl
 			CASE 0
-				보상장비:0 = RAND:3
-				SIF RAND:100 < 20
-					보상장비:1 = 1
+				SIF RAND:100 < 50
+					보상장비:0 ++
 			CASE 1
-				보상장비:0 = RAND:2
-				SIF RAND:100 < 25
-					보상장비:1 = 1
-				SIF RAND:100 < 15
-					보상장비:2 = 1
+				SIF RAND:100 < 70
+					보상장비:0 ++
+				SIF RAND:100 < 20
+					보상장비:0 ++
+				SIF RAND:100 < 12
+					보상장비:1 ++
 			CASE 2
-				보상장비:0 = 1 + RAND:2
-				보상장비:1 = RAND:2
+				보상장비:0 ++
+				SIF RAND:100 < 30
+					보상장비:0 ++
 				SIF RAND:100 < 15
-					보상장비:2 = 1
+					보상장비:1 ++
 		ENDSELECT
-	CASE 2 ; EXTREME
-		보상장비:1 = RAND:2
-		SIF RAND:100 < 25
-			보상장비:2 = 1
-		SIF RAND:100 < 20
-			보상장비:3 = 1
-	CASE 3 ; INSANE
-		보상장비:2 = RAND:2
-		FOR iTmp, 0, 2
-			SIF RAND:100 < 32
-				보상장비:3 += 1
-		NEXT
-		SIF RAND:100 < 12
-			보상장비:4 = 1
-	CASE 4 ; TORMENT
-		보상장비:3 = RAND:2
-		FOR iTmp, 0, 2
-			SIF RAND:100 < 32
-				보상장비:4 += 1
-		NEXT
-		SIF RAND:100 < 12
-			보상장비:5 = 1
+	CASE 1 ; HARDCORE T1, T2, T3
+		SELECTCASE lvl
+			CASE 0
+				SIF RAND:100 < 70
+					보상장비:0 ++
+				SIF RAND:100 < 20
+					보상장비:1 ++
+			CASE 1
+				보상장비:0 ++
+				SIF RAND:100 < 30
+					보상장비:0 ++
+				SIF RAND:100 < 25
+					보상장비:1 ++
+				SIF RAND:100 < 10
+					보상장비:2 ++
+			CASE 2
+				보상장비:0 ++
+				SIF RAND:100 < 60
+					보상장비:0 ++
+				SIF RAND:100 < 50
+					보상장비:1 ++
+				SIF RAND:100 < 10
+					보상장비:1 ++
+				SIF RAND:100 < 15
+					보상장비:2 ++
+		ENDSELECT
+	CASE 2 ; EXTREME T2, T3, T4
+		SELECTCASE lvl
+			CASE 0
+				SIF RAND:100 < 70
+					보상장비:1 ++
+				SIF RAND:100 < 30
+					보상장비:2 ++
+			CASE 1
+				보상장비:1 ++
+				SIF RAND:100 < 30
+					보상장비:1 ++
+				SIF RAND:100 < 25
+					보상장비:2 ++
+				SIF RAND:100 < 10
+					보상장비:3 ++
+			CASE 2
+				보상장비:1 ++
+				SIF RAND:100 < 60
+					보상장비:1 ++
+				SIF RAND:100 < 50
+					보상장비:2 ++
+				SIF RAND:100 < 10
+					보상장비:2 ++
+				SIF RAND:100 < 15
+					보상장비:3 ++
+		ENDSELECT
+	CASE 3 ; INSANE T3, T4, T5
+		SELECTCASE lvl
+			CASE 0
+				SIF RAND:100 < 70
+					보상장비:2 ++
+				SIF RAND:100 < 30
+					보상장비:3 ++
+			CASE 1
+				보상장비:2 ++
+				SIF RAND:100 < 30
+					보상장비:2 ++
+				SIF RAND:100 < 25
+					보상장비:3 ++
+				SIF RAND:100 < 10
+					보상장비:4 ++
+			CASE 2
+				보상장비:2 ++
+				SIF RAND:100 < 60
+					보상장비:2 ++
+				SIF RAND:100 < 50
+					보상장비:3 ++
+				SIF RAND:100 < 10
+					보상장비:3 ++
+				SIF RAND:100 < 15
+					보상장비:4 ++
+		ENDSELECT
+	CASE 4 ; TORMENT T4, T5, T6
+		SELECTCASE lvl
+			CASE 0
+				SIF RAND:100 < 70
+					보상장비:3 ++
+				SIF RAND:100 < 30
+					보상장비:4 ++
+			CASE 1
+				보상장비:3 ++
+				SIF RAND:100 < 30
+					보상장비:3 ++
+				SIF RAND:100 < 25
+					보상장비:4 ++
+				SIF RAND:100 < 10
+					보상장비:5 ++
+			CASE 2
+				보상장비:3 ++
+				SIF RAND:100 < 60
+					보상장비:3 ++
+				SIF RAND:100 < 50
+					보상장비:4 ++
+				SIF RAND:100 < 10
+					보상장비:4 ++
+				SIF RAND:100 < 15
+					보상장비:5 ++
+		ENDSELECT
 ENDSELECT
 
 FOR iTmp, 0, 6
