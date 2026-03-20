@@ -43,15 +43,13 @@
 ; #DIMS DYNAMIC sTmp, 2
 #DIM DYNAMIC iBlank
 
-CLEARLINE LINECOUNT
-
 ; 조준 칼라 계산
 CALL 총력전_UI_칼라계산
 
 ; 보스.ERB 에 특수 UI 있는지 확인
 ; RETURN 1 이면 보스 UI 에 자체 UI가 있다 가정
 RESULT = 0
-TRYCALLFORM 총력전_보스_UI_{총력전_보스}
+TRYCALLFORM 총력전_보스_UI_{총력전_보스}(선택종류_아군, 선택종류_적군, 선택모드)
 IF RESULT == 1
 	; 총려전_HTML 생기면 보스 UI 에서 설정, 여기서 HTML_PRINT 처리?
 	RETURN
@@ -173,7 +171,7 @@ ELSE
 	ENDIF	
 ENDIF
 CALL 총력전_UI_줄추가(sHtml_end)
-CALL 총력전_UI_출력(1)
+CALL 총력전_UI_출력(3, 1)
 ; #region == 상/하 바 ==
 ; ====================
 ; 바: 턴수, 코스트, 게임 종료
@@ -866,10 +864,13 @@ NEXT
 ; 모은후 한번에 출력
 ; ==================
 ; CLEAR -> HTML 전체 출력
-@총력전_UI_출력(delay = 0)
+@총력전_UI_출력(delay = 0, clearAll = 0)
 #DIM DYNAMIC delay
+#DIM DYNAMIC clearAll
 #DIM DYNAMIC iTmp
-CLEARLINE
+IF clearAll
+	CLEARLINE LINECOUNT
+ENDIF
 FOR iTmp, 0, 총력전_HTML_출력줄수
 	HTML_PRINT 총력전_HTML:iTmp
 NEXT
