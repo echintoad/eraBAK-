@@ -10,6 +10,9 @@
 ; 14 Daleth
 ; 17 Zayin
 ; 18 Cheth
+; 블아 누워있는 세피로트 나무 참조
+; 12 14 17
+;         18
 ; ====================
 ; 보스 팀 이름, 예 시로 앤 쿠로
 @총력전_보스_이름_0
@@ -121,11 +124,234 @@ ENDIF
 ; #region 보스 GUI
 ; 전체적으로 바꾸고 싶으면
 ; RETURN 1 = 기본 프레임 렌더 하지 않음
-; @총력전_보스_UI_0(선택종류_아군, 선택종류_적군, 선택모드)
-; #DIM 선택종류_아군
-; #DIM DYNAMIC 선택종류_적군
-; #DIM DYNAMIC 선택모드 ; (스킬)선택용 버튼으로 변경
-; RETURN 1
+@총력전_보스_UI_0(선택종류_아군, 선택종류_적군, 선택모드)
+#DIM 선택종류_아군
+#DIM DYNAMIC 선택종류_적군
+#DIM DYNAMIC 선택모드 ; (스킬)선택용 버튼으로 변경
+
+#DIM DYNAMIC 시작위치_0 = -1 ; 한줄
+#DIM DYNAMIC 시작위치_1, 2 ; 두줄
+#DIM DYNAMIC 보스줄수 ; 보스쪽 HTML 줄수, 기록용
+#DIM DYNAMIC 캐릭터줄수 ; 캐릭터쪽 HTML 줄수, 계산용
+#DIM DYNAMIC 텍트스줄수 ; 텍스트 HTML 줄수, 계산용
+#DIM DYNAMIC 줄수 ; 캐릭터 몇줄이 필요한지
+#DIMS DYNAMIC sHtml_end, 3 ; 시작과 끝 부분
+#DIMS DYNAMIC sHtml_col
+#DIM DYNAMIC iTmp, 3
+#DIMS DYNAMIC sTmp, 2
+#DIM DYNAMIC iBlank
+
+sHtml_col = %INT_TO_HEXSTR(0xFFD700)%
+; sHtml_col = #FFD700
+
+; 페이즈 1 또는 화상없으면 스킵
+SIF 총력전_보스_페이즈 == 1 || !FLAG:화상설정
+	RETURN 0
+; 페이즈 2
+IF 총력전_보스_페이즈 == 0
+	; 한번만 해도돼는 셋업
+	시작위치_1:0 = 0
+	시작위치_1:1 = 5
+	시작위치_0 = -1
+	줄수 = 0
+	IF 선택종류_아군 == 총력전_선택_엄폐물 || 선택종류_아군 == 총력전_선택_빈공간 || 선택종류_아군 == 총력전_선택_전체
+		줄수 = 2
+	ELSE
+		; 팀 0 위치 확인
+		FOR iTmp, 0, 5
+			; 위치에 있는 총력전 ID
+			iTmp:1 = FINDELEMENT(총력전_위치, iTmp)
+			; 못찾으면 -1?
+			IF iTmp:1 >= 0 && 총력전_상태:(iTmp:1)
+				시작위치_0 = 0
+				줄수 ++
+				BREAK
+			ENDIF
+			; 엄폐물
+			iTmp:2 = FINDELEMENT(총력전_엄폐물_위치, iTmp)
+			IF iTmp:2 >= 0 && 총력전_엄폐물_소비방식:(iTmp:2):0 > 0
+				시작위치_0 = 0
+				줄수 ++
+				BREAK
+			ENDIF
+		NEXT
+		; 못 찾았으면 앞줄에 있다 가정
+		SIF 시작위치_0 == -1
+			시작위치_0 = 5
+		FOR iTmp, 5, 10
+			iTmp:1 = FINDELEMENT(총력전_위치, iTmp)
+			IF iTmp:1 >= 0 && 총력전_상태:(iTmp:1)
+				줄수 ++
+				BREAK
+			ENDIF
+			; 엄폐물
+			iTmp:2 = FINDELEMENT(총력전_엄폐물_위치, iTmp)
+			IF iTmp:2 >= 0 && 총력전_엄폐물_소비방식:(iTmp:2):0 > 0
+				줄수 ++
+				BREAK
+			ENDIF
+		NEXT
+	ENDIF
+	; 줄수 계산
+	IF FLAG:화상설정
+		보스줄수 = 15
+	ELSE
+		보스줄수 = 5
+	ENDIF
+	IF FLAG:화상설정
+		캐릭터줄수 = 21
+	ELSE
+		캐릭터줄수 = 17 ; 15
+	ENDIF
+	텍트스줄수 = 48 - 캐릭터줄수 - 보스줄수
+	; sHtml
+	sHtml_end:0 = |%TOSTR_REPEAT("=",121)%|
+	sHtml_end:1 = <font color='%sHtml_col%'>|%TOSTR_REPEAT("=",121)%|</font>
+	sHtml_end:2 = <font color='%sHtml_col%'>|%TOSTR_REPEAT("=",25)%| 12 |%TOSTR_REPEAT("=",26)%| 14 |%TOSTR_REPEAT("=",26)%| 17 |%TOSTR_REPEAT("=",26)%|</font>
+	; 처음이면 연출추가 (forloop?)
+	; 마지막
+	; 해더
+	CALL 총력전_UI_줄추가(sHtml_end:2)
+
+	; 적 파티 프레임
+	; 커스텀 필요
+	CALL _총력전_보스_UI_0_이미지(sHtml_col, 선택종류_적군)
+	; 바: 턴수, 코스트, 게임 종료
+	sTmp:0 = <font color='%sHtml_col%'>| | </font>
+	sTmp:1 = <font color='%sHtml_col%'> | |</font>
+	CALL 총력전_UI_줄추가(sHtml_end:1)
+	CALL 총력전_UI_바_상(115, sTmp:0, sTmp:1)
+	CALL 총력전_UI_줄추가(RESULTS)
+	CALL 총력전_UI_줄추가(sHtml_end:1)
+	; 전투로그
+	CALL 총력전_UI_텍스트(3, 115, 텍트스줄수 - 3, sTmp:0, sTmp:1)
+	sTmp:0 = <font color='%sHtml_col%'>|</font> | 
+	sTmp:1 =
+	sTmp:1 += @"  | <font color='%sHtml_col%'>|</font>"
+	CALL 총력전_UI_텍스트(3, 115, 텍트스줄수 - 6, sTmp:0, sTmp:1)
+	CALL 총력전_UI_텍스트(텍트스줄수 - 6, 115)
+
+	; 바: 다음턴, 텍스트 컨트롤러
+	CALL 총력전_UI_줄추가(sHtml_end)
+	CALL 총력전_UI_바_하(선택모드)
+	CALL 총력전_UI_줄추가(RESULTS)
+	CALL 총력전_UI_줄추가(sHtml_end)
+	; 아군 파티 프레임
+	IF 줄수 == 2
+		IF 총력전_캐릭터정보 == -1
+			CALL 총력전_UI_프레임_2(5, 시작위치_1, 캐릭터줄수, 선택종류_아군)
+		ELSE
+			CALL 총력전_UI_프레임_2(5, 시작위치_1, 캐릭터줄수 - 8, 선택종류_아군)
+			CALL 총력전_UI_줄추가(sHtml_end)
+			CALL 총력전_UI_부품_캐릭터정보_0(총력전_캐릭터정보)
+		ENDIF
+	ELSE
+		IF 총력전_캐릭터정보 == -1
+			CALL 총력전_UI_프레임_2(5, 시작위치_0, 캐릭터줄수, 선택종류_아군)
+		ELSE
+			CALL 총력전_UI_프레임_2(5, 시작위치_0, 캐릭터줄수 - 8, 선택종류_아군)
+			CALL 총력전_UI_줄추가(sHtml_end)
+			CALL 총력전_UI_부품_캐릭터정보_0(총력전_캐릭터정보)
+		ENDIF	
+	ENDIF
+	CALL 총력전_UI_줄추가(sHtml_end)
+	; 출력
+	CALL 총력전_UI_출력(3, 1)
+	RETURN 1
+ENDIF
+
+; 보스 GUI 전용 프레임
+; 보스 GUI 는 FLAG:화상설정 일때만 작동
+@_총력전_보스_UI_0_이미지(sHtml_col, bBtn = 총력전_선택_캐릭터)
+#DIMS sHtml_col
+#DIM DYNAMIC bBtn ; 버튼 작동 여부, 총력전_선택_ 참조
+
+#DIM CONST iSpace = 120
+#DIM DYNAMIC 셀높이 = 15 ; 셀 높이 6 ~ 21?
+#DIM DYNAMIC 너비
+#DIMS DYNAMIC sHtml_blank ; 캐릭터 사이 선 있는 부분
+#DIMS DYNAMIC sHtml_break ; 이미지 줄 전후용
+#DIMS DYNAMIC sPad, 2 ; 줄 좌/우 끝
+#DIM DYNAMIC iSizeIsOdd
+#DIM DYNAMIC iImgSize ; pixel
+#DIM DYNAMIC iImgYPos ; pixel
+; #DIM DYNAMIC 이미지높이
+#DIM DYNAMIC 캐릭번호 ; 임시 캐릭터 번호
+#DIM DYNAMIC 위치번호 ; 임시 위치 번호
+#DIM DYNAMIC 엄폐물있음 ; 엄폐물 있는지
+#DIM DYNAMIC 보호막있음 ; 보호막 있는지
+#DIM DYNAMIC iTmp, 2
+#DIMS DYNAMIC sTmp, 2
+
+너비 = iSpace - 3 - 2
+셀높이 = 15
+
+sPad:0 += @"<font color='%sHtml_col%'>|  |</font>"
+sPad:1 += @"<font color='%sHtml_col%'>|==|</font>"
+; 라인 세팅
+CALL 총력전_UI_줄(1, 너비, 1, 0, "__", iTmp, sTmp, 0, sPad:0, sPad:0)
+sHtml_blank = %RESULTS%
+CALL 총력전_UI_줄(1, 너비, 1, 0, "__", iTmp, sTmp, 0, sPad:1, sPad:1)
+sHtml_break = %RESULTS%
+; 위치, 캐릭터 번호 설정
+캐릭번호 = 10
+위치번호 = 총력전_위치:10
+; 엄폐물 있는지 확인
+iTmp = FINDELEMENT(총력전_엄폐물_위치, 위치번호)
+SIF iTmp >= 0 && 총력전_엄폐물_소비방식:iTmp:0 > 0
+	엄폐물있음 = 1
+; 보호막 있는지 확인
+iTmp = 총력전_상태효과_합계(캐릭번호, 상효_종류_보호막, 총력전_방식_지속)
+SIF 총력전_상태:캐릭번호 != 0 && iTmp > 0
+	보호막있음 = 1
+$출력
+; 이름 버튼
+CALL 총력전_UI_줄(1, 너비, 1, 위치번호, "이름_1", iTmp, sTmp, bBtn, sPad:0, sPad:0)
+CALL 총력전_UI_줄추가(RESULTS)
+셀높이 -= 2 ; -이름 -체력
+SIF 엄폐물있음
+	셀높이 --
+SIF 보호막있음
+	셀높이 --
+; 이미지 줄 출력 커스텀
+iSizeIsOdd = 셀높이 % 2
+iImgSize = 셀높이 * 100 - 50
+IF iSizeIsOdd
+	iImgYPos = (셀높이 * 100 - 500) / -2 + 30
+ELSE
+	iImgYPos = (셀높이 * 100 - 600) / -2 + 30
+ENDIF
+sTmp =
+sTmp += @"<shape type='space' param='10'>%TOSTR_SPACE(2)%"
+sTmp:1 = %총력전_이미지:10%
+CALL 총력전_UI_이미지(sTmp:1, 너비 * 50, iImgSize, iImgYPos)
+sTmp += @"%RESULTS%"
+iTmp = (셀높이 - 7) / 2
+FOR iTmp:1, 0, iTmp
+	CALL 총력전_UI_줄추가(sHtml_blank)
+NEXT
+CALL 총력전_UI_줄추가(sHtml_break)
+CALL 총력전_UI_줄추가(sTmp)
+CALL 총력전_UI_줄추가(sHtml_break)
+CALL 총력전_UI_줄추가(@"<font color='%sHtml_col%'>|  |%TOSTR_SPACE(너비)%|18|</font>")
+CALL 총력전_UI_줄추가(sHtml_break)
+CALL 총력전_UI_줄추가("  ")
+CALL 총력전_UI_줄추가(sHtml_break)
+SIF !iSizeIsOdd
+	iTmp ++
+FOR iTmp:1, 0, iTmp
+	CALL 총력전_UI_줄추가(sHtml_blank)
+NEXT
+IF 엄폐물있음
+	CALL 총력전_UI_줄(1, 너비, 1, 위치번호, "엄폐물_0", iTmp, sTmp, 0, sPad:0, sPad:0)
+	CALL 총력전_UI_줄추가(RESULTS)
+ENDIF
+IF 보호막있음
+	CALL 총력전_UI_줄(1, 너비, 1, 위치번호, "보호막_0", iTmp, sTmp, 0, sPad:0, sPad:0)
+	CALL 총력전_UI_줄추가(RESULTS)
+ENDIF
+CALL 총력전_UI_줄(1, 너비, 1, 위치번호, "체력_0", iTmp, sTmp, 0, sPad:0, sPad:0)
+CALL 총력전_UI_줄추가(RESULTS)
 
 ; 보스 프레임
 ; 사용한 총력전_UI_줄추가 만큼 RESULT
@@ -270,13 +496,27 @@ ENDSELECT
 IF 총력전_보스_난이도 >= 3
 	CALL 총력전_보스_0_스킬_3
 ENDIF
-; CALL 총력전_보스_보상_0
 
 @총력전_보스_시퀀스_스킬_0
 #DIM DYNAMIC 스킬수
 #DIM DYNAMIC 시전가능스킬, 3
 #DIM DYNAMIC 보스번호
 #DIM DYNAMIC iTmp, 2
+
+; #DIM DYNAMIC 소비방식, 2
+; #DIM DYNAMIC 소비양, 2
+
+; IF 총력전_턴수 == 1
+; 	CALL 총력전_상태효과_추가_텍스트(10, 10, 상효_종류_보호막, 2000, 1, 총력전_방식_지속, 총력전_방식_턴, 5, 0, 99)
+; ENDIF
+; IF 총력전_턴수 == 2
+; 	소비방식:0 = 총력전_방식_피격양
+; 	소비양:0 = 총력전_최대체력_최초:10 * 60
+; 	소비양:0 = DIVIDE_ROUND(소비양:0, 100)
+; 	소비방식:1 = 총력전_방식_턴
+; 	소비양:1 = 3
+; 	CALL 총력전_엄폐물_추가(총력전_위치:10, 10, 소비방식, 소비양, 10)
+; ENDIF
 
 ; 시전중인 스킬 있으면 마저 시전
 IF 총력전_보스_시전스킬 >= 0
