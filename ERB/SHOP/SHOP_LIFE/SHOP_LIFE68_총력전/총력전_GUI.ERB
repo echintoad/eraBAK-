@@ -103,8 +103,12 @@ ELSE
 	NEXT
 ENDIF
 
-; 해더
-CALL 총력전_UI_줄추가(sHtml_end)
+; 헤더
+RESULT = 0
+TRYCALLFORM 총력전_보스_UI_헤더_{총력전_보스}
+IF RESULT == 0
+	CALL 총력전_UI_줄추가(sHtml_end)
+ENDIF
 
 ; 적 파티 프레임
 RESULT = 0
@@ -141,11 +145,6 @@ ENDIF
 
 ; 전투 로그
 CALL 총력전_UI_텍스트(텍트스줄수, 115)
-; CALL 총력전_UI_텍스트(12, 115, 2)
-; CALL 총력전_UI_텍스트_단선(1, 115, "| ) ", " ( |")
-; HTML_PRINT RESULTS
-; CALL 총력전_UI_텍스트_단선(0, 115, "|) )", "( (|")
-; HTML_PRINT RESULTS
 
 ; 바: 다음턴, 텍스트 컨트롤러
 CALL 총력전_UI_줄추가(sHtml_end)

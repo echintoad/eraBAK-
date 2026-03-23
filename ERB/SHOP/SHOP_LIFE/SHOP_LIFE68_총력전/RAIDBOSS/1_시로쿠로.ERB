@@ -53,11 +53,14 @@ WAIT
 ; #region 보스 GUI
 ; 전체적으로 바꾸고 싶으면
 ; RETURN 1 = 기본 프레임 렌더 하지 않음
-@총력전_보스_UI_1(선택종류_아군, 선택종류_적군, 선택모드)
-#DIM 선택종류_아군
-#DIM DYNAMIC 선택종류_적군
-#DIM DYNAMIC 선택모드 ; (스킬)선택용 버튼으로 변경
+; @총력전_보스_UI_1(선택종류_아군, 선택종류_적군, 선택모드)
+; #DIM 선택종류_아군
+; #DIM DYNAMIC 선택종류_적군
+; #DIM DYNAMIC 선택모드 ; (스킬)선택용 버튼으로 변경
+; RETURN 0
 
+; 보스 헤더, RETURN 1 이면 기본 헤더 렌더 하지 않음
+@총력전_보스_UI_헤더_1
 ; shape, space = 왜인진 모르겠지만 살짝 왼쪽으로 틀어져서
 #DIMS CONST 이펙트 = @"<shape type='space' param='25'><img src='Boss_1_EFX' height='1200' ypos='2000'>"
 #DIM DYNAMIC iTmp
@@ -97,7 +100,8 @@ IF FLAG:화상설정
 	ENDIF
 	CALL 총력전_UI_줄추가(sTmp)
 ENDIF
-RETURN 0
+CALL 총력전_UI_줄추가(@"|%TOSTR_REPEAT("=",50)%|%TOSTR_SPACE(6)%SLUMPIA%TOSTR_SPACE(6)%|%TOSTR_REPEAT("=",50)%|")
+RETURN 1
 
 ; 보스 프레임
 ; 사용한 총력전_UI_줄추가 만큼 RESULT
