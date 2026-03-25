@@ -352,6 +352,7 @@ SELECTCASE 방식
 	[ENDIF]
 ENDSELECT
 
+; #region conversion
 
 ; html font color 가 문자열만 받아서
 @INT_TO_HEXSTR(num)
@@ -403,6 +404,28 @@ REND
 sHex = #%sHex:0%%sHex:1%%sHex:2%%sHex:3%%sHex:4%%sHex:5%
 RETURNF sHex:0
 
+; 정수 -> 2진수 문자열 (binary string)
+; 선택부분
+@INT_TO_BINSTR_SECT(num, start = 0, cnt = 1)
+#FUNCTIONS
+#DIM num
+#DIM DYNAMIC start
+#DIM DYNAMIC cnt
+#DIM iTmp
+#DIMS DYNAMIC sVal
+
+start = MAX(start, 0)
+IF cnt <= 0
+	sVal = {GETBIT(num, start)}
+	RETURNF sVal
+ENDIF
+FOR iTmp, start, start + cnt
+	sVal = %sVal%{GETBIT(num, iTmp)}
+NEXT
+RETURNF sVal
+
+; #region Array 수정
+
 ; ARRAYREMOVE 하고 0 으로 변할 갑을 replaceVal로
 ; 나중에 clearCount -1 추가
 @ARRAYREMOVE_VAL(ary, startIndex, clearCount, replaceVal)
@@ -436,6 +459,8 @@ iTmp:1 = RESULT - clearCount
 FOR iTmp, iTmp:1, RESULT
 	ary:iTmp = replaceVal
 NEXT
+
+; #region 텍스트 수정
 
 ; 왼쪽 공백 제거
 ; 이 버전엔 REGEXMATCH 가 없어서
@@ -476,6 +501,9 @@ FOR iTmp, RESULT, 0, -1
 	ENDIF
 NEXT
 RETURNF -1
+
+; #region 텍스트 연출
+; 탱크 게임 함수랑 변경
 
 ; 실험용, 텍스트 애니매이션, 한줄
 @PRINTL_TEXTANIM(sPrefix, sText, iDelay)
