@@ -939,9 +939,9 @@ RESULTS = %sPadStart%<font color='%총력전_텍스트_색상:iTmp%'>%sTmp%</fon
 #DIMS DYNAMIC col
 
 IF 칼라 < 0
-	col = %INT_TO_HEXSTR(칼라_흰색)%
+	col = %TOSTR_INT_TO_HEX_COL(칼라_흰색)%
 ELSE
-	col = %INT_TO_HEXSTR(칼라)%
+	col = %TOSTR_INT_TO_HEX_COL(칼라)%
 ENDIF
 ARRAYSHIFT 총력전_텍스트, 1, 텍스트
 ARRAYSHIFT 총력전_텍스트_색상, 1, col
@@ -1482,7 +1482,7 @@ FOR iTmp, 1, 7
 	IF STRLENS(sTmp) > 0
 		sTmp:1 = %SUBSTRING(sTmp, 0, 너비스킬)%
 		; 마지막 공백 찾기
-		iTmp:1 = STR_FINDBLANK_REVERSE(sTmp:1)
+		iTmp:1 = STRFIND_REVERSE_BLANK(sTmp:1)
 		sTmp:1 = %STR_CLEAR_LEFT(SUBSTRING(sTmp, 0, iTmp:1))%
 		sTmp = %SUBSTRING(sTmp, iTmp:1, -1)%%TOSTR_SPACE(1)%
 		sHtml:iTmp += @"%ALIGN_TEXT(sTmp:1, 너비스킬, "LEFT")%"
@@ -1610,7 +1610,7 @@ CALL 총력전_UI_캐릭터이름_0(캐릭터, 너비, bBtn)
 RESULTS = %TOSTR_SPACE(iTmp)%%총력전_접두사_이름:캐릭터%%RESULTS%
 ; 색 추가
 IF 총력전_UI_칼라:캐릭터 >= 0
-	RESULTS = <font color='%INT_TO_HEXSTR(총력전_UI_칼라:캐릭터)%'>%RESULTS%</font>
+	RESULTS = <font color='%TOSTR_INT_TO_HEX_COL(총력전_UI_칼라:캐릭터)%'>%RESULTS%</font>
 ENDIF
 RETURN
 
@@ -1705,7 +1705,7 @@ IF 캐릭터 < 0 || 총력전_상태:캐릭터 == 0 || iTmp <= 0
 ELSE
 	; 임시
 	sTmp = 방:{iTmp}
-	RESULTS = <font color='%INT_TO_HEXSTR(칼라_파파랑)%'>%ALIGN_TEXT(sTmp, 너비, "CENTER")%</font>
+	RESULTS = <font color='%TOSTR_INT_TO_HEX_COL(칼라_파파랑)%'>%ALIGN_TEXT(sTmp, 너비, "CENTER")%</font>
 ENDIF
 
 @총력전_UI_줄_엄폐물_0(캐릭터, 너비, iExtra, sExtra, bBtn)
@@ -1785,12 +1785,12 @@ ELSEIF iTmp == 0
 	RESULTS = %RESULTS%
 ELSE
 	CALL 총력전_UI_캐릭터보호체력(캐릭터, 너비)
-	RESULTS = %RESULTS:0%<font color='%INT_TO_HEXSTR(칼라_파파랑)%'>%RESULTS:1%</font>
+	RESULTS = %RESULTS:0%<font color='%TOSTR_INT_TO_HEX_COL(칼라_파파랑)%'>%RESULTS:1%</font>
 ENDIF
 
 ; 임시
 ; sTmp = 방:{iTmp}
-; RESULTS = <font color='%INT_TO_HEXSTR(칼라_파파랑)%'>%ALIGN_TEXT(sTmp, 너비, "CENTER")%</font>
+; RESULTS = <font color='%TOSTR_INT_TO_HEX_COL(칼라_파파랑)%'>%ALIGN_TEXT(sTmp, 너비, "CENTER")%</font>
 
 ; 캐릭터 최대체력
 ; 예. 캐릭터 선택시 사용
@@ -1836,9 +1836,9 @@ ELSE
 		sTmp:2 = %sExtra:iTmp%:
 		sTmp += @"%sExtra:iTmp%:"
 		IF iTmp:2 > iTmp:3
-			sTmp += @"<font color='%INT_TO_HEXSTR(칼라_파파랑)%'>%ALIGN_TEXT(sTmp:1, iTmp:1 - STRLENS(sTmp:2), "LEFT")%</font>"
+			sTmp += @"<font color='%TOSTR_INT_TO_HEX_COL(칼라_파파랑)%'>%ALIGN_TEXT(sTmp:1, iTmp:1 - STRLENS(sTmp:2), "LEFT")%</font>"
 		ELSEIF iTmp:2 < iTmp:3
-			sTmp += @"<font color='%INT_TO_HEXSTR(칼라_빨강)%'>%ALIGN_TEXT(sTmp:1, iTmp:1 - STRLENS(sTmp:2), "LEFT")%</font>"
+			sTmp += @"<font color='%TOSTR_INT_TO_HEX_COL(칼라_빨강)%'>%ALIGN_TEXT(sTmp:1, iTmp:1 - STRLENS(sTmp:2), "LEFT")%</font>"
 		ELSE
 			sTmp += @"%ALIGN_TEXT(sTmp:1, iTmp:1 - STRLENS(sTmp:2), "LEFT")%"
 		ENDIF
@@ -1984,7 +1984,7 @@ minWidth -= 2
 IF bBtn > 0
 	텍스트 = <button value='{btnVal}'>%텍스트%</button>
 ELSEIF bBtn == 0
-	텍스트 = <font color='%INT_TO_HEXSTR(칼라_선택불가)%'>%텍스트%</font>
+	텍스트 = <font color='%TOSTR_INT_TO_HEX_COL(칼라_선택불가)%'>%텍스트%</font>
 ENDIF
 
 SELECTCASE align
@@ -2233,10 +2233,10 @@ RESULTS = %sTmp%
 iDif = 스탯값 - 초기스탯값
 IF iDif > 0
 	sDif = +{iDif}
-	스탯문자열 = <font color='%INT_TO_HEXSTR(칼라_파파랑)%'>{스탯값}</font>
+	스탯문자열 = <font color='%TOSTR_INT_TO_HEX_COL(칼라_파파랑)%'>{스탯값}</font>
 ELSEIF iDif < 0
 	sDif = {iDif}
-	스탯문자열 = <font color='%INT_TO_HEXSTR(칼라_빨강)%'>{스탯값}</font>
+	스탯문자열 = <font color='%TOSTR_INT_TO_HEX_COL(칼라_빨강)%'>{스탯값}</font>
 ELSE
 	sDif = 
 	스탯문자열 = {스탯값}

@@ -144,7 +144,7 @@ SIF 총력전_보스_페이즈 == 0 || !FLAG:화상설정
 보스위치 = 총력전_위치:10
 ; 한번만 해도돼는 셋업
 ; #FFCC00
-sHtml_col = %INT_TO_HEXSTR(0xFFCC00)%
+sHtml_col = #FFCC00
 시작위치_1:0 = 0
 시작위치_1:1 = 5
 시작위치_0 = -1
@@ -803,7 +803,7 @@ IF start + cnt > 63
 ENDIF
 iTmp = start
 start = start + cnt
-RETURNF INT_TO_BINSTR_SECT(num, iTmp, cnt)
+RETURNF TOSTR_INT_TO_BINARY_SECT(num, iTmp, cnt)
 
 ; 보스 헤더, RETURN 1 이면 기존 헤더 없음
 @총력전_보스_UI_헤더_0

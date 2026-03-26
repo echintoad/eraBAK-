@@ -546,15 +546,15 @@ RETURN -1
 #DIM 캐릭터
 #DIM 카운터번호
 
-CALL 총력전_ARRAYREMOVE_VAL(총력전_카운터_증가방식, 캐릭터, 카운터번호)
-CALL 총력전_ARRAYREMOVE_VAL(총력전_카운터_증가양, 캐릭터, 카운터번호)
-; CALL 총력전_ARRAYREMOVE_VAL(총력전_카운터_증가양_최대, 캐릭터, 카운터번호)
-CALL 총력전_ARRAYREMOVE_VAL(총력전_카운터_소비방식, 캐릭터, 카운터번호)
-CALL 총력전_ARRAYREMOVE_VAL(총력전_카운터_소비양, 캐릭터, 카운터번호)
+CALL ARRAYREMOVE_2D_VAL(총력전_카운터_증가방식, 캐릭터, 카운터번호)
+CALL ARRAYREMOVE_2D_VAL(총력전_카운터_증가양, 캐릭터, 카운터번호)
+; CALL ARRAYREMOVE_2D_VAL(총력전_카운터_증가양_최대, 캐릭터, 카운터번호)
+CALL ARRAYREMOVE_2D_VAL(총력전_카운터_소비방식, 캐릭터, 카운터번호)
+CALL ARRAYREMOVE_2D_VAL(총력전_카운터_소비양, 캐릭터, 카운터번호)
 
-CALL 총력전_ARRAYREMOVE_VAL(총력전_카운터_시전자, 캐릭터, 카운터번호)
-CALL 총력전_ARRAYREMOVE_VAL(총력전_카운터_스킬번호, 캐릭터, 카운터번호)
-CALL 총력전_ARRAYREMOVE_VAL(총력전_카운터_추가번호, 캐릭터, 카운터번호)
+CALL ARRAYREMOVE_2D_VAL(총력전_카운터_시전자, 캐릭터, 카운터번호)
+CALL ARRAYREMOVE_2D_VAL(총력전_카운터_스킬번호, 캐릭터, 카운터번호)
+CALL ARRAYREMOVE_2D_VAL(총력전_카운터_추가번호, 캐릭터, 카운터번호)
 
 @총력전_해제_카운터
 VARSET 총력전_카운터_증가방식, 0

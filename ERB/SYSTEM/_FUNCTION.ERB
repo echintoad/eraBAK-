@@ -889,6 +889,81 @@ NEXT
 RETURNF @"{LOCAL:1}%LOCALS:0%"
 
 ;-----------------------------------------------
+; 정수 -> 2진수 문자열 (binary string)
+; start -> start+cnt 까지만 (section)
+;-----------------------------------------------
+@TOSTR_INT_TO_BINARY_SECT(num, start = 0, cnt = 1)
+#FUNCTIONS
+#DIM num
+#DIM DYNAMIC start
+#DIM DYNAMIC cnt
+#DIM iTmp
+#DIMS DYNAMIC sVal
+
+start = MAX(start, 0)
+IF cnt <= 0
+	sVal = {GETBIT(num, start)}
+	RETURNF sVal
+ENDIF
+FOR iTmp, start, start + cnt
+	sVal = %sVal%{GETBIT(num, iTmp)}
+NEXT
+RETURNF sVal
+
+;-----------------------------------------------
+; 정수/COLOR.ERH 칼라 -> HTML 용 HEX #000000
+;-----------------------------------------------
+@TOSTR_INT_TO_HEX_COL(num)
+#FUNCTIONS
+#DIM num
+#DIMS sHex, 6
+#DIM iTmp, 2
+
+iTmp = VARSIZE("sHex", 0)
+
+REPEAT 6
+	iTmp = POWER(16, 5 - COUNT)
+	iTmp:1 = num / iTmp
+	num = num - iTmp:1 * iTmp
+	SELECTCASE iTmp:1
+		CASE 0
+			sHex:COUNT = 0
+		CASE 1
+			sHex:COUNT = 1
+		CASE 2
+			sHex:COUNT = 2
+		CASE 3
+			sHex:COUNT = 3
+		CASE 4
+			sHex:COUNT = 4
+		CASE 5
+			sHex:COUNT = 5
+		CASE 6
+			sHex:COUNT = 6
+		CASE 7
+			sHex:COUNT = 7
+		CASE 8
+			sHex:COUNT = 8
+		CASE 9
+			sHex:COUNT = 9
+		CASE 10
+			sHex:COUNT = A
+		CASE 11
+			sHex:COUNT = B
+		CASE 12
+			sHex:COUNT = C
+		CASE 13
+			sHex:COUNT = D
+		CASE 14
+			sHex:COUNT = E
+		CASE 15
+			sHex:COUNT = F
+	ENDSELECT
+REND
+sHex = #%sHex:0%%sHex:1%%sHex:2%%sHex:3%%sHex:4%%sHex:5%
+RETURNF sHex:0
+
+;-----------------------------------------------
 ;체력 기력을 0～최대치의 범위에 거두는 함수
 ;-----------------------------------------------
 @LIFE_LIMIT
@@ -3882,7 +3957,7 @@ SIF COLOR != -1
 #DIM iSpace
 #DIMS direction
 
-#DIM DYNAMIC iTmp
+#DIM iTmp
 
 ; iTmp = STRLENS(sText)
 ; iSpace 에 맞춰서 길이 제한
@@ -3906,6 +3981,27 @@ SELECTCASE direction
 		sText = %sText, iSpace, LEFT%
 ENDSELECT
 RETURNF sText
+
+;-------------------------------------------------
+; STRFIND_REVERSE 같은게 없는듯해서 추가
+; _BLANK = 마지막 공백(space) 번호 찾기
+; 예. STRFIND_REVERSE_BLANK("ㄱㄴㄷ ㄹㅁ") == 3
+;-------------------------------------------------
+@STRFIND_REVERSE_BLANK(sVal)
+#FUNCTION
+#DIMS sVal
+#DIM iTmp
+#DIMS sTmp
+
+STRLENS sVal
+FOR iTmp, RESULT, 0, -1
+	sTmp = %SUBSTRING(sVal, iTmp, 1)%
+	; DEBUGPRINTFORML checking iTmp:{iTmp} [%sTmp%]
+	IF sTmp == " "
+		RETURNF iTmp
+	ENDIF
+NEXT
+RETURNF -1
 
 ;-------------------------------------------------
 ;간단하고 쉬운 능력표시를 실시한다
@@ -4291,3 +4387,10 @@ CATCH
 	SIF ITEM:ARGS > 99
 		ITEM:ARGS = 99
 ENDCATCH
+
+;======================================================
+; ARRAY 관련
+;======================================================
+;-------------------------------------------------
+
+;-------------------------------------------------

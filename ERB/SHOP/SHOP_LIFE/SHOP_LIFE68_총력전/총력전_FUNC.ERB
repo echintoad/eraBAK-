@@ -1,48 +1,6 @@
 ﻿; ===== 임시 추가 함수 =====
 ; _FUNCTION 에 더하기 애매한 총력전 함수 넣는곳 
 ; ==========================
-; 다차원 ARRAYREMOVE 할 방법을 몰라서
-; 상태효과, 카운터, 엄폐물 용 ARRRAYREMOVE
-; DIMS 는 따로 만들어야됨
-@총력전_ARRAYREMOVE(ary, iFirstDim, iStart = 0, iClearCnt = 1)
-#DIM REF ary, 0, 0
-#DIM iFirstDim ; 첫번쩨 차원(총력전번호)
-#DIM iStart
-#DIM iClearCnt
-
-#DIM DYNAMIC iSize
-#DIM DYNAMIC iTmp
-
-iSize = VARSIZE("ary", 1)
-; DEBUGPRINTFORML ary size: {iSize}
-FOR iTmp, iStart, iSize
-	IF iTmp + iClearCnt < iSize
-		ary:iFirstDim:iTmp = ary:iFirstDim:(iTmp + iClearCnt)
-	ELSE
-		ary:iFirstDim:iTmp = 0
-	ENDIF
-NEXT
-
-; 나중에 총력전_ARRAYREMOVE 제거
-; iClearCnt -1 이면 iStart 부터 전체 변경
-@총력전_ARRAYREMOVE_VAL(ary, iFirstDim, iStart = 0, iClearCnt = 1, replaceVal = 0)
-#DIM REF ary, 0, 0
-#DIM iFirstDim ; 첫번쩨 차원(총력전번호)
-#DIM DYNAMIC iStart
-#DIM DYNAMIC iClearCnt
-#DIM DYNAMIC replaceVal
-
-#DIM DYNAMIC iSize
-#DIM DYNAMIC iTmp
-
-iSize = VARSIZE("ary", 1)
-FOR iTmp, iStart, iSize
-	IF iTmp + iClearCnt < iSize && iClearCnt != -1
-		ary:iFirstDim:iTmp = ary:iFirstDim:(iTmp + iClearCnt)
-	ELSE
-		ary:iFirstDim:iTmp = replaceVal
-	ENDIF
-NEXT
 
 ; GETVAR 가 안 먹히는거 같아서?
 @GETVAR_RAIDSTAT(캐릭터, 스탯이름)
@@ -354,116 +312,11 @@ ENDSELECT
 
 ; #region conversion
 
-; html font color 가 문자열만 받아서
-@INT_TO_HEXSTR(num)
-#FUNCTIONS
-#DIM num
-#DIMS sHex, 6
-#DIM iTmp, 2
-
-REPEAT 6
-	iTmp = POWER(16, 5 - COUNT)
-	iTmp:1 = num / iTmp
-	num = num - iTmp:1 * iTmp
-	SELECTCASE iTmp:1
-		CASE 0
-			sHex:COUNT = 0
-		CASE 1
-			sHex:COUNT = 1
-		CASE 2
-			sHex:COUNT = 2
-		CASE 3
-			sHex:COUNT = 3
-		CASE 4
-			sHex:COUNT = 4
-		CASE 5
-			sHex:COUNT = 5
-		CASE 6
-			sHex:COUNT = 6
-		CASE 7
-			sHex:COUNT = 7
-		CASE 8
-			sHex:COUNT = 8
-		CASE 9
-			sHex:COUNT = 9
-		CASE 10
-			sHex:COUNT = A
-		CASE 11
-			sHex:COUNT = B
-		CASE 12
-			sHex:COUNT = C
-		CASE 13
-			sHex:COUNT = D
-		CASE 14
-			sHex:COUNT = E
-		CASE 15
-			sHex:COUNT = F
-	ENDSELECT
-REND
-
-sHex = #%sHex:0%%sHex:1%%sHex:2%%sHex:3%%sHex:4%%sHex:5%
-RETURNF sHex:0
-
-; 정수 -> 2진수 문자열 (binary string)
-; 선택부분
-@INT_TO_BINSTR_SECT(num, start = 0, cnt = 1)
-#FUNCTIONS
-#DIM num
-#DIM DYNAMIC start
-#DIM DYNAMIC cnt
-#DIM iTmp
-#DIMS DYNAMIC sVal
-
-start = MAX(start, 0)
-IF cnt <= 0
-	sVal = {GETBIT(num, start)}
-	RETURNF sVal
-ENDIF
-FOR iTmp, start, start + cnt
-	sVal = %sVal%{GETBIT(num, iTmp)}
-NEXT
-RETURNF sVal
-
-; #region Array 수정
-
-; ARRAYREMOVE 하고 0 으로 변할 갑을 replaceVal로
-; 나중에 clearCount -1 추가
-@ARRAYREMOVE_VAL(ary, startIndex, clearCount, replaceVal)
-#DIM REF ary
-#DIM startIndex
-#DIM clearCount
-#DIM replaceVal
-#DIM DYNAMIC iTmp, 2
-
-ARRAYREMOVE ary, startIndex, clearCount
-
-VARSIZE ary
-iTmp:1 = RESULT - clearCount
-; DEBUGPRINTFORML clearing from {iTmp:1} to {RESULT}
-FOR iTmp, iTmp:1, RESULT
-	ary:iTmp = replaceVal
-NEXT
-
-; STRING 버전
-@ARRAYREMOVE_SVAL(ary, startIndex, clearCount, replaceVal)
-#DIMS REF ary
-#DIM startIndex
-#DIM clearCount
-#DIMS replaceVal
-#DIM DYNAMIC iTmp, 2
-
-ARRAYREMOVE ary, startIndex, clearCount
-
-VARSIZE ary
-iTmp:1 = RESULT - clearCount
-FOR iTmp, iTmp:1, RESULT
-	ary:iTmp = replaceVal
-NEXT
-
 ; #region 텍스트 수정
 
 ; 왼쪽 공백 제거
 ; 이 버전엔 REGEXMATCH 가 없어서
+; 나중엔 필요 없을거라 _FUNCTION 이동 안함
 @STR_CLEAR_LEFT(sVal)
 #FUNCTIONS
 #DIMS sVal
@@ -481,26 +334,6 @@ iTmp = MAX(iTmp - 1, 0)
 sVal = %SUBSTRING(sVal, iTmp, -1)%
 ; DEBUGPRINTFORML end string:"%sVal%"
 RETURNF sVal
-
-; STR_FIND_REVERSE 같은게 없는듯?
-; 마지막 공백(space) 번호 찾기
-@STR_FINDBLANK_REVERSE(sVal)
-#FUNCTION
-#DIMS sVal
-#DIM DYNAMIC iTmp, 2
-#DIMS DYNAMIC sTmp
-
-STRLENS sVal
-FOR iTmp, RESULT, 0, -1
-	sTmp = %SUBSTRING(sVal, iTmp, -1)%
-	; DEBUGPRINTFORML checking iTmp:{iTmp} [%sTmp%]
-	iTmp:1 = STRFIND(sTmp, " ")
-	; DEBUGPRINTFORML blank at {iTmp:1}
-	IF iTmp:1 >= 0
-		RETURNF iTmp
-	ENDIF
-NEXT
-RETURNF -1
 
 ; #region 텍스트 연출
 ; 탱크 게임 함수랑 변경
