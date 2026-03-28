@@ -52,9 +52,7 @@ IF !isFirstRun
 	; CLEARLINE 2
 	IF RESULT != -1
 		LOCAL = RESULT
-		TRYCALLFORM 무기_착용_{TALENT:iChara:웨폰}(iChara,-1)
-		TRYCALLFORM 무기_착용_{LOCAL}(iChara,1)
-		TALENT:iChara:웨폰 = LOCAL
+		CALL WEAPON_EQUIP(iChara, LOCAL)
 	ENDIF
 ENDIF
 

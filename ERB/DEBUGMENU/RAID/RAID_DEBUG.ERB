@@ -284,9 +284,7 @@ SELECTCASE RESULT
 			NAME:iChara = %RESULTS%
 		ENDIF
 	CASE 3
-		TRYCALLFORM 무기_착용_{TALENT:iChara:웨폰}(iChara,-1)
-		; TRYCALLFORM 무기_착용_{LOCAL}(iChara,1)
-		TALENT:iChara:웨폰 = 0
+		CALL WEAPON_EQUIP(iChara, 0)
 		GOTO RESETCALC
 	CASE 5
 		PRINTL 무투, 방위, 지략, 정치 수정
@@ -375,11 +373,7 @@ PRINTBUTTON "[ 변경 취소 ] ", -1
 PRINTFORM 지금 무기번호:{TALENT:iChara:웨폰}(-1 이면 기존 무기 유지)
 INPUT
 ; CLEARLINE 2
-IF RESULT != -1
-	LOCAL = RESULT
-	TRYCALLFORM 무기_착용_{TALENT:iChara:웨폰}(iChara,-1)
-	TRYCALLFORM 무기_착용_{LOCAL}(iChara,1)
-	TALENT:iChara:웨폰 = LOCAL
-ENDIF
+SIF RESULT != -1
+	CALL WEAPON_EQUIP(iChara, RESULT)
 
 [ENDIF]
