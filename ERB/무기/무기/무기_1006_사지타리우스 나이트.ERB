@@ -29,11 +29,9 @@ ABL:대상:지략 += 스탯증가:2 * 탈착
 IF 탈착 == 1
 	TALENT:대상:웨폰 = 1006
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 2006, 0)
-	; 무기사용가능:1006 = 0
 ELSEIF 탈착 == -1
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "관측 지원")
-	; 무기사용가능:1006 = 1
 ENDIF
 
 RETURN 탈착

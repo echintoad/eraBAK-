@@ -18,23 +18,18 @@ IF 대상 >= 0 && NO:대상 == 55
 ELSE
 	스탯증가:0 = 12 ; 무투
 ENDIF
-; 공통 지략
+; 공통 정치
 스탯증가:1 = -5
-
 ; 스탯
 ABL:대상:무투 += 스탯증가:0 * 탈착
 ABL:대상:정치 += 스탯증가:1 * 탈착
 
 IF 탈착 == 1
-	; ABL:대상:방위 += LOCAL:2
 	TALENT:대상:웨폰 = 101
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 1101, 0)
-	; 무기사용가능:101 = 0
 ELSEIF 탈착 == -1
-	; ABL:대상:방위 -= LOCAL:2
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "intulit mortem")
-	; 무기사용가능:101 = 1
 ENDIF
 
 RETURN 탈착

@@ -22,21 +22,20 @@ IF 대상 >= 0 && NO:대상 == 142
 	스탯증가:3 = 10 ; 신비
 ELSE
 	스탯증가:0 = 15 ; 무투
-	스탯증가:2 = 7 ; 지략
+	스탯증가:2 = 5 ; 지략
 ENDIF
 스탯증가:1 = -5 ; 방위
 ; 스탯
 ABL:대상:무투 += 스탯증가:0 * 탈착
 ABL:대상:방위 += 스탯증가:1 * 탈착
 ABL:대상:지략 += 스탯증가:2 * 탈착
-ABL:대상:신비 += 스탯증가:2 * 탈착
+ABL:대상:신비 += 스탯증가:3 * 탈착
 
 IF 탈착 == 1
 	TALENT:대상:웨폰 = 130
-	; 스킬은 시로코 드론 소환 사용
 	CALL SKILL_LEARN(대상, 스킬_장르_BASE, 1130, 0)
 ELSEIF 탈착 == -1
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "화력 강화")
 ENDIF
 
@@ -51,12 +50,12 @@ RETURN 탈착
 VARSET RESULT, 0 ; WEAPON.ERH 참조
 IF 대상 >= 0 && NO:대상 == 142
 	RESULT:총력전_무기_공격력 = 20
-	RESULT:총력전_무기_명중률 = 10
 	RESULT:총력전_무기_회피율 = 10
+	RESULT:총력전_무기_치명대미지 = 10
 ELSE
 	RESULT:총력전_무기_공격력 = 10
-	RESULT:총력전_무기_명중률 = 5
 	RESULT:총력전_무기_회피율 = 5
+	RESULT:총력전_무기_치명대미지 = 5
 ENDIF
 
 ;------------------------------------------
@@ -68,8 +67,8 @@ IF isRaid
 	CALL ICPRINT(@"쿠로코: 공격력: <20> 회피율: <10> 치명대미지: <10>", "L", 칼라_주의)
 	CALL ICPRINT(@"나머지: 공격력: <10> 회피율: <5> 치명대미지: <5>", "L", 칼라_주의)
 ELSE
-	CALL ICPRINT(@"쿠로코: 지략: <5> 정치: <10> 가창: <5>", "L", 칼라_주의)
-	CALL ICPRINT(@"나머지: 지략: <2> 정치: <5> 가창: <2>", "L", 칼라_주의)
+	CALL ICPRINT(@"쿠로코: 무투: <25> 방위: <-5> 지략: <10> 신비: <10>", "L", 칼라_주의)
+	CALL ICPRINT(@"나머지: 무투: <15> 방위: <-5> 지략: <5>", "L", 칼라_주의)
 ENDIF
 
 @무기_설명_130
@@ -77,7 +76,7 @@ CALL SINGLE_DRAWLINE
 PRINTL 전용스킬
 PRINTL 
 ; 스킬은 시로코 드론 소환 사용
-CALL SKILL_1103_BASE_0_NAME
+CALL SKILL_1130_BASE_0_NAME
 SETCOLOR 칼라_선택불가
 PRINT   · 
 RESETCOLOR
@@ -86,7 +85,7 @@ CALL COLOR_LINE
 SETCOLOR 칼라_선택불가
 PRINT   · 
 RESETCOLOR
-CALL SKILL_1103_BASE_0_EXPLANATION
+CALL SKILL_1130_BASE_0_EXPLANATION
 PRINTFORML %RESULTS% 
 PRINTL
 SETCOLOR 칼라_선택불가

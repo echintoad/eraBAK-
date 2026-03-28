@@ -27,12 +27,10 @@ ABL:대상:요리 += 스탯증가:1 * 탈착
 IF 탈착 == 1
 	TALENT:대상:웨폰 = 305
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 1305, 0)
-	; 무기사용가능:305 = 0
 ELSEIF 탈착 == -1
 	;이부분은 없어도 됨 혹시몰라 넣어놓음
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "시구레 특제 보틀 그레네이드")
-	; 무기사용가능:305 = 1
 ENDIF
 
 RETURN 탈착

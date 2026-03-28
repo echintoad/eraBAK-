@@ -26,12 +26,10 @@ ABL:대상:방위 += 스탯증가:1 * 탈착
 IF 탈착 == 1
 	TALENT:대상:웨폰 = 113
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 1113, 0)
-	; 무기사용가능:113 = 0
 ELSEIF 탈착 == -1
 	;이부분은 없어도 됨 혹시몰라 넣어놓음
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "공복의 분노")
-	; 무기사용가능:113 = 1
 ENDIF
 
 RETURN 탈착
@@ -59,7 +57,6 @@ ENDIF
 @무기_설명_스탯_113(isRaid = 0)
 #DIM DYNAMIC isRaid
 IF isRaid
-	; CALL ICPRINT(@"공격력: <25> 명중률: <10>", "L", 칼라_주의)
 	CALL ICPRINT(@"준코: 최대체력: <200> 공격력: <20> 회피율: <20>", "L", 칼라_주의)
 	CALL ICPRINT(@"나머지: 최대체력: <100> 공격력: <10> 회피율: <10>", "L", 칼라_주의)
 ELSE

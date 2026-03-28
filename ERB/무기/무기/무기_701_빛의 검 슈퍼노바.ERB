@@ -25,12 +25,10 @@ ABL:대상:방위 += 스탯증가:1 * 탈착
 IF 탈착 == 1
 	TALENT:대상:웨폰 = 701
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 1701, 0)
-	; 무기사용가능:701 = 0
 ELSEIF 탈착 == -1
 	;이부분은 없어도 됨 혹시몰라 넣어놓음
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "밸런스 붕괴")
-	; 무기사용가능:701 = 1
 ENDIF
 
 RETURN 탈착

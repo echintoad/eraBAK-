@@ -32,11 +32,9 @@ ABL:대상:야심 += 스탯증가:2 * 탈착
 IF 탈착 == 1
 	TALENT:대상:웨폰 = 1102
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 2102, 0)
-	; 무기사용가능:1102 = 0
 ELSEIF 탈착 == -1
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "소심한 관측")
-	; 무기사용가능:1102 = 1
 ENDIF
 
 RETURN 탈착

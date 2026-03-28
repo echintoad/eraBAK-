@@ -27,11 +27,9 @@ ABL:대상:지략 += 스탯증가:1 * 탈착
 IF 탈착 == 1
 	TALENT:대상:웨폰 = 1111
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 2111, 0)
-	; 무기사용가능:1111 = 0
 ELSEIF 탈착 == -1
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "정의의 일격")
-	; 무기사용가능:1111 = 1
 ENDIF
 
 RETURN 탈착

@@ -26,11 +26,9 @@ ABL:대상:정치 += 스탯증가:1 * 탈착
 IF 탈착 == 1
 	TALENT:대상:웨폰 = 1117
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 2117, 0)
-	; 무기사용가능:1117 = 0
 ELSEIF 탈착 == -1
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "시, 실수했다!")
-	; 무기사용가능:1117 = 1
 ENDIF
 
 RETURN 탈착

@@ -84,17 +84,6 @@ RETURNF LOCALS
 #DIM FIRST_LINE
 #DIM CONST 양산무기 = 100,200,300,400,500,600,700,800,900,1000,1100
 
-; TESTCODE
-; IF NO:대상 == 5
-; 	CALL WEAPON_REMOVE(대상, 103)
-; 	CALL WEAPON_REMOVE(대상, 104)
-; 	CALL WEAPON_ADD(대상, 101)
-; 	CALL WEAPON_ADD(대상, 105)
-; 	CALL WEAPON_REMOVE(대상, 101)
-; 	CALL WEAPON_REMOVE(대상, 111)
-; 	CALL WEAPON_ADD(대상, 120)
-; ENDIF
-
 FIRST_LINE = LINECOUNT
 ;무기 종류 출력과 버튼화
 $INPUT_LOOP1
@@ -223,38 +212,11 @@ SELECTCASE RESULT
 		IF RESULT == 1
 			GOTO INPUT_LOOP1
 		ELSE
-			TRYCALLFORM 무기_착용_{TALENT:대상:웨폰}(대상,-1)
-			TRYCALLFORM 무기_착용_{WEAPON_SELECT}(대상,1)
-			TALENT:대상:웨폰 = WEAPON_SELECT
+			CALL WEAPON_EQUIP(대상, WEAPON_SELECT)
 			GOTO INPUT_LOOP1
 			; RETURN
 		ENDIF
 ENDSELECT
-;-------------------------------------------------
-;사용가능한무기
-;사용 가능하면 1을 반환
-;-------------------------------------------------
-; @사용가능한무기(ID)
-; #FUNCTION
-; #DIM ID
-
-; ; 이미 장착 하고 있는지 확인
-; SELECTCASE ID
-; ;양산형은 항상 가능
-; CASE 100,200,300,400,500,600,700,800,900,1000,1100
-; 	RETURNF 1
-; ;사용중인 캐릭터가 있을 시 사용 불가능하게
-; CASE 100 TO 1200
-; 	SIF 무기사용가능:ID == 1
-; 	RETURNF 1
-; 	RETURNF 0
-; ;추가된 총기는 항상 가능
-; ; CASE 3100 TO 4100
-; ; 	RETURNF 1
-; ; CASEELSE
-; ; 	RETURNF 0
-; ENDSELECT
-; ; 허가 무기 확인
 
 ;-------------------------------------------------
 ;캐릭터 무기 장착
@@ -262,6 +224,7 @@ ENDSELECT
 @WEAPON_EQUIP(대상, 무기)
 #DIM 대상
 #DIM 무기
+TRYCALLFORM 무기_착용_{TALENT:대상:웨폰}(대상,-1)
 TRYCCALLFORM 무기_착용_{무기}(대상,1)
 CATCH
 	TALENT:대상:웨폰 = 무기

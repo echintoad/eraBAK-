@@ -29,11 +29,9 @@ ABL:대상:요리 += 스탯증가:2 * 탈착
 IF 탈착 == 1
 	TALENT:대상:웨폰 = 1005
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 2005, 0)
-	; 무기사용가능:1005 = 0
 ELSEIF 탈착 == -1
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "비장의 수단")
-	; 무기사용가능:1005 = 1
 ENDIF
 
 RETURN 탈착

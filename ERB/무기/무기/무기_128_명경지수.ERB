@@ -27,11 +27,9 @@ ABL:대상:방위 += 스탯증가:1 * 탈착
 IF 탈착 == 1
 	TALENT:대상:웨폰 = 128
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 1128, 0)
-	; 무기사용가능:128 = 0
 ELSEIF 탈착 == -1
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "파퇴: 세열수류탄")
-	; 무기사용가능:128 = 1
 ENDIF
 
 RETURN 탈착

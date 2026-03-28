@@ -31,7 +31,7 @@ IF 탈착 == 1
 	TALENT:대상:웨폰 = 129
 	CALL SKILL_LEARN(대상, 스킬_장르_BASE, 1129, 0)
 ELSEIF 탈착 == -1
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "그게 정말 사실인가요?")
 ENDIF
 

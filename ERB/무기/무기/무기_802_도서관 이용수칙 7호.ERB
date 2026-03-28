@@ -23,12 +23,10 @@ ABL:대상:무투 += 스탯증가:0 * 탈착
 IF 탈착 == 1
 	TALENT:대상:웨폰 = 802
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 1802, 0)
-	; 무기사용가능:802 = 0
 ELSEIF 탈착 == -1
 	;이부분은 없어도 됨 혹시몰라 넣어놓음
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "위대한 소통법")
-	; 무기사용가능:802 = 1
 ENDIF
 
 RETURN 탈착

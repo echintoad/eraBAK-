@@ -35,14 +35,9 @@ ABL:대상:정치 += 스탯증가:2 * 탈착
 IF 탈착 == 1
 	TALENT:대상:웨폰 = 1003
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 2003, 0)
-	; 무기사용가능:1003 = 0
 ELSEIF 탈착 == -1
-	ABL:대상:방위 -= LOCAL:1
-	ABL:대상:지략 -= LOCAL:2
-	ABL:대상:정치 -= LOCAL:3
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "Q.E.D")
-	; 무기사용가능:1003 = 1
 ENDIF
 
 RETURN 탈착

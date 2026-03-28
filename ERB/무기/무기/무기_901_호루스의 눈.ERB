@@ -29,10 +29,9 @@ ABL:대상:방위 += 스탯증가:1 * 탈착
 IF 탈착 == 1
 	TALENT:대상:웨폰 = 901
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 1901, 0)
-	; 무기사용가능:901 = 0
 ELSEIF 탈착 == -1
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "전술 진압")
-	; 무기사용가능:901 = 1
 ENDIF
 
 RETURN 탈착

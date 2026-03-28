@@ -27,12 +27,10 @@ ABL:대상:가창 += 스탯증가:1 * 탈착
 IF 탈착 == 1
 	TALENT:대상:웨폰 = 119
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 1119, 0)
-	; 무기사용가능:119 = 0
 ELSEIF 탈착 == -1
 	;이부분은 없어도 됨 혹시몰라 넣어놓음
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "치료시간이에요~")
-	; 무기사용가능:119 = 1
 ENDIF
 
 RETURN 탈착

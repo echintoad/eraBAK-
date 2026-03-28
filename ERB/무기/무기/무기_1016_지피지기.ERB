@@ -27,7 +27,7 @@ IF 탈착 == 1
 	TALENT:대상:웨폰 = 1016
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 2016, 0)
 ELSEIF 탈착 == -1
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "조령: 격물치지")
 ENDIF
 

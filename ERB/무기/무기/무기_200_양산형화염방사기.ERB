@@ -16,17 +16,14 @@ ENDIF
 @무기_착용_200(대상, 탈착)
 #DIM 대상
 #DIM 탈착
-LOCAL:1	= 10
-LOCAL:2 = 10
+; 스탯
+ABL:대상:방위 += 10 * 탈착
+ABL:대상:지략 += 10 * 탈착
 
 IF 탈착 == 1
-	ABL:대상:방위 += LOCAL:1
-	ABL:대상:지략 += LOCAL:2
 	TALENT:대상:웨폰 = 200
 ELSEIF 탈착 == -1
-	ABL:대상:방위 -= LOCAL:1
-	ABL:대상:지략 -= LOCAL:2
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 ENDIF
 
 RETURN 탈착

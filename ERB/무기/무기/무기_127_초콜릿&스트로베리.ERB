@@ -33,11 +33,9 @@ ABL:대상:가창 += 스탯증가:1 * 탈착
 IF 탈착 == 1
 	TALENT:대상:웨폰 = 127
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 1127, 0)
-	; 무기사용가능:127 = 0
 ELSEIF 탈착 == -1
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "게헨나의 셀러브리티!")
-	; 무기사용가능:127 = 1
 ENDIF
 
 RETURN 탈착

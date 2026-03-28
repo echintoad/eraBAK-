@@ -23,11 +23,9 @@ ABL:대상:무투 += 스탯증가:0 * 탈착
 IF 탈착 == 1
 	TALENT:대상:웨폰 = 1107
 	CALL SKILL_LEARN(대상, 스킬_장르_SP, 2107, 0)
-	; 무기사용가능:1107 = 0
 ELSEIF 탈착 == -1
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "지, 지금 지원할게요!")
-	; 무기사용가능:1107 = 1
 ENDIF
 
 RETURN 탈착

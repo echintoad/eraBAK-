@@ -33,7 +33,7 @@ IF 탈착 == 1
 	CALL SKILL_LEARN(대상, 스킬_장르_BASE, 1424, 0)
 ELSEIF 탈착 == -1
 	;이부분은 없어도 됨 혹시몰라 넣어놓음
-	TALENT:대상:웨폰 = 100
+	TALENT:대상:웨폰 = 0
 	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "강해진 기분이 든다~")
 ENDIF
 
