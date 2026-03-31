@@ -23,7 +23,6 @@ FOR iTmp, 0, 총력전_캐릭터수
 		CALL 총력전_초기화_캐릭터정보(iTmp)
 	ENDIF
 NEXT
-; CALL 총력전_초기화_캐릭터정보_전
 
 ; 보스 정보 + 초기 스탯
 CALLFORM 총력전_보스_설정_{총력전_보스}
@@ -65,11 +64,7 @@ CALL 총력전_시퀀스
 ; 총력전_턴수 사용
 ; ====================
 @총력전_시퀀스
-
-; #DIM DYNAMIC uiLoop, 3 ; UI AWAIT 타임머?
-; #DIM DYNAMIC uiAnim ; UI 프레임(?) 수
 #DIM DYNAMIC 스킬시전, 5
-; #DIM DYNAMIC 게임오버
 #DIM DYNAMIC iTmp
 #DIMS DYNAMIC sTmp, 2
 
@@ -113,7 +108,6 @@ CALL 총력전_시퀀스_플레이어
 IF 총력전_전투단계 == 총력전_전투단계_종료
 	GOTO END_RAID
 ENDIF
-; CALL 총력전_시퀀스_종료확인
 
 ; 스킬 쿨다운
 FOR iTmp, 0, 총력전_캐릭터수
@@ -256,10 +250,6 @@ ENDIF
 ; 총력전_캐릭터수 ~ (총력전_캐릭터수*2) 스킬 버튼
 SELECTCASE RESULT
 	CASE -1 ; 턴 실행
-		; 총력전_캐릭터정보 = -1
-		; 총력전_텍스트_표시행 = 0
-		; CALL 총력전_UI_Main(0)
-		; RETURN
 	CASE -5 ; 텍스트 UP
 		; 텍스트 표시 쪽 에서 MAX 한번더 계산 필요함, 출력 줄 수에 따라
 		총력전_텍스트_표시행 = LIMIT(총력전_텍스트_표시행 + 1, 0, 총력전_텍스트_최대행수 - 1)
@@ -479,7 +469,6 @@ sTmp = dummyLine
 CALL 총력전_UI_텍스트_추가(sTmp, 칼라_회색)
 
 $INPUT_LOOP
-; WHILE 선택끝수 < 대상수 ; GOTO 로 변경?
 CALL 총력전_UI_텍스트_제거(1)
 sTmp = 선택 ({선택끝수}/{대상수})
 CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
