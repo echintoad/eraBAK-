@@ -67,9 +67,9 @@ RETURN 1
 ; PRINTFORML "슬픔도 분노도, 전부 인수분해해주지!"
 TIMES BATTLE_방위파워:발동측:발동번호, RAND(100 , 200)/100
 PRINTL 자신 부대의 방위가 증가했다!
+
 @SKILL_2003_SP_0_EXPLANATION
 RESULTS = 자신 부대의 방위를 증가시킨다.
-
 
 @SKILL_2003_SP_0_CANT_TELL
 
@@ -88,7 +88,8 @@ RESULTS = 자신 부대의 방위를 증가시킨다.
 #DIM 대상측
 #DIM 대상세력
 #DIM 대상부대
-RETURN 1000
+RETURN 800
+; RETURN 1000 ; 의도한 100%?
  
 ; #region == 총력전 ==
 @총력전_스킬_2003_코스트(시전자)
