@@ -59,24 +59,40 @@ ENDIF
 ; #region == 텍스트 ==
 ; 보스 소환시 나오는 이벤트 텍스트
 @총력전_보스_소환_텍스트_0
+#DIMS CONST sDECAGRAMMATON, 13 = "01000100", "01000101", "01000011", "01000001", "01000111", "01010010", "01000001", "01001101", "01001101", "01000001", "01010100", "01001111", "01001110", 
+#DIM DYNAMIC iTmp
 IF 총력전_보스_활동_쿨다운:0 == -2
 	; 통신 수신중...
 	; 그의 길path은 <이해를 통한 합일>.
 	; 그의 이명은 <다름을 통감하는 숙고의 이해자>라.
 	; 나의 이름은 비나BINAH.
 	; 신성한 열글자의 신을 증명하고 기적을 예언하는 3번째 예언자로다.
-	CALL PRINTL_TEXTANIM("", "통신 수신중", 100)
+	CALL TYPING_ANIME_KR("통신 수신중", 50)
 	CLEARLINE 1
-	CALL PRINTL_TEXTANIM("통신 수신중", "...", 600)
-	CALL AWAIT_FIX(580)
-	CALL PRINTL_TEXTANIM("", "그의 길은", 100)
-	CALL AWAIT_FIX(150)
+	CALL TYPING_ANIME_PREFIX_KR("통신 수신중", "...", 460)
+	CALL AWAIT_FIX(120)
+	FOR iTmp, 0, 13
+		PRINTSL sDECAGRAMMATON:iTmp
+		CALL AWAIT_FIX(30)
+		CLEARLINE 1
+	NEXT
+	PRINTL
+	CALL AWAIT_FIX(700)
 	CLEARLINE 1
-	CALL PRINTL_TEXTANIM("그의 길path은 ", "<이해를 통한 합일>.", 100)
+	CALL TYPING_ANIME_KR("그의 길은", 60)
+	CALL AWAIT_FIX(120)
+	CLEARLINE 1
+	PRINTL 그의 길path은
+	CALL AWAIT_FIX(110)
+	CLEARLINE 1
+	CALL TYPING_ANIME_PREFIX_KR("그의 길path은 ", "<이해를 통한 합일>.", 60)
 	CALL AWAIT_FIX(500)
-	CALL PRINTL_TEXTANIM("", "그의 이명은 <다름을 통감하는 숙고의 이해자>라.", 100)
-	CALL AWAIT_FIX(600)
-	CALL PRINTL_TEXTANIM("", "그의 이름은-", 150)
+	CALL TYPING_ANIME_KR("그의 이명은 ", 60)
+	CALL AWAIT_FIX(170)
+	CLEARLINE 1
+	CALL TYPING_ANIME_PREFIX_KR("그의 이명은 ", "<다름을 통감하는 숙고의 이해자>라.", 60)
+	CALL AWAIT_FIX(500)
+	CALL TYPING_ANIME_KR("그의 이름은-", 100)
 	CLEARLINE 3
 	PRINTL - 의 길-at-은 <이해를 통한 합일>.
 	PRINTL  -의 이명은 <다름을 통감하는 숙고의 이해자>라.
@@ -96,12 +112,12 @@ IF 총력전_보스_활동_쿨다운:0 == -2
 	CLEARLINE 3
 	PRINTL 나의 길path은 <이해를 통한 합일>.
 	PRINTL 나의 이명은 <다름을 통감하는 숙고의 이해자>라.
-	CALL PRINTL_TEXTANIM("나의 이름은 ", "비나BINAH", 230)
-	CALL AWAIT_FIX(500)
-	CALL PRINTL_TEXTANIM("", "신성한 열글자의 신을 증명하고", 130)
-	CALL AWAIT_FIX(200)
+	CALL TYPING_ANIME_PREFIX_KR("나의 이름은 ", "비나BINAH", 140)
+	CALL AWAIT_FIX(600)
+	CALL TYPING_ANIME_KR("신성한 열글자의 신을 증명하고", 70)
+	CALL AWAIT_FIX(400)
 	CLEARLINE 1
-	CALL PRINTL_TEXTANIM("신성한 열글자의 신을 증명하고 ", "기적을 예언하는 3번째 예언자로다.", 130)
+	CALL TYPING_ANIME_PREFIX_KR("신성한 열글자의 신을 증명하고 ", "기적을 예언하는 3번째 예언자로다.", 70)
 	RESETCOLOR
 	; AWAIT 100
 	; PRINTL 비나가 나타났다
@@ -143,7 +159,6 @@ SIF 총력전_보스_페이즈 == 0 || !FLAG:화상설정
 보스번호 = 10
 보스위치 = 총력전_위치:10
 ; 한번만 해도돼는 셋업
-; #FFCC00
 sHtml_col = #FFCC00
 시작위치_1:0 = 0
 시작위치_1:1 = 5
@@ -816,6 +831,9 @@ RETURN 1
 ; #DIM DYNAMIC 선택종류_적군
 ; RETURN 20
 
+; 턴 시작시 텍스트
+; [n 턴] 텍스트 또는 추가 연출할떄 사용
+; RETURN 0 = 기존 턴 텍스트 출력, 1 = 턴 텍스트 출력 안함
 @총력전_보스_턴_텍스트_0
 #DIMS DYNAMIC sTmp
 
@@ -1041,7 +1059,8 @@ CALL 총력전_상태효과_스탯처리(보스번호)
 CALL 총력전_상태효과_소비(보스번호, 총력전_방식_스킬)
 
 ; 아칠루트의 빛
-; 나주에. 위치 + 1 ~ 2 범위로 조준, 아스나 스킬 테스트를 위해서 조준으로 설정
+; 나중에. 위치 + 1 ~ 2 범위로 조준, 아스나 스킬 테스트를 위해서 조준으로 설정
+; 나중에. 상위 난이도, 화상 디버프 추가
 @총력전_보스_0_스킬_0
 #DIM DYNAMIC 범위목표, 총력전_캐릭터수
 ; #DIM DYNAMIC 주목표
@@ -1095,9 +1114,9 @@ CALL 총력전_목표_범위(범위목표, 총력전_스킬_조준:10:0, 0, 2)
 ; 대미지, 전 버전 = 난이도 4 = 160%, 나머지 120%
 SELECTCASE 총력전_보스_난이도
 	CASE 4
-		대미지 = GETVAR_RAIDSTAT_SUM(보스번호, "공격력") * 330
+		대미지 = GETVAR_RAIDSTAT_SUM(보스번호, "공격력") * 360
 	CASEELSE
-		대미지 = GETVAR_RAIDSTAT_SUM(보스번호, "공격력") * 230
+		대미지 = GETVAR_RAIDSTAT_SUM(보스번호, "공격력") * 260
 ENDSELECT
 대미지 = DIVIDE_ROUND(대미지, 100)
 FOR iTmp, 0, 총력전_캐릭터수

@@ -335,63 +335,6 @@ sVal = %SUBSTRING(sVal, iTmp, -1)%
 ; DEBUGPRINTFORML end string:"%sVal%"
 RETURNF sVal
 
-; #region 텍스트 연출
-; 탱크 게임 함수랑 변경
-
-; 실험용, 텍스트 애니매이션, 한줄
-@PRINTL_TEXTANIM(sPrefix, sText, iDelay)
-#DIMS sPrefix ; 접두사
-#DIMS sText ; 출력할 문장
-#DIM iDelay ; 문자 간 지연
-#DIM iTmp, 2
-#DIMS sTmp
-; PRINTFORML %sText%
-; PRINTFORML 12345678901234567890
-STRLENSU sText
-; PRINTFORML LEN = {RESULT}
-iTmp:1 = RESULT + 1
-FOR iTmp, 0, iTmp:1
-	sTmp = %sPrefix%%SUBSTRINGU(sText, 0, iTmp)%
-	SIF iTmp != 0
-		CLEARLINE 1
-	PRINTFORML %sTmp%
-	; PRINTFORML @"\r%sTmp%"
-	; DEBUGPRINTFORML iTmp:0({iTmp}) != iTmp:1({iTmp:1}) - 1
-	IF SUBSTRINGU(sText, iTmp, 1) != " " && iTmp != iTmp:1 - 1
-		; INPUTMOUSEKEY iDelay
-		IF iDelay >= 100
-			AWAIT iDelay - 5
-			AWAIT 5
-		ELSE
-			AWAIT iDelay
-		ENDIF
-	ENDIF
-NEXT
-
-; 텍스트 애니매이션
-; 정상 작동 안함
-@PRINT_TEXTANIM(sText, iDelay)
-; #DIMS sPrefix ; 접두사
-#DIMS sText ; 출력할 문장
-#DIM iDelay ; 문자 간 지연
-#DIM iTmp, 2
-#DIMS sTmp
-STRLENSU sText
-iTmp:1 = RESULT
-FOR iTmp, 0, iTmp:1
-	DEBUGPRINTFORML sTmp=%sTmp%
-	DEBUGPRINTFORML iTmp:0={iTmp}
-	DEBUGPRINTFORML iTmp:1={iTmp:1}
-	sTmp = %SUBSTRINGU(sText, iTmp, 1)%
-	IF sTmp != " "
-		AWAIT iDelay
-	ENDIF
-	PRINTS sTmp
-	; PRINTFORM %sTmp%
-	; PRINTSINGLES sTmp
-	; PRINTFORML @"/r%sTmp%"
-NEXT
-
 ; AWAIT 150 이상 문제 임시 해결책
 @AWAIT_FIX(iDelay)
 #DIM iDelay
