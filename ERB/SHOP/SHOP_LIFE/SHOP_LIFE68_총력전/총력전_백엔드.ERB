@@ -2173,7 +2173,7 @@ DEBUGPRINTFORML %TOSTR_REPEAT("-",30)%
 ; 최대체력
 ; 장비 스탯은 MAXBASE 에 이미 적용 됬음
 총력전_최대체력_최초:캐릭터 = (MAXBASE:(총력전_ID:캐릭터):체력 + MAXBASE:(총력전_ID:캐릭터):기력) / 2 * 함락계수 / 100
-DEBUGPRINTFORML 최대체력: 최대체력({MAXBASE:(총력전_ID:캐릭터):체력}) + 최대기력({MAXBASE:(총력전_ID:캐릭터):기력})/2 * 함락계수({함락계수}％)
+DEBUGPRINTFORML 최대체력: (최대체력({MAXBASE:(총력전_ID:캐릭터):체력}) + 최대기력({MAXBASE:(총력전_ID:캐릭터):기력}))/2 * 함락계수({함락계수}％)
 DEBUGPRINTFORML = {총력전_최대체력_최초:캐릭터}
 ; 공격력: 무투 * 기력보정(x1~x2)
 총력전_공격력_최초:캐릭터 = ABL:(총력전_ID:캐릭터):무투 * REMAP_CLAMP(MAXBASE:(총력전_ID:캐릭터):기력, 1000, 3500, 100, 200) * 함락계수 / 10000
