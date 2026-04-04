@@ -441,7 +441,8 @@ PRINTBUTTON "[◁]", 400
 PRINT [프로필사진]
 PRINTBUTTON "[▷]", 401
 PRINT     
-PRINTFORM [웨폰:%WEAPON_NAME(TALENT:대상:웨폰)%]
+CALL WEAPON_NAME(TALENT:대상:웨폰)
+PRINTFORM [웨폰:%RESULTS%]
 PRINTL
 
 ;-------------------------

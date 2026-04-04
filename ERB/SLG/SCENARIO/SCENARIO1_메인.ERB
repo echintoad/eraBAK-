@@ -361,6 +361,11 @@ CALL INIT_RELATION("린", "칸나", 500, 0)
 CALL INIT_RELATION("린", "미야코", 300, 300)
 CALL INIT_RELATION("린", "아로나", 300, 0)
 
+; #region 총력전 설정
+CALL 총력전_보스활동_초기설정
+; 시나리오 전용 추가 설정
+; 예. 총력전_보스_활동_쿨다운:0 = -2
+
 @SCENARIO_EVENT_1
 CUSTOMDRAWLINE =
 PRINTFORML 시나리오 진행

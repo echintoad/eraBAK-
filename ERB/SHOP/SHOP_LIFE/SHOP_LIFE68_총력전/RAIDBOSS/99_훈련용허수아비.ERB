@@ -1,0 +1,266 @@
+﻿; ===== 개발노트 =====
+; 테스트용 보스
+; 소환수 5명
+; 보스 체력은 소환수 처리시 감소
+; ====================
+; 보스 팀 이름, 예 시로 앤 쿠로
+@총력전_보스_이름_99
+RESULTS = 훈련용 허수아비
+
+; 보스 선택창 이미지, 총력전시 이미지는 보스_설정 에서
+@총력전_보스_이미지_99
+RESULTS = Boss_99_F
+
+; 총력전 보스 소환 가능한지 확인
+; RETURN 1 = 무작위 소환에 추가
+@총력전_보스_소환_확인_99
+; 최소 일수
+; SIF DAY < 3
+; 	RETURN 0
+; IF 총력전_보스_활동_쿨다운:99 == 0
+; 	RETURN 1
+; ELSE
+; 	RETURN 0
+; ENDIF
+
+; 보스 소환시 나오는 이벤트 텍스트
+@총력전_보스_소환_텍스트_99
+
+; #region 보스 GUI
+; 전체적으로 바꾸고 싶으면
+; RETURN 1 = 기본 프레임 렌더 하지 않음
+; @총력전_보스_UI_99(선택종류_아군, 선택종류_적군, 선택모드)
+; #DIM 선택종류_아군
+; #DIM DYNAMIC 선택종류_적군
+; #DIM DYNAMIC 선택모드 ; (스킬)선택용 버튼으로 변경
+; RETURN 1
+
+; 보스 프레임
+; 사용한 총력전_UI_줄추가 만큼 RESULT
+; @총력전_보스_UI_프레임_99(선택종류_적군 = 0)
+; #DIM DYNAMIC 선택종류_적군
+; #DIM CONST iSpace = 120
+; #DIM DYNAMIC 줄수, 2
+
+; #endregion
+
+; #region 보스 초기 설정
+; 총력전 최대 턴수
+@총력전_보스_턴_종료_99
+RETURN 99
+
+; 기본 공격모드 설정, 필요하면 활성화
+; 0 = 기본, 1 = 무작위
+; @총력전_보스_공격모드_설정_99
+; 총력전_공격모드:0 = 0 ; 아군
+; 총력전_공격모드:1 = 0 ; 보스
+
+; 보스 스탯 설정
+; 보스가 여럿 있을시 등등, 스탯 개별 설정 보다 이렇는게 더 유연(?)함
+@총력전_보스_설정_99
+#DIM 난이도계수, 4 ; 필요하면 다차원 배열
+#DIM CONST 보스번호 = 10
+#DIM 보스상태 = 0
+#DIM 보스체력 = 999999
+#DIM 보스공 = 0
+#DIM 보스방 = 150
+#DIM 보스명중 = 0
+#DIM 보스회피 = 50
+#DIM 보스치유 = 0
+#DIM 보스치명 = 0
+#DIM 보스치명저항 = 30
+#DIM 보스치명대미지 = 0
+#DIM 보스치명대미지저항 = 20
+#DIM 보스군중제어 = 2000
+#DIM 보스군중강화 = 0
+#DIM 보스군중저항 = 40
+#DIM DYNAMIC iTmp
+; ID?
+; 총력전_ID:보스번호 = -1 ; 필요없을수도...
+; 토벌 이름
+CALL 총력전_보스_이름_99
+총력전_보스_이름 = %RESULTS%
+; 캐릭터 카드 이름
+총력전_이름:보스번호 = %RESULTS%
+; 위치, 10 -> 17, 뒤 중앙으로 이동
+CALL 총력전_이동_번호(보스번호, 17)
+; 팀
+; 조준 불가 하게 팀 3번으로
+총력전_팀:보스번호 = 1
+; 이미지
+총력전_이미지_초기:보스번호 = Boss_99_S
+총력전_이미지:보스번호 = %총력전_이미지_초기:보스번호%
+
+; 스탯 입력
+; 공격력: 123456|방어력: 123456|
+; 명중률: 1234567|회피율: 12345678|치유력: 123456
+; 치명타: 1234567|치명 저항: 123456
+; 강|
+; |:|
+$INPUTLOOP
+CLEARLINE LINECOUNT
+PRINT 보스 기본 공격
+PRINTBUTTON @" [%ALIGN_TEXT(보스상태 ? "유효" # "무효", 10, "C")%]", 0
+PRINTL
+PRINTBUTTON "[ 수정 ]",1
+PRINTFORM  체력: {보스체력}
+PRINTL
+PRINTBUTTON "[ 수정 ]",2
+PRINTFORM 공격력: {보스공, 15, LEFT}
+PRINTBUTTON " [ 수정 ]",3
+PRINTFORM 방어력: {보스방, 15, LEFT}
+PRINTL
+PRINTBUTTON "[ 수정 ]",4
+PRINTFORM 명중률: {보스명중, 15, LEFT}
+PRINTBUTTON " [ 수정 ]",5
+PRINTFORM 회피율: {보스회피, 15, LEFT}
+PRINTBUTTON " [ 수정 ]",6
+PRINTFORM 치유력: {보스치유, 15, LEFT}
+PRINTL
+PRINTBUTTON "[ 수정 ]",7
+PRINTFORM 치명타: {보스치명, 15, LEFT}
+PRINTBUTTON " [ 수정 ]",8
+PRINTFORM 치명 저항: {보스치명저항, 12, LEFT}
+PRINTL
+PRINTBUTTON "[ 수정 ]",9
+PRINTFORM 치명 대미지: {보스치명대미지, 10, LEFT}
+PRINTBUTTON " [ 수정 ]",10
+PRINTFORM 치명 대미지 저항: {보스치명대미지저항, 5, LEFT}
+PRINTL
+PRINTBUTTON "[ 수정 ]",11
+PRINTFORM 군중제어: {보스군중제어}
+PRINTL
+PRINTBUTTON "[ 수정 ]",12
+PRINTFORM 군중 강화: {보스군중강화, 12, LEFT}
+PRINTBUTTON " [ 수정 ]",13
+PRINTFORM 군중 저항: {보스군중저항, 12, LEFT}
+PRINTL
+PRINTBUTTON "[ 실행 ]",-1
+INPUT
+CLEARLINE 1
+DRAWLINE
+SELECTCASE RESULT
+	CASE -1 ; 실행
+	CASE 0
+		보스상태 = !보스상태
+		GOTO INPUTLOOP
+	CASE 1
+		PRINTL 보스 체력 설정 (0 ~ 999,999)
+		INPUT
+		보스체력 = MIN(RESULT, 999999)
+		GOTO INPUTLOOP
+	CASE 2
+		PRINTL 보스 공격력 설정 (0 ~ 1000)
+		INPUT
+		보스공 = MIN(RESULT, 1000)
+		GOTO INPUTLOOP
+	CASE 3
+		PRINTL 보스 방어력 설정 (0 ~ 1000)
+		INPUT
+		보스방 = MIN(RESULT, 1000)
+		GOTO INPUTLOOP
+	CASE 4
+		PRINTL 보스 명중률 설정 (0 ~ 1000)
+		INPUT
+		보스명중 = MIN(RESULT, 1000)
+		GOTO INPUTLOOP
+	CASE 5
+		PRINTL 보스 회피율 설정 (0 ~ 1000)
+		INPUT
+		보스회피 = MIN(RESULT, 1000)
+		GOTO INPUTLOOP
+	CASE 6
+		PRINTL 보스 치유력 설정 (0 ~ 1000)
+		INPUT
+		보스치유 = MIN(RESULT, 1000)
+		GOTO INPUTLOOP
+	CASE 7
+		PRINTL 보스 치명타 설정 (0 ~ 1000)
+		INPUT
+		보스치명 = MIN(RESULT, 1000)
+		GOTO INPUTLOOP
+	CASE 8
+		PRINTL 보스 치명타 저항 설정 (0 ~ 1000)
+		INPUT
+		보스치명저항 = MIN(RESULT, 1000)
+		GOTO INPUTLOOP
+	CASE 9
+		PRINTL 보스 치명타 대미지 설정 (0 ~ 1000)
+		INPUT
+		보스치명대미지 = MIN(RESULT, 1000)
+		GOTO INPUTLOOP
+	CASE 10
+		PRINTL 보스 치명타 대미지 저항 설정 (0 ~ 1000)
+		INPUT
+		보스치명대미지저항 = MIN(RESULT, 1000)
+		GOTO INPUTLOOP
+	CASE 11
+		PRINTL 보스 군중제어 한계 설정 (0 ~ 999,999)
+		INPUT
+		보스군중제어 = MIN(RESULT, 999999)
+		GOTO INPUTLOOP
+	CASE 12
+		PRINTL 보스 군중제어 강화 설정 (0 ~ 1000)
+		INPUT
+		보스군중강화 = MIN(RESULT, 1000)
+		GOTO INPUTLOOP
+	CASE 13
+		PRINTL 보스 군중제어 저항 설정 (0 ~ 1000)
+		INPUT
+		보스군중저항 = MIN(RESULT, 1000)
+		GOTO INPUTLOOP
+ENDSELECT
+
+; 상태
+IF 보스상태 == 0
+	총력전_상태:보스번호 = 총력전_상태_보스
+; ELSEIF 보스상태 == 0
+ELSE
+	총력전_상태:보스번호 = 총력전_상태_보스_비공격
+ENDIF
+; 스탯
+총력전_최대체력_최초:보스번호 = 보스체력
+총력전_공격력_최초:보스번호 = 보스공
+총력전_방어력_최초:보스번호 = 보스방
+총력전_명중률_최초:보스번호 = 보스명중
+총력전_회피율_최초:보스번호 = 보스회피
+총력전_치유력_최초:보스번호 = 보스치유
+총력전_치명타_최초:보스번호 = 보스치명
+총력전_치명타_저항_최초:보스번호 = 보스치명저항
+총력전_치명타_대미지_최초:보스번호 = 보스치명대미지
+총력전_치명타_대미지_저항_최초:보스번호 = 보스치명대미지저항
+총력전_군중제어_한계_최초:보스번호 = 보스군중제어
+총력전_군중제어_강화_최초:보스번호 = 보스군중강화
+총력전_군중제어_저항_최초:보스번호 = 보스군중저항
+
+; #region == 페이즈 ==
+@총력전_보스_페이즈_판단_99
+
+; #endregion == 페이즈 ==
+
+; #region == 스킬 ==
+@총력전_보스_스킬_초기_99
+
+@총력전_보스_시퀀스_스킬_99
+
+; #region == 군중제어 ==
+; 기본 군중제어 계산 필요 없으면 RETURN 1
+; ======================
+; @총력전_보스_처리_군중제어_99(제어량, 대상, 시전자 = -1)
+; #DIM 제어량
+; #DIM 대상
+; #DIM DYNAMIC 시전자
+
+; RETURN 1
+; #endregion == 군중제어 ==
+
+; #region == 보상 ==
+; CALL 총력전_보상_코인(보상코인:0, 보상코인:1)
+; CALL 총력전_보상_장비(iTmp)
+; ==================
+@총력전_보스_보상_99
+; #DIM DYNAMIC iTmp
+; #DIMS DYNAMIC sTmp
+
+
+; #endregion == 보상 ==

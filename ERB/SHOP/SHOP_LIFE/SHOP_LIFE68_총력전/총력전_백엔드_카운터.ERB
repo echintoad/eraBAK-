@@ -1,0 +1,570 @@
+﻿; #region == 카운터 추가 ==
+; 추가양 은 0으로
+@총력전_카운터_추가(대상, 시전자, 증가방식, 소비방식, 소비양, 스킬번호, 추가번호 = 0)
+#DIM 대상
+#DIM 시전자
+#DIM 증가방식
+; #DIM 추가양_최대
+#DIM 소비방식
+#DIM 소비양
+#DIM 스킬번호
+#DIM DYNAMIC 추가번호
+
+#DIM DYNAMIC 적용번호 = -1
+#DIM DYNAMIC 중복 = 0 ; 카운터 중복이 있었으면 = 1
+#DIM DYNAMIC iTmp, 2
+
+; 버그 방지
+IF 증가방식 <= 0
+	DEBUGPRINTL WARNING 종류 0 상효 추가 시도
+	DEBUGPRINTFORML 시전자:{시전자} | 스킬번호:{스킬번호}
+	RETURN
+ENDIF
+
+; 대상에 빈 효과/중복 자리 찾기
+FOR iTmp, 0, 총력전_상태효과수
+	IF 총력전_카운터_증가방식:대상:iTmp == 0
+		적용번호 = iTmp
+		BREAK
+	ELSEIF 총력전_카운터_스킬번호:대상:iTmp == 스킬번호 && 총력전_카운터_추가번호:대상:iTmp == 추가번호
+		중복 = 1
+		적용번호 = iTmp
+		BREAK
+	ENDIF
+NEXT
+; DEBUGPRINTFORML ({대상}) 카운터 적용번호:{적용번호}
+
+IF 적용번호 == -1
+	DEBUGPRINTFORML **카운터수 부족**
+	적용번호 = 총력전_카운터수 - 1
+	CALL 총력전_카운터_제거(대상, 0)
+ENDIF
+
+총력전_카운터_증가방식:대상:적용번호 = 증가방식
+SIF 중복 == 0
+	총력전_카운터_증가양:대상:적용번호 = 0
+; 총력전_카운터_증가양_최대:대상:적용번호 = 추가양_최대
+총력전_카운터_소비방식:대상:적용번호 = 소비방식
+총력전_카운터_소비양:대상:적용번호 = 소비양
+총력전_카운터_시전자:대상:적용번호 = 시전자
+총력전_카운터_스킬번호:대상:적용번호 = 스킬번호
+총력전_카운터_추가번호:대상:적용번호 = 추가번호
+
+; #endregion == 카운터 추가 ==
+
+; #region == 카운터 증가 ==
+; 카운터 소비/증가중 카운터 소비/증가가 한번더 불러지면 함수에 증가 방식이 변경될수있어서 함수를 따로
+; 총력전_개발노트.txt 참조 (textgame/164341309)
+; ----------------------------------------
+; 카운터 증가 + 소비가 다를 필요가 없을거 같은데... 
+; 이해하기 쉬운 함수 이름이 생각않나서 나중에 수정
+; 아니면 카운터 텍스트 추가?
+; 대상 = 기본공격, 피격시 상대 캐릭터
+@총력전_카운터_증가(캐릭터, 대상, 증가방식, 증가양 = 1)
+#DIM 캐릭터
+#DIM 대상 ; -1 이면 무시
+#DIM 증가방식
+#DIM DYNAMIC 증가양
+
+SELECTCASE 증가방식
+	CASE 총력전_방식_턴
+		CALL 총력전_카운터_증가_턴(캐릭터, 대상, 증가양)
+	CASE 총력전_방식_공격
+		CALL 총력전_카운터_증가_공격(캐릭터, 대상, 증가양)
+	CASE 총력전_방식_피격
+		CALL 총력전_카운터_증가_피격(캐릭터, 대상, 증가양)
+	CASE 총력전_방식_피격양
+		CALL 총력전_카운터_증가_피격양(캐릭터, 대상, 증가양)
+	CASE 총력전_방식_명중
+		CALL 총력전_카운터_증가_명중(캐릭터, 대상, 증가양)
+	CASE 총력전_방식_회피
+		CALL 총력전_카운터_증가_회피(캐릭터, 대상, 증가양)
+	CASE 총력전_방식_치명타
+		CALL 총력전_카운터_증가_치명타(캐릭터, 대상, 증가양)
+	CASE 총력전_방식_치유
+		CALL 총력전_카운터_증가_치유(캐릭터, 대상, 증가양)
+	CASE 총력전_방식_치유양
+		CALL 총력전_카운터_증가_치유양(캐릭터, 대상, 증가양)
+	CASE 총력전_방식_스킬
+		CALL 총력전_카운터_증가_스킬(캐릭터, 대상, 증가양)
+ENDSELECT
+
+@총력전_카운터_증가_턴(캐릭터, 대상, 증가양 = 1)
+#DIM 캐릭터
+#DIM 대상 ; -1 이면 무시
+#DIM DYNAMIC 증가양
+; #DIM 증가방식
+#DIM DYNAMIC iTmp;, 2
+; #DIMS DYNAMIC sTmp
+; iTmp = 0
+; FOR iTmp:1, 0, 총력전_카운터수
+FOR iTmp, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_증가방식:캐릭터:iTmp == 총력전_방식_턴
+		; [IF_DEBUG]
+		; sTmp = %총력전_이름:캐릭터% 카운터 증가 {총력전_카운터_스킬번호:캐릭터:iTmp}.{총력전_카운터_추가번호:캐릭터:iTmp} = {총력전_카운터_증가양:캐릭터:iTmp} + {증가양}
+		; CALL 총력전_UI_텍스트_추가(sTmp, 칼라_파노랑)
+		; [ENDIF]
+		TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_증가(캐릭터, 대상, iTmp, 증가양)
+		CATCH
+			총력전_카운터_증가양:캐릭터:iTmp += 증가양
+		ENDCATCH
+	ENDIF
+	; iTmp ++
+NEXT
+
+@총력전_카운터_증가_공격(캐릭터, 대상, 증가양 = 1)
+#DIM 캐릭터
+#DIM 대상 ; -1 이면 무시
+#DIM DYNAMIC 증가양
+#DIM DYNAMIC iTmp
+FOR iTmp, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_증가방식:캐릭터:iTmp == 총력전_방식_공격
+		TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_증가(캐릭터, 대상, iTmp, 증가양)
+		CATCH
+			총력전_카운터_증가양:캐릭터:iTmp += 증가양
+		ENDCATCH
+	ENDIF
+NEXT
+
+@총력전_카운터_증가_피격(캐릭터, 대상, 증가양 = 1)
+#DIM 캐릭터
+#DIM 대상 ; -1 이면 무시
+#DIM DYNAMIC 증가양
+#DIM DYNAMIC iTmp
+FOR iTmp, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_증가방식:캐릭터:iTmp == 총력전_방식_피격
+		TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_증가(캐릭터, 대상, iTmp, 증가양)
+		CATCH
+			총력전_카운터_증가양:캐릭터:iTmp += 증가양
+		ENDCATCH
+	ENDIF
+NEXT
+
+@총력전_카운터_증가_피격양(캐릭터, 대상, 증가양 = 1)
+#DIM 캐릭터
+#DIM 대상 ; -1 이면 무시
+#DIM DYNAMIC 증가양
+#DIM DYNAMIC iTmp
+FOR iTmp, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_증가방식:캐릭터:iTmp == 총력전_방식_피격양
+		TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_증가(캐릭터, 대상, iTmp, 증가양)
+		CATCH
+			총력전_카운터_증가양:캐릭터:iTmp += 증가양
+		ENDCATCH
+	ENDIF
+NEXT
+
+@총력전_카운터_증가_명중(캐릭터, 대상, 증가양 = 1)
+#DIM 캐릭터
+#DIM 대상 ; -1 이면 무시
+#DIM DYNAMIC 증가양
+#DIM DYNAMIC iTmp
+FOR iTmp, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_증가방식:캐릭터:iTmp == 총력전_방식_명중
+		TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_증가(캐릭터, 대상, iTmp, 증가양)
+		CATCH
+			총력전_카운터_증가양:캐릭터:iTmp += 증가양
+		ENDCATCH
+	ENDIF
+NEXT
+
+@총력전_카운터_증가_회피(캐릭터, 대상, 증가양 = 1)
+#DIM 캐릭터
+#DIM 대상 ; -1 이면 무시
+#DIM DYNAMIC 증가양
+#DIM DYNAMIC iTmp
+FOR iTmp, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_증가방식:캐릭터:iTmp == 총력전_방식_회피
+		TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_증가(캐릭터, 대상, iTmp, 증가양)
+		CATCH
+			총력전_카운터_증가양:캐릭터:iTmp += 증가양
+		ENDCATCH
+	ENDIF
+NEXT
+
+@총력전_카운터_증가_치명타(캐릭터, 대상, 증가양 = 1)
+#DIM 캐릭터
+#DIM 대상 ; -1 이면 무시
+#DIM DYNAMIC 증가양
+#DIM DYNAMIC iTmp
+FOR iTmp, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_증가방식:캐릭터:iTmp == 총력전_방식_치명타
+		TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_증가(캐릭터, 대상, iTmp, 증가양)
+		CATCH
+			총력전_카운터_증가양:캐릭터:iTmp += 증가양
+		ENDCATCH
+	ENDIF
+NEXT
+
+@총력전_카운터_증가_치유(캐릭터, 대상, 증가양 = 1)
+#DIM 캐릭터
+#DIM 대상 ; -1 이면 무시
+#DIM DYNAMIC 증가양
+#DIM DYNAMIC iTmp
+FOR iTmp, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_증가방식:캐릭터:iTmp == 총력전_방식_치유
+		TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_증가(캐릭터, 대상, iTmp, 증가양)
+		CATCH
+			총력전_카운터_증가양:캐릭터:iTmp += 증가양
+		ENDCATCH
+	ENDIF
+NEXT
+
+@총력전_카운터_증가_치유양(캐릭터, 대상, 증가양 = 1)
+#DIM 캐릭터
+#DIM 대상 ; -1 이면 무시
+#DIM DYNAMIC 증가양
+#DIM DYNAMIC iTmp
+FOR iTmp, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_증가방식:캐릭터:iTmp == 총력전_방식_치유양
+		TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_증가(캐릭터, 대상, iTmp, 증가양)
+		CATCH
+			총력전_카운터_증가양:캐릭터:iTmp += 증가양
+		ENDCATCH
+	ENDIF
+NEXT
+
+@총력전_카운터_증가_스킬(캐릭터, 대상, 증가양 = 1)
+#DIM 캐릭터
+#DIM 대상 ; -1 이면 무시
+#DIM DYNAMIC 증가양
+#DIM DYNAMIC iTmp
+FOR iTmp, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_증가방식:캐릭터:iTmp == 총력전_방식_스킬
+		TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_증가(캐릭터, 대상, iTmp, 증가양)
+		CATCH
+			총력전_카운터_증가양:캐릭터:iTmp += 증가양
+		ENDCATCH
+	ENDIF
+NEXT
+
+; #endregion == 카운터 추가 ==
+
+; #region == 카운터 소비 ==
+@총력전_카운터_소비(캐릭터, 소비방식, 소비양 = 1)
+#DIM 캐릭터
+#DIM 소비방식
+#DIM DYNAMIC 소비양
+
+SELECTCASE 소비방식
+	CASE 총력전_방식_턴
+		CALL 총력전_카운터_소비_턴(캐릭터, 소비양)
+	CASE 총력전_방식_공격
+		CALL 총력전_카운터_소비_공격(캐릭터, 소비양)
+	CASE 총력전_방식_피격
+		CALL 총력전_카운터_소비_피격(캐릭터, 소비양)
+	CASE 총력전_방식_피격양
+		CALL 총력전_카운터_소비_피격양(캐릭터, 소비양)
+	CASE 총력전_방식_명중
+		CALL 총력전_카운터_소비_명중(캐릭터, 소비양)
+	CASE 총력전_방식_회피
+		CALL 총력전_카운터_소비_회피(캐릭터, 소비양)
+	CASE 총력전_방식_치명타
+		CALL 총력전_카운터_소비_치명타(캐릭터, 소비양)
+	CASE 총력전_방식_치유
+		CALL 총력전_카운터_소비_치유(캐릭터, 소비양)
+	CASE 총력전_방식_치유양
+		CALL 총력전_카운터_소비_치유양(캐릭터, 소비양)
+	CASE 총력전_방식_스킬
+		CALL 총력전_카운터_소비_스킬(캐릭터, 소비양)
+ENDSELECT
+
+@총력전_카운터_소비_턴(캐릭터, 소비양 = 1)
+#DIM 캐릭터
+#DIM DYNAMIC 소비양
+; #DIM 소비방식
+#DIM DYNAMIC iTmp, 2
+#DIMS DYNAMIC sTmp
+iTmp = 0
+FOR iTmp:1, 0, 총력전_카운터수
+	; DEBUGPRINTFORML iTmp:1 = {iTmp:1}, %총력전_이름:캐릭터%, iTmp = {iTmp}, 소비방식 = {총력전_카운터_소비방식:캐릭터:iTmp} == {소비방식}
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_소비방식:캐릭터:iTmp == 총력전_방식_턴
+		[IF_DEBUG]
+		sTmp = %총력전_이름:캐릭터% 카운터 소비 {총력전_카운터_스킬번호:캐릭터:iTmp}.{총력전_카운터_추가번호:캐릭터:iTmp} = {총력전_카운터_소비양:캐릭터:iTmp} - {소비양}
+		CALL 총력전_UI_텍스트_추가(sTmp, 칼라_파노랑)
+		[ENDIF]
+		; 카운터 소비 TRYCALL... 필요?
+		총력전_카운터_소비양:캐릭터:iTmp -= 소비양
+		IF 총력전_카운터_소비양:캐릭터:iTmp <= 0
+			; 카운터_종료 TRYCALL
+			TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_종료(캐릭터, iTmp)
+			CATCH
+				CALL 총력전_카운터_제거(캐릭터, iTmp)
+			ENDCATCH
+			iTmp -- ; 사라져서 카운터 1 뒤로
+		ENDIF
+	ENDIF
+	iTmp ++
+NEXT
+
+@총력전_카운터_소비_공격(캐릭터, 소비양 = 1)
+#DIM 캐릭터
+#DIM DYNAMIC 소비양
+#DIM DYNAMIC iTmp, 2
+iTmp = 0
+FOR iTmp:1, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_소비방식:캐릭터:iTmp == 총력전_방식_공격
+		; 카운터 소비 TRYCALL... 필요?
+		총력전_카운터_소비양:캐릭터:iTmp -= 소비양
+		IF 총력전_카운터_소비양:캐릭터:iTmp <= 0
+			; 카운터_종료 TRYCALL
+			TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_종료(캐릭터, iTmp)
+			CATCH
+				CALL 총력전_카운터_제거(캐릭터, iTmp)
+			ENDCATCH
+			iTmp -- ; 사라져서 카운터 1 뒤로
+		ENDIF
+	ENDIF
+	iTmp ++
+NEXT
+
+@총력전_카운터_소비_피격(캐릭터, 소비양 = 1)
+#DIM 캐릭터
+#DIM DYNAMIC 소비양
+#DIM DYNAMIC iTmp, 2
+iTmp = 0
+FOR iTmp:1, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_소비방식:캐릭터:iTmp == 총력전_방식_피격
+		; 카운터 소비 TRYCALL... 필요?
+		총력전_카운터_소비양:캐릭터:iTmp -= 소비양
+		IF 총력전_카운터_소비양:캐릭터:iTmp <= 0
+			; 카운터_종료 TRYCALL
+			TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_종료(캐릭터, iTmp)
+			CATCH
+				CALL 총력전_카운터_제거(캐릭터, iTmp)
+			ENDCATCH
+			iTmp -- ; 사라져서 카운터 1 뒤로
+		ENDIF
+	ENDIF
+	iTmp ++
+NEXT
+
+@총력전_카운터_소비_피격양(캐릭터, 소비양 = 1)
+#DIM 캐릭터
+#DIM DYNAMIC 소비양
+#DIM DYNAMIC iTmp, 2
+iTmp = 0
+FOR iTmp:1, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_소비방식:캐릭터:iTmp == 총력전_방식_피격양
+		; 카운터 소비 TRYCALL... 필요?
+		총력전_카운터_소비양:캐릭터:iTmp -= 소비양
+		IF 총력전_카운터_소비양:캐릭터:iTmp <= 0
+			; 카운터_종료 TRYCALL
+			TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_종료(캐릭터, iTmp)
+			CATCH
+				CALL 총력전_카운터_제거(캐릭터, iTmp)
+			ENDCATCH
+			iTmp -- ; 사라져서 카운터 1 뒤로
+		ENDIF
+	ENDIF
+	iTmp ++
+NEXT
+
+@총력전_카운터_소비_명중(캐릭터, 소비양 = 1)
+#DIM 캐릭터
+#DIM DYNAMIC 소비양
+#DIM DYNAMIC iTmp, 2
+iTmp = 0
+FOR iTmp:1, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_소비방식:캐릭터:iTmp == 총력전_방식_명중
+		; 카운터 소비 TRYCALL... 필요?
+		총력전_카운터_소비양:캐릭터:iTmp -= 소비양
+		IF 총력전_카운터_소비양:캐릭터:iTmp <= 0
+			; 카운터_종료 TRYCALL
+			TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_종료(캐릭터, iTmp)
+			CATCH
+				CALL 총력전_카운터_제거(캐릭터, iTmp)
+			ENDCATCH
+			iTmp -- ; 사라져서 카운터 1 뒤로
+		ENDIF
+	ENDIF
+	iTmp ++
+NEXT
+
+@총력전_카운터_소비_회피(캐릭터, 소비양 = 1)
+#DIM 캐릭터
+#DIM DYNAMIC 소비양
+#DIM DYNAMIC iTmp, 2
+iTmp = 0
+FOR iTmp:1, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_소비방식:캐릭터:iTmp == 총력전_방식_회피
+		; 카운터 소비 TRYCALL... 필요?
+		총력전_카운터_소비양:캐릭터:iTmp -= 소비양
+		IF 총력전_카운터_소비양:캐릭터:iTmp <= 0
+			; 카운터_종료 TRYCALL
+			TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_종료(캐릭터, iTmp)
+			CATCH
+				CALL 총력전_카운터_제거(캐릭터, iTmp)
+			ENDCATCH
+			iTmp -- ; 사라져서 카운터 1 뒤로
+		ENDIF
+	ENDIF
+	iTmp ++
+NEXT
+
+@총력전_카운터_소비_치명타(캐릭터, 소비양 = 1)
+#DIM 캐릭터
+#DIM DYNAMIC 소비양
+#DIM DYNAMIC iTmp, 2
+iTmp = 0
+FOR iTmp:1, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_소비방식:캐릭터:iTmp == 총력전_방식_치명타
+		; 카운터 소비 TRYCALL... 필요?
+		총력전_카운터_소비양:캐릭터:iTmp -= 소비양
+		IF 총력전_카운터_소비양:캐릭터:iTmp <= 0
+			; 카운터_종료 TRYCALL
+			TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_종료(캐릭터, iTmp)
+			CATCH
+				CALL 총력전_카운터_제거(캐릭터, iTmp)
+			ENDCATCH
+			iTmp -- ; 사라져서 카운터 1 뒤로
+		ENDIF
+	ENDIF
+	iTmp ++
+NEXT
+
+@총력전_카운터_소비_치유(캐릭터, 소비양 = 1)
+#DIM 캐릭터
+#DIM DYNAMIC 소비양
+#DIM DYNAMIC iTmp, 2
+iTmp = 0
+FOR iTmp:1, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_소비방식:캐릭터:iTmp == 총력전_방식_치유
+		; 카운터 소비 TRYCALL... 필요?
+		총력전_카운터_소비양:캐릭터:iTmp -= 소비양
+		IF 총력전_카운터_소비양:캐릭터:iTmp <= 0
+			; 카운터_종료 TRYCALL
+			TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_종료(캐릭터, iTmp)
+			CATCH
+				CALL 총력전_카운터_제거(캐릭터, iTmp)
+			ENDCATCH
+			iTmp -- ; 사라져서 카운터 1 뒤로
+		ENDIF
+	ENDIF
+	iTmp ++
+NEXT
+
+@총력전_카운터_소비_치유양(캐릭터, 소비양 = 1)
+#DIM 캐릭터
+#DIM DYNAMIC 소비양
+#DIM DYNAMIC iTmp, 2
+iTmp = 0
+FOR iTmp:1, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_소비방식:캐릭터:iTmp == 총력전_방식_치유양
+		; 카운터 소비 TRYCALL... 필요?
+		총력전_카운터_소비양:캐릭터:iTmp -= 소비양
+		IF 총력전_카운터_소비양:캐릭터:iTmp <= 0
+			; 카운터_종료 TRYCALL
+			TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_종료(캐릭터, iTmp)
+			CATCH
+				CALL 총력전_카운터_제거(캐릭터, iTmp)
+			ENDCATCH
+			iTmp -- ; 사라져서 카운터 1 뒤로
+		ENDIF
+	ENDIF
+	iTmp ++
+NEXT
+
+@총력전_카운터_소비_스킬(캐릭터, 소비양 = 1)
+#DIM 캐릭터
+#DIM DYNAMIC 소비양
+#DIM DYNAMIC iTmp, 2
+iTmp = 0
+FOR iTmp:1, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_소비방식:캐릭터:iTmp == 총력전_방식_스킬
+		; 카운터 소비 TRYCALL... 필요?
+		총력전_카운터_소비양:캐릭터:iTmp -= 소비양
+		IF 총력전_카운터_소비양:캐릭터:iTmp <= 0
+			; 카운터_종료 TRYCALL
+			TRYCCALLFORM 총력전_스킬_{총력전_카운터_스킬번호:캐릭터:iTmp}_{총력전_카운터_추가번호:캐릭터:iTmp}_카운터_종료(캐릭터, iTmp)
+			CATCH
+				CALL 총력전_카운터_제거(캐릭터, iTmp)
+			ENDCATCH
+			iTmp -- ; 사라져서 카운터 1 뒤로
+		ENDIF
+	ENDIF
+	iTmp ++
+NEXT
+
+; #endregion == 카운터 소비 ==
+
+; 카운터 번호 찾기, 없으면 RETURN -1
+@총력전_카운터_검색_스킬번호(캐릭터, 스킬번호, 추가번호 = 0)
+#DIM 캐릭터
+#DIM 스킬번호
+#DIM DYNAMIC 추가번호
+
+#DIM iTmp
+
+FOR iTmp, 0, 총력전_카운터수
+	SIF 총력전_카운터_증가방식:캐릭터:iTmp == 0
+		BREAK
+	IF 총력전_카운터_스킬번호:캐릭터:iTmp == 스킬번호 && 총력전_카운터_추가번호:캐릭터:iTmp == 추가번호
+		RETURN iTmp
+	ENDIF
+NEXT
+RETURN -1
+
+@총력전_카운터_제거(캐릭터, 카운터번호)
+#DIM 캐릭터
+#DIM 카운터번호
+
+CALL ARRAYREMOVE_2D_VAL(총력전_카운터_증가방식, 캐릭터, 카운터번호)
+CALL ARRAYREMOVE_2D_VAL(총력전_카운터_증가양, 캐릭터, 카운터번호)
+; CALL ARRAYREMOVE_2D_VAL(총력전_카운터_증가양_최대, 캐릭터, 카운터번호)
+CALL ARRAYREMOVE_2D_VAL(총력전_카운터_소비방식, 캐릭터, 카운터번호)
+CALL ARRAYREMOVE_2D_VAL(총력전_카운터_소비양, 캐릭터, 카운터번호)
+
+CALL ARRAYREMOVE_2D_VAL(총력전_카운터_시전자, 캐릭터, 카운터번호)
+CALL ARRAYREMOVE_2D_VAL(총력전_카운터_스킬번호, 캐릭터, 카운터번호)
+CALL ARRAYREMOVE_2D_VAL(총력전_카운터_추가번호, 캐릭터, 카운터번호)
+
+@총력전_해제_카운터
+VARSET 총력전_카운터_증가방식, 0
+VARSET 총력전_카운터_증가양, 0
+; VARSET 총력전_카운터_증가양_최대, 0
+VARSET 총력전_카운터_소비방식, 0
+VARSET 총력전_카운터_소비양, 0
+VARSET 총력전_카운터_시전자, 0
+VARSET 총력전_카운터_스킬번호, 0
+VARSET 총력전_카운터_추가번호, 0

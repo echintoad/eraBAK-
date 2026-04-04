@@ -1,0 +1,695 @@
+;최초 작성: 2025년 2월 21일
+;최종 수정: 2026년 4월 2일
+
+;사용 예시
+;CALL TYPING_ANIME_KR("태우는 일은 즐거웠다. - 레이 브래드버리의 소설 <화씨 451> 중", 20)
+;CLEARLINE 1
+;CALL BACKSPACE_ANIME_KR("태우는 일은 즐거웠다. - 레이 브래드버리의 소설 <화씨 451> ", "중", 20)
+;CALL BACKSPACE_ANIME_NORMAL("태우는 일은 즐거웠다. - 레이 브래드버리의 소설 <화씨 451> ",10)
+;CALL TYPING_ANIME_KR("타자치는 일은 별로 안 즐거웠다. - 할일 없는 텍붕이의 뻘글 중", 20)
+;WAIT
+
+;일반적인 한글 타이핑 과정을 시각적으로 재현하는 함수
+;겹받침, 겹모음("ㄳ", "ㅘ") 등의 조합 '단일 문자'는 미구현
+;스킵 불가능하게 하는 옵션(NONSKIP)은 미구현
+@TYPING_ANIME_KR(TEXT,INTERVAL,NONSKIP = 0)
+#DIMS TEXT
+#DIM INTERVAL
+#DIM NONSKIP
+
+#DIM DYNAMIC LEN
+#DIM DYNAMIC LCOUNT
+
+#DIM DYNAMIC CHARCODE
+#DIM DYNAMIC PREVCODE
+#DIM DYNAMIC NEXTCODE
+#DIM DYNAMIC CHO
+#DIM DYNAMIC JUNG
+#DIM DYNAMIC JONG
+#DIM DYNAMIC PREVJONG
+#DIM DYNAMIC PREVJONG2
+#DIM DYNAMIC NEXTCHO
+#DIM DYNAMIC FLAG_CHO
+
+#DIMS DYNAMIC TOPRINT
+#DIM DYNAMIC TEMP
+#DIMS DYNAMIC TEMPS
+#DIM DYNAMIC SKIP_ANIME
+
+LEN = STRLENSU(TEXT)
+
+;문자 갯수만큼 반복
+FOR LCOUNT,0,LEN
+    CHARCODE = ENCODETOUNI(CHARATU(TEXT, LCOUNT))
+
+    ;한글 조합 문자인 경우 (가~힣) (ㄱ, ㅏ, ㅀ 등은 제외함)
+    IF IS_HANGULCOMBINE(CHARCODE)
+        CHO = (CHARCODE - 0xAC00) / (21 * 28)
+        JUNG = (CHARCODE - 0xAC00) % (21 * 28) / 28
+        JONG = (CHARCODE - 0xAC00) % (21 * 28) % 28
+
+        ;이전 차례의 문자가 무엇인지 파악, 저장
+        IF LCOUNT == 0
+            PREVCODE = -1
+            PREVJONG = -1
+        ELSE
+            PREVCODE = ENCODETOUNI(CHARATU(TEXT, LCOUNT-1))
+            IF IS_HANGULCOMBINE(PREVCODE)
+                PREVJONG = (PREVCODE - 0xAC00) % (21 * 28) % 28
+            ELSE
+                PREVJONG = -1
+            ENDIF
+        ENDIF
+
+        ;다음 차례의 문자인지 무엇인지 파악, 저장
+        IF LCOUNT + 1 == LEN
+            NEXTCODE = -1
+            NEXTCHO = -1
+        ELSE
+            NEXTCODE = ENCODETOUNI(CHARATU(TEXT, LCOUNT+1))
+            IF IS_HANGULCOMBINE(NEXTCODE)
+                NEXTCHO = (NEXTCODE - 0xAC00) / (21 * 28)
+            ELSE
+                NEXTCHO = -1
+            ENDIF
+        ENDIF
+
+        ;초성 출력
+        IF !FLAG_CHO
+            TOPRINT '= @"%TOPRINT%%UNICODE(0x1100 + CHO)%"
+            CALL TYPING_ANIME_WAIT(TOPRINT,INTERVAL)
+            IF RESULT == 1
+                SKIP_ANIME = 1
+                BREAK
+            ENDIF
+            CLEARLINE 1
+        ELSE
+            ;이전 단계에서 이미 초성을 입력하는 과정을 보여줬다면, 
+            ;OPRINT 변수 등의 내용을 갱신하기만 하고 출력은 거치지 않는다
+            FLAG_CHO = 0
+            TEMPS '= CHARATU(TOPRINT, STRLENSU(TOPRINT)-1)
+            TEMP = ENCODETOUNI(TEMPS)
+            PREVJONG2 = (TEMP - 0xAC00) % (21 * 28) % 28
+            CALLF JONG_TO_CHO(PREVJONG2)
+            TEMP = TEMP - PREVJONG2 + RESULT:1
+            TOPRINT '= SUBSTRINGU(TOPRINT, 0, STRLENSU(TOPRINT)-1)
+            TOPRINT '= @"%TOPRINT%%UNICODE(TEMP)%%UNICODE(0x1100 + JONG_TO_CHO(PREVJONG2))%"
+        ENDIF
+
+        ;중성 조합까지 출력
+        ;겹모음 중 일부는 2번에 걸쳐 입력한다
+        TEMP = DECOM_JUNG(JUNG)
+        IF TEMP != JUNG
+            TOPRINT '= SUBSTRINGU(TOPRINT, 0, STRLENSU(TOPRINT)-1)
+            TOPRINT '= @"%TOPRINT%%UNICODE(FUSE_HANGUL(CHO,TEMP))%"
+            CALL TYPING_ANIME_WAIT(TOPRINT,INTERVAL)
+            IF RESULT == 1
+                SKIP_ANIME = 1
+                BREAK
+            ENDIF
+            CLEARLINE 1            
+        ENDIF
+
+        TOPRINT '= SUBSTRINGU(TOPRINT, 0, STRLENSU(TOPRINT)-1)
+        TOPRINT '= @"%TOPRINT%%UNICODE(FUSE_HANGUL(CHO,JUNG))%"
+        CALL TYPING_ANIME_WAIT(TOPRINT,INTERVAL)
+        IF RESULT == 1
+            SKIP_ANIME = 1
+            BREAK
+        ENDIF
+        SIF TOPRINT == TEXT
+            BREAK
+        CLEARLINE 1
+
+        ;종성 조합까지 출력
+        IF JONG
+            ;받침이 겹받침인지 확인
+            CALLF JONG_TO_CHO(JONG)
+            TEMP = RESULT:1
+            IF TEMP != 0
+                ;겹받침의 종성은 2번에 걸쳐 입력한다
+                TOPRINT '= SUBSTRINGU(TOPRINT, 0, STRLENSU(TOPRINT)-1)
+                TOPRINT '= @"%TOPRINT%%UNICODE(FUSE_HANGUL(CHO,JUNG,TEMP))%"
+                CALL TYPING_ANIME_WAIT(TOPRINT,INTERVAL)
+                IF RESULT == 1
+                    SKIP_ANIME = 1
+                    BREAK
+                ENDIF
+                CLEARLINE 1
+            ENDIF
+
+            TOPRINT '= SUBSTRINGU(TOPRINT, 0, STRLENSU(TOPRINT)-1)
+            TOPRINT '= @"%TOPRINT%%UNICODE(FUSE_HANGUL(CHO,JUNG,JONG))%"
+            CALL TYPING_ANIME_WAIT(TOPRINT,INTERVAL)
+            IF RESULT == 1
+                SKIP_ANIME = 1
+                BREAK
+            ENDIF
+            SIF TOPRINT == TEXT
+                BREAK
+            CLEARLINE 1
+
+            ;다음 차례 문자의 초성이 지금 차례 문자의 종성과 조합하여 겹받침을 일시적으로 만드는 경우
+            IF COMBINE_JONG_CHO(JONG, NEXTCHO) > 0
+                FLAG_CHO = 1
+                TOPRINT '= SUBSTRINGU(TOPRINT, 0, STRLENSU(TOPRINT)-1)
+                TOPRINT '= @"%TOPRINT%%UNICODE(FUSE_HANGUL(CHO,JUNG,COMBINE_JONG_CHO(JONG, NEXTCHO)))%"
+                CALL TYPING_ANIME_WAIT(TOPRINT,INTERVAL)
+                IF RESULT == 1
+                    SKIP_ANIME = 1
+                    BREAK
+                ENDIF
+                SIF TOPRINT == TEXT
+                    BREAK
+                CLEARLINE 1
+            ENDIF
+        ;현재 차례의 한글 조합 문자에 종성이 없는 경우
+        ELSE
+            ;다음 차례의 한글 조합 문자에 초성이 있는 경우
+            IF NEXTCHO > -1
+                FLAG_CHO = 1
+                TOPRINT '= SUBSTRINGU(TOPRINT, 0, STRLENSU(TOPRINT)-1)
+                TOPRINT '= @"%TOPRINT%%UNICODE(FUSE_HANGUL(CHO,JUNG,CHO_TO_JONG(NEXTCHO)))%"
+                CALL TYPING_ANIME_WAIT(TOPRINT,INTERVAL)
+                IF RESULT == 1
+                    SKIP_ANIME = 1
+                    BREAK
+                ENDIF
+                SIF TOPRINT == TEXT
+                    BREAK
+                CLEARLINE 1
+            ENDIF
+        ENDIF
+    ;한글 조합 문자가 아님
+    ELSE
+        TOPRINT '= @"%TOPRINT%%UNICODE(CHARCODE)%"
+        CALL TYPING_ANIME_WAIT(TOPRINT,INTERVAL)
+        IF RESULT == 1
+            SKIP_ANIME = 1
+            BREAK
+        ENDIF
+        SIF TOPRINT == TEXT
+            BREAK
+        CLEARLINE 1
+    ENDIF
+NEXT
+RETURN SKIP_ANIME
+
+
+; TYPING_ANIME_KR 출력전 PREFIX 추가
+@TYPING_ANIME_PREFIX_KR(PREFIX, TEXT,INTERVAL,NONSKIP = 0)
+#DIMS PREFIX
+#DIMS TEXT
+#DIM INTERVAL
+#DIM NONSKIP
+
+#DIM DYNAMIC LEN
+#DIM DYNAMIC LCOUNT
+
+#DIM DYNAMIC CHARCODE
+#DIM DYNAMIC PREVCODE
+#DIM DYNAMIC NEXTCODE
+#DIM DYNAMIC CHO
+#DIM DYNAMIC JUNG
+#DIM DYNAMIC JONG
+#DIM DYNAMIC PREVJONG
+#DIM DYNAMIC PREVJONG2
+#DIM DYNAMIC NEXTCHO
+#DIM DYNAMIC FLAG_CHO
+
+#DIMS DYNAMIC TOPRINT
+#DIM DYNAMIC TEMP
+#DIMS DYNAMIC TEMPS
+#DIM DYNAMIC SKIP_ANIME
+
+LEN = STRLENSU(TEXT)
+
+;문자 갯수만큼 반복
+FOR LCOUNT,0,LEN
+    CHARCODE = ENCODETOUNI(CHARATU(TEXT, LCOUNT))
+
+    ;한글 조합 문자인 경우 (가~힣) (ㄱ, ㅏ, ㅀ 등은 제외함)
+    IF IS_HANGULCOMBINE(CHARCODE)
+        CHO = (CHARCODE - 0xAC00) / (21 * 28)
+        JUNG = (CHARCODE - 0xAC00) % (21 * 28) / 28
+        JONG = (CHARCODE - 0xAC00) % (21 * 28) % 28
+
+        ;이전 차례의 문자가 무엇인지 파악, 저장
+        IF LCOUNT == 0
+            PREVCODE = -1
+            PREVJONG = -1
+        ELSE
+            PREVCODE = ENCODETOUNI(CHARATU(TEXT, LCOUNT-1))
+            IF IS_HANGULCOMBINE(PREVCODE)
+                PREVJONG = (PREVCODE - 0xAC00) % (21 * 28) % 28
+            ELSE
+                PREVJONG = -1
+            ENDIF
+        ENDIF
+
+        ;다음 차례의 문자인지 무엇인지 파악, 저장
+        IF LCOUNT + 1 == LEN
+            NEXTCODE = -1
+            NEXTCHO = -1
+        ELSE
+            NEXTCODE = ENCODETOUNI(CHARATU(TEXT, LCOUNT+1))
+            IF IS_HANGULCOMBINE(NEXTCODE)
+                NEXTCHO = (NEXTCODE - 0xAC00) / (21 * 28)
+            ELSE
+                NEXTCHO = -1
+            ENDIF
+        ENDIF
+
+        ;초성 출력
+        IF !FLAG_CHO
+            TOPRINT '= @"%TOPRINT%%UNICODE(0x1100 + CHO)%"
+            CALL TYPING_ANIME_WAIT(@"%PREFIX%%TOPRINT%",INTERVAL)
+            IF RESULT == 1
+                SKIP_ANIME = 1
+                BREAK
+            ENDIF
+            CLEARLINE 1
+        ELSE
+            ;이전 단계에서 이미 초성을 입력하는 과정을 보여줬다면, 
+            ;OPRINT 변수 등의 내용을 갱신하기만 하고 출력은 거치지 않는다
+            FLAG_CHO = 0
+            TEMPS '= CHARATU(TOPRINT, STRLENSU(TOPRINT)-1)
+            TEMP = ENCODETOUNI(TEMPS)
+            PREVJONG2 = (TEMP - 0xAC00) % (21 * 28) % 28
+            CALLF JONG_TO_CHO(PREVJONG2)
+            TEMP = TEMP - PREVJONG2 + RESULT:1
+            TOPRINT '= SUBSTRINGU(TOPRINT, 0, STRLENSU(TOPRINT)-1)
+            TOPRINT '= @"%TOPRINT%%UNICODE(TEMP)%%UNICODE(0x1100 + JONG_TO_CHO(PREVJONG2))%"
+        ENDIF
+
+        ;중성 조합까지 출력
+        ;겹모음 중 일부는 2번에 걸쳐 입력한다
+        TEMP = DECOM_JUNG(JUNG)
+        IF TEMP != JUNG
+            TOPRINT '= SUBSTRINGU(TOPRINT, 0, STRLENSU(TOPRINT)-1)
+            TOPRINT '= @"%TOPRINT%%UNICODE(FUSE_HANGUL(CHO,TEMP))%"
+            CALL TYPING_ANIME_WAIT(@"%PREFIX%%TOPRINT%",INTERVAL)
+            IF RESULT == 1
+                SKIP_ANIME = 1
+                BREAK
+            ENDIF
+            CLEARLINE 1            
+        ENDIF
+
+        TOPRINT '= SUBSTRINGU(TOPRINT, 0, STRLENSU(TOPRINT)-1)
+        TOPRINT '= @"%TOPRINT%%UNICODE(FUSE_HANGUL(CHO,JUNG))%"
+        CALL TYPING_ANIME_WAIT(@"%PREFIX%%TOPRINT%",INTERVAL)
+        IF RESULT == 1
+            SKIP_ANIME = 1
+            BREAK
+        ENDIF
+        SIF TOPRINT == TEXT
+            BREAK
+        CLEARLINE 1
+
+        ;종성 조합까지 출력
+        IF JONG
+            ;받침이 겹받침인지 확인
+            CALLF JONG_TO_CHO(JONG)
+            TEMP = RESULT:1
+            IF TEMP != 0
+                ;겹받침의 종성은 2번에 걸쳐 입력한다
+                TOPRINT '= SUBSTRINGU(TOPRINT, 0, STRLENSU(TOPRINT)-1)
+                TOPRINT '= @"%TOPRINT%%UNICODE(FUSE_HANGUL(CHO,JUNG,TEMP))%"
+                CALL TYPING_ANIME_WAIT(@"%PREFIX%%TOPRINT%",INTERVAL)
+                IF RESULT == 1
+                    SKIP_ANIME = 1
+                    BREAK
+                ENDIF
+                CLEARLINE 1
+            ENDIF
+
+            TOPRINT '= SUBSTRINGU(TOPRINT, 0, STRLENSU(TOPRINT)-1)
+            TOPRINT '= @"%TOPRINT%%UNICODE(FUSE_HANGUL(CHO,JUNG,JONG))%"
+            CALL TYPING_ANIME_WAIT(@"%PREFIX%%TOPRINT%",INTERVAL)
+            IF RESULT == 1
+                SKIP_ANIME = 1
+                BREAK
+            ENDIF
+            SIF TOPRINT == TEXT
+                BREAK
+            CLEARLINE 1
+
+            ;다음 차례 문자의 초성이 지금 차례 문자의 종성과 조합하여 겹받침을 일시적으로 만드는 경우
+            IF COMBINE_JONG_CHO(JONG, NEXTCHO) > 0
+                FLAG_CHO = 1
+                TOPRINT '= SUBSTRINGU(TOPRINT, 0, STRLENSU(TOPRINT)-1)
+                TOPRINT '= @"%TOPRINT%%UNICODE(FUSE_HANGUL(CHO,JUNG,COMBINE_JONG_CHO(JONG, NEXTCHO)))%"
+                CALL TYPING_ANIME_WAIT(@"%PREFIX%%TOPRINT%",INTERVAL)
+                IF RESULT == 1
+                    SKIP_ANIME = 1
+                    BREAK
+                ENDIF
+                SIF TOPRINT == TEXT
+                    BREAK
+                CLEARLINE 1
+            ENDIF
+        ;현재 차례의 한글 조합 문자에 종성이 없는 경우
+        ELSE
+            ;다음 차례의 한글 조합 문자에 초성이 있는 경우
+            IF NEXTCHO > -1
+                FLAG_CHO = 1
+                TOPRINT '= SUBSTRINGU(TOPRINT, 0, STRLENSU(TOPRINT)-1)
+                TOPRINT '= @"%TOPRINT%%UNICODE(FUSE_HANGUL(CHO,JUNG,CHO_TO_JONG(NEXTCHO)))%"
+                CALL TYPING_ANIME_WAIT(@"%PREFIX%%TOPRINT%",INTERVAL)
+                IF RESULT == 1
+                    SKIP_ANIME = 1
+                    BREAK
+                ENDIF
+                SIF TOPRINT == TEXT
+                    BREAK
+                CLEARLINE 1
+            ENDIF
+        ENDIF
+    ;한글 조합 문자가 아님
+    ELSE
+        TOPRINT '= @"%TOPRINT%%UNICODE(CHARCODE)%"
+        CALL TYPING_ANIME_WAIT(@"%PREFIX%%TOPRINT%",INTERVAL)
+        IF RESULT == 1
+            SKIP_ANIME = 1
+            BREAK
+        ENDIF
+        SIF TOPRINT == TEXT
+            BREAK
+        CLEARLINE 1
+    ENDIF
+NEXT
+RETURN SKIP_ANIME
+
+
+;TYPING_ANIME_KR의 과정을 거꾸로 해서, 지우는 과정을 묘사하는 함수
+;글자를 조합하는 도중에 지우는 것만 묘사해도 되므로 1글자만 이용
+@BACKSPACE_ANIME_KR(POSTTEXT = "", CHAR, INTERVAL, NONSKIP = 0)
+#DIMS POSTTEXT
+#DIMS CHAR
+#DIM INTERVAL
+#DIM NONSKIP
+
+#DIM LCOUNT
+
+#DIM DYNAMIC CHARCODE
+#DIM DYNAMIC CHO
+#DIM DYNAMIC JUNG
+#DIM DYNAMIC JONG
+#DIM DYNAMIC TEMP,2
+
+#DIMS DYNAMIC TOPRINT,4
+#DIM DYNAMIC NUM
+
+#DIM DYNAMIC SKIP_ANIME
+
+;한글자만 취급
+SIF STRLENSU(CHAR) > 1
+    RETURN
+
+CHARCODE = ENCODETOUNI(CHAR)
+
+IF IS_HANGULCOMBINE(CHARCODE)
+    CHO = (CHARCODE - 0xAC00) / (21 * 28)
+    JUNG = (CHARCODE - 0xAC00) % (21 * 28) / 28
+    JONG = (CHARCODE - 0xAC00) % (21 * 28) % 28
+    TEMP:0 = DECOM_JUNG(JUNG)
+    CALLF JONG_TO_CHO(JONG)
+    TEMP:1 = RESULT:1
+
+    NUM = 1
+    TOPRINT:NUM '= UNICODE(0x1100 + CHO)
+    NUM ++
+    
+    IF TEMP:0 != JUNG
+        TOPRINT:NUM '= UNICODE(FUSE_HANGUL(CHO, TEMP:0))
+        NUM ++
+    ENDIF
+    
+    TOPRINT:NUM '= UNICODE(FUSE_HANGUL(CHO, JUNG))
+    NUM ++
+
+    IF JONG > 0 && TEMP:1 > 0
+        TOPRINT:NUM '= UNICODE(FUSE_HANGUL(CHO, JUNG, TEMP:1))
+        NUM ++
+    ENDIF
+
+    FOR LCOUNT, NUM, 0, -1
+        CALL TYPING_ANIME_WAIT(@"%POSTTEXT%%TOPRINT:(LCOUNT-1)%",INTERVAL)
+        IF RESULT == 1
+            SKIP_ANIME = 1
+            BREAK
+        ENDIF
+        CLEARLINE 1
+    NEXT
+ELSE
+    RETURN
+ENDIF
+RETURN SKIP_ANIME
+
+
+;특별한 처리 없이 1글자씩 지워지는 모습을 보여주는 함수
+@BACKSPACE_ANIME_NORMAL(TEXT,INTERVAL,NONSKIP = 0)
+#DIMS TEXT
+#DIM INTERVAL
+#DIM NONSKIP
+
+#DIM DYNAMIC LEN
+#DIM DYNAMIC LCOUNT
+
+#DIMS DYNAMIC TOPRINT
+
+#DIM DYNAMIC SKIP_ANIME
+
+LEN = STRLENSU(TEXT)
+
+FOR LCOUNT, LEN, 0, -1
+    CALL TYPING_ANIME_WAIT(SUBSTRINGU(TEXT, 0, LCOUNT-1),INTERVAL)
+    IF RESULT == 1
+        SKIP_ANIME = 1
+        BREAK
+    ENDIF
+    CLEARLINE 1
+NEXT
+RETURN SKIP_ANIME
+
+
+@IS_HANGULCOMBINE(CODE)
+#FUNCTION
+#DIM CODE
+IF CODE >= 0xAC00 && CODE <= 0xDCAF
+    RETURNF 1
+ELSE
+    RETURNF 0
+ENDIF
+
+@FUSE_HANGUL(CHO,JUNG,JONG = 0)
+#FUNCTION
+#DIM CHO
+#DIM JUNG
+#DIM JONG
+
+RETURNF CHO * 21 * 28 + JUNG * 28 + JONG + 0xAC00
+
+@CHO_TO_JONG(CHO)
+#FUNCTION
+#DIM CHO
+
+SELECTCASE CHO
+    CASE 0
+        RETURNF 1;ㄱ
+    CASE 1
+        RETURNF 2;ㄲ
+    CASE 2
+        RETURNF 4;ㄴ
+    CASE 3
+        RETURNF 7;ㄷ
+    CASE 5
+        RETURNF 8;ㄹ
+    CASE 6
+        RETURNF 16;ㅁ
+    CASE 7
+        RETURNF 17;ㅂ
+    CASE 9
+        RETURNF 19;ㅅ
+    CASE 10
+        RETURNF 20;ㅆ
+    CASE 11
+        RETURNF 21;ㅇ
+    CASE 12
+        RETURNF 22;ㅈ
+    CASE 14
+        RETURNF 23;ㅊ
+    CASE 15
+        RETURNF 24;ㅋ
+    CASE 16
+        RETURNF 25;ㅌ
+    CASE 17
+        RETURNF 26;ㅍ
+    CASE 18
+        RETURNF 27;ㅎ
+    CASEELSE
+        RETURNF -1
+ENDSELECT
+
+@JONG_TO_CHO(JONG)
+#FUNCTION
+#DIM JONG
+;자음을 이어서 입력할 경우 다음 문자의 초성이 되고 남는 종성을 검색
+SELECTCASE JONG
+    CASE 3
+        RESULT:1 = 1;ㄳ
+    CASE 5,6
+        RESULT:1 = 4;ㄵ,ㄶ
+    CASE 9 TO 15
+        RESULT:1 = 8;ㄺ~ㅀ
+    CASE 18
+        RESULT:1 = 17;ㅄ
+    CASEELSE
+        RESULT:1 = 0;없음
+ENDSELECT
+;자음을 이어서 입력할 경우 다음 문자의 초성이 되는 것을 검색
+SELECTCASE JONG
+    CASE 1,9
+        RETURNF 0;ㄱ,ㄺ
+    CASE 2
+        RETURNF 1;ㄲ
+    CASE 4
+        RETURNF 2;ㄴ
+    CASE 7
+        RETURNF 3;ㄷ
+    CASE 8
+        RETURNF 5;ㄹ
+    CASE 10,16
+        RETURNF 6;ㅁ
+    CASE 11,17
+        RETURNF 7;ㅂ
+    CASE 3,12,18,19
+        RETURNF 9;ㄳ,ㄽ,ㅄ,ㅅ
+    CASE 20
+        RETURNF 10;ㅆ
+    CASE 21
+        RETURNF 11;ㅇㅇ
+    CASE 5,22
+        RETURNF 12;ㄵ,ㅈ
+    CASE 23
+        RETURNF 14;ㅊ
+    CASE 24
+        RETURNF 15;ㅋ
+    CASE 13,25
+        RETURNF 16;ㅌ
+    CASE 14,26
+        RETURNF 17;ㅍ
+    CASE 6,15,27
+        RETURNF 18;ㄶ,ㅀ,ㅎ
+ENDSELECT
+
+;겹모음을 분리, 단 ㅐㅒㅔㅖ는 대응하지 않음(한글 입력 과정을 모사하기 위함이기 때문)
+@DECOM_JUNG(JUNG)
+#FUNCTION
+#DIM JUNG
+
+RESULT:1 = 0,0
+
+SELECTCASE  JUNG
+    CASE 9, 10, 11
+        RESULT:1 = 8
+        SELECTCASE JUNG
+            CASE 9
+                ;ㅘ
+                RESULT:2 = 0
+            CASE 10
+                ;ㅙ
+                RESULT:2 = 1
+            CASE 11
+                ;ㅚ
+                RESULT:2 = 20
+        ENDSELECT
+    CASE 14, 15, 16
+        RESULT:1 = 13
+        SELECTCASE JUNG
+            CASE 14
+                ;ㅝ
+                RESULT:2 = 4
+            CASE 15
+                ;ㅞ
+                RESULT:2 = 5
+            CASE 16
+                ;ㅟ
+                RESULT:2 = 20
+        ENDSELECT
+    CASE 19
+        ;ㅢ
+        RESULT:1 = 18
+        RESULT:2 = 20
+    CASEELSE
+        RESULT:1 = JUNG
+        RESULT:2 = -1
+ENDSELECT
+RETURNF RESULT:1
+
+@COMBINE_JONG_CHO(JONG,CHO)
+#FUNCTION
+#DIM JONG
+#DIM CHO
+
+SELECTCASE JONG
+    CASE 1
+        ;ㄱ
+        IF CHO == 9
+            RETURNF 3;ㄳ
+        ELSE
+            RETURNF -1
+        ENDIF
+    CASE 4
+        ;ㄴ
+        SELECTCASE CHO
+            CASE 12
+                RETURNF 5;ㄵ
+            CASE 18
+                RETURNF 6;ㄶ
+            CASEELSE
+                RETURNF -1
+        ENDSELECT
+    CASE 8
+        ;ㄹ
+        SELECTCASE CHO
+            CASE 0
+                RETURNF 9;ㄺ
+            CASE 6
+                RETURNF 10;ㄻ
+            CASE 7
+                RETURNF 11;ㄼ
+            CASE 9
+                RETURNF 12;ㄽ
+            CASE 16
+                RETURNF 13;ㄾ
+            CASE 17
+                RETURNF 14;ㄿ
+            CASE 18
+                RETURNF 15;ㅀ
+            CASEELSE
+                RETURNF -1
+        ENDSELECT
+    CASE 17
+        ;ㅂ
+        IF CHO == 9
+            RETURNF 18;ㅄ
+        ELSE
+            RETURNF -1
+        ENDIF
+    CASEELSE
+        RETURNF -1
+ENDSELECT
+
+@TYPING_ANIME_WAIT(TEXT,INTERVAL)
+#DIMS TEXT
+#DIM INTERVAL
+PRINTSL TEXT
+VARSET RESULT
+INPUTMOUSEKEY INTERVAL
+IF RESULT != 4
+    RETURN 1
+ELSE
+    RETURN 0
+ENDIF

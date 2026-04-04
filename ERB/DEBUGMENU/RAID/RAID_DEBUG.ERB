@@ -1,0 +1,379 @@
+﻿[IF_DEBUG]
+;-------------------------------------------------
+; 총력전 밸런스용
+;-------------------------------------------------
+@RAIDDEBUG
+#DIM DYNAMIC FIRST_LINE
+
+FIRST_LINE = LINECOUNT
+
+$STARTDEBUG_RAID
+; CLEARLINE LINECOUNT - FIRST_LINE
+CALL SINGLE_DRAWLINE
+PRINTL 총력전 밸런스 조정 도구
+CALL SINGLE_DRAWLINE
+PRINTL
+PRINTBUTTON "0[돌아간다]", 0
+PRINTL
+PRINTBUTTON "1[자가 버프 딜러 스킬]", 1
+PRINTL
+CALL SINGLE_DRAWLINE
+INPUT
+CLEARLINE LINECOUNT - FIRST_LINE
+SELECTCASE RESULT
+	CASE 0
+		RETURN
+	CASE 1
+		CALL RAIDDEBUG_selfbuff_0
+ENDSELECT
+GOTO STARTDEBUG_RAID
+
+; #region Cast Skill
+@RAIDDEBUG_처리_스킬(시전자)
+#DIM 시전자
+
+; 스킬 상태효과 적용
+SETBIT 총력전_스탯상태:시전자, 총력전_방식_스킬
+CALL 총력전_상태효과_스탯처리(시전자)
+; 스킬 시전
+TRYCCALLFORM DEBUG_총력전_스킬_{총력전_스킬_번호:시전자}_발동(시전자)
+CATCH
+	TRYCALLFORM 총력전_스킬_{총력전_스킬_번호:시전자}_발동(시전자)
+ENDCATCH
+; 스킬 카운터 처리
+CALL 총력전_카운터_증가(시전자, -1, 총력전_방식_스킬)
+CALL 총력전_카운터_소비(시전자, 총력전_방식_스킬)
+; 스킬 상태효과 종료
+CLEARBIT 총력전_스탯상태:시전자, 총력전_방식_스킬
+CALL 총력전_상태효과_스탯처리(시전자)
+; 스킬 상태효과 소비
+CALL 총력전_상태효과_소비(시전자, 총력전_방식_스킬)
+
+; #region Set Boss
+@RAIDDEBUG_boss(보스번호)
+#DIM DYNAMIC 보스번호
+
+#DIM DYNAMIC FIRST_LINE
+#DIM 보스체력 = 999999
+#DIM 보스공 = 0
+#DIM 보스방 = 223
+#DIM 보스명중 = 0
+#DIM 보스회피 = 18
+#DIM 보스치유 = 0
+#DIM 보스치명 = 0
+#DIM 보스치명저항 = 108
+#DIM 보스치명대미지 = 0
+#DIM 보스치명대미지저항 = 20
+; #DIM 보스군중제어 = 2000
+; #DIM 보스군중강화 = 0
+; #DIM 보스군중저항 = 40
+
+총력전_팀:보스번호 = 1
+총력전_군중제어_한계_최초:보스번호 = 9000
+총력전_군중제어_강화_최초:보스번호 = 0
+총력전_군중제어_저항_최초:보스번호 = 0
+
+FIRST_LINE = LINECOUNT
+$INPUTLOOP
+CLEARLINE LINECOUNT - FIRST_LINE
+
+CALL SINGLE_DRAWLINE
+PRINTL 보스 총력전 스탯
+PRINTL
+PRINTBUTTON "[ 수정 ]",1
+PRINTFORM  체력: {보스체력}
+PRINTL
+PRINTBUTTON "[ 수정 ]",2
+PRINTFORM 공격력: {보스공, 15, LEFT}
+PRINTBUTTON " [ 수정 ]",3
+PRINTFORM 방어력: {보스방, 15, LEFT}
+PRINTL
+PRINTBUTTON "[ 수정 ]",4
+PRINTFORM 명중률: {보스명중, 15, LEFT}
+PRINTBUTTON " [ 수정 ]",5
+PRINTFORM 회피율: {보스회피, 15, LEFT}
+PRINTBUTTON " [ 수정 ]",6
+PRINTFORM 치유력: {보스치유, 15, LEFT}
+PRINTL
+PRINTBUTTON "[ 수정 ]",7
+PRINTFORM 치명타: {보스치명, 15, LEFT}
+PRINTBUTTON " [ 수정 ]",8
+PRINTFORM 치명 저항: {보스치명저항, 12, LEFT}
+PRINTL
+PRINTBUTTON "[ 수정 ]",9
+PRINTFORM 치명 대미지: {보스치명대미지, 10, LEFT}
+PRINTBUTTON " [ 수정 ]",10
+PRINTFORM 치명 대미지 저항: {보스치명대미지저항, 5, LEFT}
+PRINTL
+CALL SINGLE_DRAWLINE
+PRINTL
+PRINTBUTTON " [ 결정 ]", 0
+PRINTL
+
+INPUT
+CLEARLINE 1
+DRAWLINE
+
+SELECTCASE RESULT
+	CASE 0 ; 실행
+		GOTO ENDSET
+	CASE 1
+		PRINTL 보스 체력 설정 (0 ~ 999,999)
+		INPUT
+		보스체력 = MIN(RESULT, 999999)
+	CASE 2
+		PRINTL 보스 공격력 설정 (0 ~ 1000)
+		INPUT
+		보스공 = MIN(RESULT, 1000)
+	CASE 3
+		PRINTL 보스 방어력 설정 (0 ~ 1000)
+		INPUT
+		보스방 = MIN(RESULT, 1000)
+	CASE 4
+		PRINTL 보스 명중률 설정 (0 ~ 1000)
+		INPUT
+		보스명중 = MIN(RESULT, 1000)
+	CASE 5
+		PRINTL 보스 회피율 설정 (0 ~ 1000)
+		INPUT
+		보스회피 = MIN(RESULT, 1000)
+	CASE 6
+		PRINTL 보스 치유력 설정 (0 ~ 1000)
+		INPUT
+		보스치유 = MIN(RESULT, 1000)
+	CASE 7
+		PRINTL 보스 치명타 설정 (0 ~ 1000)
+		INPUT
+		보스치명 = MIN(RESULT, 1000)
+	CASE 8
+		PRINTL 보스 치명타 저항 설정 (0 ~ 1000)
+		INPUT
+		보스치명저항 = MIN(RESULT, 1000)
+	CASE 9
+		PRINTL 보스 치명타 대미지 설정 (0 ~ 1000)
+		INPUT
+		보스치명대미지 = MIN(RESULT, 1000)
+	CASE 10
+		PRINTL 보스 치명타 대미지 저항 설정 (0 ~ 1000)
+		INPUT
+		보스치명대미지저항 = MIN(RESULT, 1000)
+ENDSELECT
+GOTO INPUTLOOP
+$ENDSET
+CLEARLINE LINECOUNT - FIRST_LINE
+
+총력전_상태:보스번호 = 총력전_상태_보스
+; 스탯 설정
+총력전_최대체력_최초:보스번호 = 보스체력
+총력전_공격력_최초:보스번호 = 보스공
+총력전_방어력_최초:보스번호 = 보스방
+총력전_명중률_최초:보스번호 = 보스명중
+총력전_회피율_최초:보스번호 = 보스회피
+총력전_치유력_최초:보스번호 = 보스치유
+총력전_치명타_최초:보스번호 = 보스치명
+총력전_치명타_저항_최초:보스번호 = 보스치명저항
+총력전_치명타_대미지_최초:보스번호 = 보스치명대미지
+총력전_치명타_대미지_저항_최초:보스번호 = 보스치명대미지저항
+; #endregion
+
+; #region Set Chara
+; RETURN = 캐릭터번호
+@RAIDDEBUG_chara(iChara = -1)
+#DIM iChara
+
+#DIM DYNAMIC FIRST_LINE
+#DIM 총체력 = 2000
+#DIM 총기력 = 2000
+#DIM 총무투 = 50
+#DIM 총방위 = 50
+#DIM 총지략 = 50
+#DIM 총정치 = 50
+#DIM 총신비 = 0
+#DIM 총요리 = 50
+#DIM 총가창 = 50
+; #DIM 총야심 = 50
+
+FIRST_LINE = LINECOUNT
+
+; 임시, 나중에 문제 없게 추가 수정 필요...
+$RESETCALC
+IF iChara == -1
+	iChara = CHARANUM
+	ADDVOIDCHARA
+ELSE
+	총체력 = MAXBASE:iChara:체력
+	총기력 = MAXBASE:iChara:기력
+	총무투 = ABL:iChara:무투
+	총방위 = ABL:iChara:방위
+	총지략 = ABL:iChara:지략
+	총정치 = ABL:iChara:정치
+	총신비 = ABL:iChara:신비
+	총요리 = ABL:iChara:요리
+	총가창 = ABL:iChara:가창
+	; 총야심 = ABL:iChara:야심
+ENDIF
+;작성한 캐릭터를 타겟으로 한다
+TARGET = iChara
+
+$INPUTLOOP
+CLEARLINE LINECOUNT - FIRST_LINE
+CALL SINGLE_DRAWLINE
+; 필요하지 않음, 테스트 중 헷갈림 방지용으로
+PRINTFORML 캐릭터({iChara}) 스탯 설정
+PRINTBUTTON "[ 이름 ] ", 1
+PRINTFORM %NAME:iChara%
+PRINTBUTTON " [ NO ] ", 2
+PRINTFORM {NO:iChara}
+IF TALENT:iChara:웨폰 != 0
+	PRINTBUTTON " [ 무기 해제 ] ", 3
+	PRINTFORM 현 무기:({TALENT:iChara:웨폰})
+ENDIF
+PRINTL
+CALL SINGLE_DRAWLINE
+PRINTL
+PRINTBUTTON "[ 4합 수정 ] ", 5
+PRINTBUTTON "[ 7합 수정 ] ", 6
+PRINTBUTTON "[ 요리,가창 수정 ]", 7
+PRINTL
+CALL SINGLE_DRAWLINE
+PRINTL
+PRINTBUTTON "[ 수정 ]", 10
+PRINTFORM 체력: {총체력, 15, LEFT}
+PRINTBUTTON "[ 수정 ]", 11
+PRINTFORM 기력: {총기력, 15, LEFT}
+PRINTL
+CALL SINGLE_DRAWLINE
+PRINTL
+PRINTBUTTON "[ 수정 ]", 20
+PRINTFORM 무투: {총무투, 10, LEFT}
+PRINTBUTTON "[ 수정 ]", 21
+PRINTFORM 방위: {총방위, 10, LEFT}
+PRINTBUTTON "[ 수정 ]", 22
+PRINTFORM 지략: {총지략, 10, LEFT}
+PRINTBUTTON "[ 수정 ]", 23
+PRINTFORM 정치: {총정치, 10, LEFT}
+PRINTL
+PRINTBUTTON "[ 수정 ]", 24
+PRINTFORM 신비: {총신비, 10, LEFT}
+PRINTBUTTON "[ 수정 ]", 25
+PRINTFORM 요리: {총요리, 10, LEFT}
+PRINTBUTTON "[ 수정 ]", 26
+PRINTFORM 가창: {총가창, 10, LEFT}
+PRINTL
+CALL SINGLE_DRAWLINE
+PRINTL
+PRINTBUTTON " [ 결정 ]", 0
+PRINTL
+
+INPUT
+CLEARLINE 1
+SELECTCASE RESULT
+	CASE 0
+		GOTO ENDSET
+	CASE 1
+		PRINTL 이름 설정
+		INPUTS
+		NAME:iChara = %RESULTS%
+	CASE 2
+		PRINTL 캐릭터 번호 설정
+		INPUT
+		NO:iChara = RESULT
+		; csv 있으면 이름 설정
+		IF EXISTCSV(NO:iChara) && NO:iChara != 0
+			CSVNAME NO:iChara
+			NAME:iChara = %RESULTS%
+		ENDIF
+	CASE 3
+		CALL WEAPON_EQUIP(iChara, 0)
+		GOTO RESETCALC
+	CASE 5
+		PRINTL 무투, 방위, 지략, 정치 수정
+		INPUT
+		총무투 = RESULT
+		총방위 = RESULT
+		총지략 = RESULT
+		총정치 = RESULT
+	CASE 6
+		PRINTL 무투, 방위, 지략, 정치, 신비, 요리, 가창 수정
+		INPUT
+		총무투 = RESULT
+		총방위 = RESULT
+		총지략 = RESULT
+		총정치 = RESULT
+		총신비 = RESULT
+		총요리 = RESULT
+		총가창 = RESULT
+	CASE 7
+		PRINTL 요리, 가창 수정
+		INPUT
+		총요리 = RESULT
+		총가창 = RESULT
+	CASE 10
+		PRINTFORML 체력 설정 (기존:{총체력})
+		INPUT
+		총체력 = RESULT
+	CASE 11
+		PRINTFORML 기력 설정 (기존:{총기력})
+		INPUT
+		총기력 = RESULT
+	CASE 20
+		PRINTFORML 무투 설정 (기존:{총무투})
+		INPUT
+		총무투 = RESULT
+	CASE 21
+		PRINTFORML 방위 설정 (기존:{총방위})
+		INPUT
+		총방위 = RESULT
+	CASE 22
+		PRINTFORML 지략 설정 (기존:{총지략})
+		INPUT
+		총지략 = RESULT
+	CASE 23
+		PRINTFORML 정치 설정 (기존:{총정치})
+		INPUT
+		총정치 = RESULT
+	CASE 24
+		PRINTFORML 신비 설정 (기존:{총신비})
+		INPUT
+		총신비 = RESULT
+	CASE 25
+		PRINTFORML 요리 설정 (기존:{총요리})
+		INPUT
+		총요리 = RESULT
+	CASE 26
+		PRINTFORML 가창 설정 (기존:{총가창})
+		INPUT
+		총가창 = RESULT
+ENDSELECT
+GOTO INPUTLOOP
+$ENDSET
+
+; (필요한) 스탯(만) 설정
+MAXBASE:체력 = 총체력
+BASE:체력 = MAXBASE:체력
+MAXBASE:기력 = 총기력
+BASE:기력 = MAXBASE:기력
+ABL:무투 = 총무투
+ABL:방위 = 총방위
+ABL:지략 = 총지략
+ABL:정치 = 총정치
+ABL:신비 = 총신비
+ABL:요리 = 총요리
+ABL:가창 = 총가창
+; ABL:야심 = 총야심
+
+RETURN iChara
+; #endregion
+
+@RAIDDEBUG_weapon(iChara = -1)
+#DIM iChara
+; 무기 설정
+PRINTL 무기 번호 설정
+PRINTBUTTON "[ 변경 취소 ] ", -1
+PRINTFORM 지금 무기번호:{TALENT:iChara:웨폰}(-1 이면 기존 무기 유지)
+INPUT
+; CLEARLINE 2
+SIF RESULT != -1
+	CALL WEAPON_EQUIP(iChara, RESULT)
+
+[ENDIF]

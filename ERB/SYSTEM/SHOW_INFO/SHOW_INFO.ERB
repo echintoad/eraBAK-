@@ -657,7 +657,8 @@ IF FLAG:화상설정
 	
 	IF TALENT:iID:웨폰 && 인포장비이미지 == 0
 		PRINT 　　　　　　　　　　　　　
-		PRINTBUTTON @"【 %WEAPON_NAME(TALENT:iID:웨폰)% 】", 4000
+		CALL WEAPON_NAME(TALENT:iID:웨폰)
+		PRINTBUTTON @"【 %RESULTS% 】", 4000
 	ELSEIF 인포장비이미지 == 1
 		PRINT 　
 		PRINTBUTTON @"【 %장비이름(착용장비:iID:0), 18, LEFT% 】", 4000

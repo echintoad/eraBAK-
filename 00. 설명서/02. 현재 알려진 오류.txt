@@ -4,11 +4,37 @@
 ========================================================
 
 □ 특수 세력 화상, 지휘관 + 총력전 화면 기본 (남/여) 화상 뜸
+□ 후우카 첫인사가 여러번 나옴
+  ○ "다시 확인해서 보니 처음 만난 날 함락 없을 떄 이야기한다 시 패턴 중 하나로 껴있는듯"
+
+□ 군준제어시 보스 스킬 취소 되야됨
+  ○ 아마 업데이트 하면서 잘못 건드린듯...
+
+□ 특정 상황에 [지도] 버튼 누루면 오류
+  ○ 개발자 노트, 오류 났던 세이브:
+    ○ [39 ] 2026-04-03 22:07:36 시나리오20 거잔행동:6 78기 히나세력
+  ○ 오류가 다시 나오진 않았음, 찾는데 시간 걸릴거라 나중에
+SHOP\SHOP_SLG_COLUMN_LEFT.ERB at line 122Error has occurred:Emuera.NET 1.824+v22+EMv18+EEv53
+		IF COLUMN_LEFT_CATEGORY_NUM_SLG:(ARG:0) != 0
+Error description: Array variable "COLUMN_LEFT_CATEGORY_NUM_SLG" at the 1 argument (-8842) is out of the range of the array
+Function: @COLUMN_LEFT_MENU_SHOW_SLG（file:SHOP\SHOP_SLG_COLUMN_LEFT.ERB in line 86）
+Function call stack:
+↑SLG\SLG_CITY.ERB at line 17（function@SHOW_CITY_INFO）
+↑SHOP\SHOP.ERB at line 313（function@EVENTBUY）
+※※※Log file emuera.log has been created. Please provide stacktrace or save data with steps to reproduce to help fix it※※※
+
+□ 부대 이미지 오류?
+  ○ 고정 캐릭터가 지휘관이라고 적혀있는데(히후미, 하나코), 이미지는 부대에 없는 범용 캐릭터 하나만 뜸
+  ○ 적 캐릭터중 그 이미지 쓰는 캐릭터가 있긴 했음
+  ○ 하면서 어떤 상황에 나오는지 확인
+  ○ BATTLE_IMAGE.ERB 일 확률 높음
+
 
 =============================================================
 해결한 문제
 =============================================================
 
-□ 이미지 부분
-  ○ 특정 상황에서 플레이어의 화상이 다른 학생의 화상으로 변함. (2023. 3. 16.)
 □ 카이저 돈 양도 [쫒아낸다] 시 버그 (아마?)
+0.6.0
+□ 버그: 츠루기 스킬 퍼센트 확인
+□ 자식 무기 깨짐?(웨폼_0)

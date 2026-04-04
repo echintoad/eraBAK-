@@ -123,3 +123,724 @@ IF CHECK_UPDATE("0.5.4");치나츠 안경 추가
 	PRINTW == 0.5.4 버전에 치나츠 안경 추가, 치나츠 의상을 초기화합니다 ==
 	CALL CLOTH_INIT(16)
 ENDIF
+
+IF CHECK_UPDATE("0.5.10")
+	; BLACKFANG 확인
+	FOR LOCAL, 0, CHARANUM
+		IF TALENT:LOCAL:웨폰 == 130
+			PRINTL == 0.5.10 BLACKFANG465 장착시 스킬 변경 ==
+			PRINTFORMW >> %ANAME(LOCAL)% "드론 소환: 화력 지원" -> "화력 강화"
+			CALL SKILL_FORGET_BY_NAME(LOCAL, 스킬_장르_BASE, "드론 소환: 화력 지원")
+			CALL SKILL_LEARN(LOCAL, 스킬_장르_BASE, 1130, 0)
+		ENDIF
+	NEXT
+ENDIF
+
+; chk update 0.6
+IF CHECK_UPDATE("0.6.0")
+	; debug confirm update
+	PRINTL == 0.6.0 업데이트 ==
+	PRINTL 세이브 백업을 강력 추천합니다
+	WAITANYKEY
+	IF RESULT
+		; 보스 무지성 리셋
+		PRINTL 총력전 보스 리셋중...
+		CALL 총력전_보스활동_초기설정
+		PRINTL 무기 리셋중...
+		IF LASTLOAD_VERSION <= GET_VERSION_VALUE("0.5.5")
+			; 무기 리셋
+			FOR LOCAL, 0, CHARANUM
+				LOCAL:1 = 0
+				CALL _UPDATE_WEAPON_UNEQUIP_055(LOCAL) ; 무기 스탯 버프 제거
+				SIF RESULT != 0
+					LOCAL:1 = RESULT ; 해제한 무기 기록
+				CALL _UPDATE_WEAPON_RMVSKILL(LOCAL) ; 무기 스킬 제거
+				; 중복 고정 캐릭터가 있으면 첫번째만 바뀔듯?
+				IF IS_FIXED_CHARA(LOCAL)
+					CALL WEAPON_EQUIP(LOCAL, 100) ; failsafe
+					CALL WEAPON_INIT(LOCAL)
+				ELSEIF LOCAL:1 > 0
+					; 범용 캐릭터/아이 캐릭터가 무기 받아 쓰고 있었으면 그냥 주기
+					CALL WEAPON_ADD(LOCAL, LOCAL:1)
+					CALL WEAPON_EQUIP(LOCAL, LOCAL:1)
+				ELSE
+					; 양산형 돌격소총
+					CALL WEAPON_EQUIP(LOCAL, 100)
+				ENDIF
+			NEXT
+		ELSE
+			; 0.5.5 ~ 0.5.10, 스탯이 이미 어느정도 망쳐졌다 가정
+			; 무기 시스템이 옛날건지 확인후, 무기 리셋
+			FOR LOCAL, 0, CHARANUM
+				; 고정 캐릭터는 무기 초기화 시켜 버리기
+				IF IS_FIXED_CHARA(LOCAL)
+					CALL WEAPON_INIT(LOCAL)
+				ELSEIF _UPDATE_IS_EXISTING_WEAPON(TALENT:LOCAL:웨폰) && WEAPON_OWNED(LOCAL, TALENT:LOCAL:웨폰) == 0
+					; 무기가 허가되지 않았으면 구 시스템이라 가정, 스킬 정리
+					CALL _UPDATE_WEAPON_RMVSKILL(LOCAL)
+					; 범용/아이 캐릭터는 장비한 무기가 허가 무기에 없으면 그냥 주기
+					CALL WEAPON_ADD(LOCAL, TALENT:LOCAL:웨폰)
+					CALL WEAPON_EQUIP(LOCAL, TALENT:LOCAL:웨폰)
+				ELSEIF _UPDATE_IS_EXISTING_WEAPON(TALENT:LOCAL:웨폰) == 0 && _UPDATE_IS_FIXED_WEAPON(TALENT:LOCAL:웨폰) == 0
+					; 버그 방지 양산형 돌격소총
+					CALL WEAPON_EQUIP(LOCAL, 100)
+				ENDIF
+			NEXT
+		ENDIF
+		; 목걸이 있으면 장비 스탯 재계산
+		PRINTL 목걸이 있으면 장비 재계산...
+		FOR LOCAL, 0, CHARANUM
+			; 목걸이 있으면 장비 장착 해제후 총력전장비스탯상승 초기화
+			IF 장비타입(착용장비:LOCAL:2) == "목걸이"
+				; 기존 장비번호 기록
+				LOCAL:2 = 착용장비:LOCAL:0
+				LOCAL:3 = 착용장비:LOCAL:1
+				LOCAL:4 = 착용장비:LOCAL:2
+				; 장비 해제
+				SIF LOCAL:2 >= 0
+					CALLFORM 총력전장비장착_{착용장비:LOCAL:0}(LOCAL, -1)
+				SIF LOCAL:3 >= 0
+					CALLFORM 총력전장비장착_{착용장비:LOCAL:1}(LOCAL, -1)
+				SIF LOCAL:4 >= 0
+					CALLFORM 총력전장비장착_{착용장비:LOCAL:2}(LOCAL, -1)
+				; 총력전장비스탯상승 초기화
+				FOR LOCAL:1, 0, 12
+					총력전장비스탯상승:LOCAL:(LOCAL:1) = 0
+				NEXT
+				; 장비 장착
+				SIF LOCAL:2 >= 0
+					CALLFORM 총력전장비장착_{LOCAL:2}(LOCAL, 1)
+				SIF LOCAL:3 >= 0
+					CALLFORM 총력전장비장착_{LOCAL:3}(LOCAL, 1)
+				SIF LOCAL:4 >= 0
+					CALLFORM 총력전장비장착_{LOCAL:4}(LOCAL, 1)
+			ENDIF
+		NEXT
+	ENDIF
+ENDIF
+
+;-------------------------------------------------
+; 임시 업데이트 개인 함수
+; 더이상 필요없을때 제거
+;-------------------------------------------------
+
+; 범용 무기 인지
+@_UPDATE_IS_FIXED_WEAPON(무기번호)
+#FUNCTION
+#DIM 무기번호
+#DIM CONST iWeaponNum = 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100
+SIF FINDELEMENT(iWeaponNum, 무기번호) != -1
+	RETURNF 1
+RETURNF 0
+
+; 고정 무기 인지, 3101 ~ 4105 무기는 무시 하도록
+@_UPDATE_IS_EXISTING_WEAPON(무기번호)
+#FUNCTION
+#DIM 무기번호
+SIF _UPDATE_IS_FIXED_WEAPON(무기번호)
+	RETURNF 0
+SIF 무기번호 < 3000
+	RETURNF 1
+RETURNF 0
+
+
+; 버전 0.5.5용 무기 해제
+; 해제한 무기, 고정 무기면, RESULT 에 기록
+; + 스킬
+@_UPDATE_WEAPON_UNEQUIP_055(대상)
+#DIM 대상
+LOCAL = 0
+SELECTCASE TALENT:대상:웨폰
+	CASE 100 ; 양산형 돌격소총
+		ABL:대상:무투 -= 10
+		ABL:대상:방위 -= 10
+	CASE 101 ; Et Omnia Vanitas
+		LOCAL = 101
+		ABL:대상:무투 -= 25
+		ABL:대상:방위 -= 10
+		ABL:대상:정치 -= -5
+	CASE 102 ; honestwish
+		LOCAL = 102
+		ABL:대상:지략 -= 5
+		ABL:대상:정치 -= 25
+	CASE 103 ; WHITE FANG 465
+		LOCAL = 103
+		ABL:대상:무투 -= 25
+		ABL:대상:방위 -= 5
+	CASE 104 ; 라이브러리 룰러
+		LOCAL = 104
+		ABL:대상:방위 -= 20
+		ABL:대상:지략 -= 10
+	CASE 106 ; 마이 네세시티
+		LOCAL = 106
+		ABL:대상:무투 -= 5
+		ABL:대상:방위 -= 25
+	CASE 107 ; 탐식의 징표
+		LOCAL = 107
+		ABL:대상:무투 -= 25
+		ABL:대상:방위 -= 5
+	CASE 108 ; 백도어
+		LOCAL = 108
+		ABL:대상:방위 -= 5
+		ABL:대상:지략 -= 25
+	CASE 109 ; 서프라이즈 파티
+		LOCAL = 109
+		IF TALENT:대상:행운 == 1
+			ABL:대상:무투 -= 10
+			ABL:대상:방위 -= 10
+			ABL:대상:지략 -= 10
+			ABL:대상:정치 -= 10
+		ELSE
+			ABL:대상:무투 -= 5
+			ABL:대상:방위 -= 5
+			ABL:대상:지략 -= 5
+			ABL:대상:정치 -= 5
+		ENDIF
+	CASE 110 ; 세이프티
+		LOCAL = 110
+		ABL:대상:무투 -= 20
+		ABL:대상:방위 -= 10
+	CASE 111 ; 숙녀의 기품
+		LOCAL = 111
+		ABL:대상:방위 -= 10
+		ABL:대상:지략 -= 10
+	CASE 112 ; 스위트 드라이버
+		LOCAL = 112
+		ABL:대상:무투 -= 20
+		ABL:대상:방위 -= 10
+	CASE 113 ; 식탁 위의 무법자
+		LOCAL = 113
+		ABL:대상:무투 -= 15
+		ABL:대상:방위 -= 15
+	CASE 114 ; 신시어리티
+		LOCAL = 114
+		ABL:대상:무투 -= 15
+		ABL:대상:방위 -= 15
+	CASE 115 ; 아리우스제 돌격소총
+		LOCAL = 115
+		ABL:대상:무투 -= 15
+		ABL:대상:지략 -= 15
+	CASE 116 ; 오토 에이머
+		LOCAL = 116
+		ABL:대상:지략 -= 30
+	CASE 117 ; 유니크 아이디어
+		LOCAL = 117
+		ABL:대상:무투 -= 15
+		ABL:대상:방위 -= 15
+	CASE 118 ; 택티컬 테라피
+		LOCAL = 118
+		ABL:대상:지략 -= 15
+		ABL:대상:요리 -= 15
+	CASE 119 ; 해피 스마일 건
+		LOCAL = 119
+		ABL:대상:지략 -= 10
+		ABL:대상:가창 -= 20
+	CASE 120 ; 빵야빵야! 쨩
+		LOCAL = 120
+		ABL:대상:방위 -= 5
+		ABL:대상:가창 -= 25
+	CASE 121 ; 시크릿 타임
+		LOCAL = 121
+		ABL:대상:무투 -= 5
+		ABL:대상:방위 -= 5
+	CASE 122 ; 레드 드래곤
+		LOCAL = 122
+		ABL:대상:무투 -= 10
+		ABL:대상:방위 -= 10
+		ABL:대상:야심 -= 10
+	CASE 123 ; 정화의 손길
+		LOCAL = 123
+		ABL:대상:지략 -= 20
+		ABL:대상:정치 -= 20
+	CASE 124 ; 전략홍보팀장의 노하우
+		LOCAL = 124
+		ABL:대상:지략 -= 10
+		ABL:대상:정치 -= 10
+	CASE 125 ; 축제의 열기
+		LOCAL = 125
+		ABL:대상:지략 -= 10
+		ABL:대상:정치 -= 10
+	CASE 126 ; 강철의 횃불
+		LOCAL = 126
+		ABL:대상:정치 -= 20
+	CASE 127 ; 초콜릿&스트로베리
+		LOCAL = 127
+		ABL:대상:방위 -= 10
+		ABL:대상:가창 -= 20
+	CASE 201 ; 메그마 파워!
+		LOCAL = 201
+		ABL:대상:무투 -= 20
+		ABL:대상:방위 -= -10
+	CASE 301 ; 575식 유탄발사기
+		LOCAL = 301
+		ABL:대상:요리 -= 5
+		ABL:대상:가창 -= 30
+	CASE 302 ; 구급용 돌입 키트
+		LOCAL = 302
+		ABL:대상:무투 -= 5
+		ABL:대상:방위 -= 25
+	CASE 303 ; 냥즈 대쉬
+		LOCAL = 303
+		ABL:대상:방위 -= 5
+		ABL:대상:지략 -= 25
+	CASE 305 ; 스프링 펀치
+		LOCAL = 305
+		ABL:대상:방위 -= 15
+		ABL:대상:요리 -= 15
+	CASE 401 ; RABBIT 224식 권총
+		LOCAL = 401
+		ABL:대상:무투 -= 15
+		ABL:대상:방위 -= 10
+		ABL:대상:지략 -= 5
+	CASE 402 ; 나님의 특제 권총
+		LOCAL = 402
+		ABL:대상:방위 -= -10
+		ABL:대상:지략 -= 25
+	CASE 403 ; 만마전 제식 권총
+		LOCAL = 403
+		ABL:대상:방위 -= 10
+		ABL:대상:지략 -= 20
+		ABL:대상:야심 -= -10
+	CASE 404 ; 발키리 제식 권총 17호
+		LOCAL = 404
+		ABL:대상:무투 -= 10
+		ABL:대상:방위 -= 20
+		ABL:대상:야심 -= -5
+	CASE 405 ; 부드러운 결의
+		LOCAL = 405
+		ABL:대상:방위 -= 10
+		ABL:대상:지략 -= 15
+	CASE 406 ; 블레싱
+		LOCAL = 406
+		ABL:대상:무투 -= 20
+		ABL:대상:방위 -= 10
+	CASE 407 ; 서기의 결단
+		LOCAL = 407
+		ABL:대상:방위 -= 10
+		ABL:대상:지략 -= 20
+	CASE 408 ; 서포트 포인터
+		LOCAL = 408
+		ABL:대상:무투 -= 10
+		ABL:대상:지략 -= 20
+	CASE 409 ; 에코링크
+		LOCAL = 409
+		ABL:대상:지략 -= 10
+		ABL:대상:가창 -= 20
+	CASE 410 ; 절벽 위의 꽃
+		LOCAL = 410
+		ABL:대상:방위 -= 5
+		ABL:대상:지략 -= 30
+		ABL:대상:정치 -= 5
+	CASE 411 ; 제3호 발키리 제식 권총
+		LOCAL = 411
+		ABL:대상:무투 -= -5
+		ABL:대상:방위 -= 25
+		ABL:대상:지략 -= 5
+	CASE 412 ; 조용한 해결법
+		LOCAL = 412
+		ABL:대상:무투 -= 10
+		ABL:대상:지략 -= 20
+	CASE 414 ; 치스토카
+		LOCAL = 414
+		ABL:대상:무투 -= 10
+		ABL:대상:정치 -= 10
+	CASE 415 ; 파이에티
+		LOCAL = 415
+		ABL:대상:지략 -= 10
+		ABL:대상:요리 -= 20
+	CASE 416 ; 패니·파이어웍스
+		LOCAL = 416
+		ABL:대상:지략 -= 10
+		ABL:대상:요리 -= 20
+	CASE 417 ; 핫 샷
+		LOCAL = 417
+		ABL:대상:방위 -= 5
+		ABL:대상:지략 -= 25
+	CASE 418 ; 데몬스 로어
+		LOCAL = 418
+		ABL:대상:방위 -= 5
+		ABL:대상:지략 -= 25
+	CASE 419 ; 상식적 수단
+		LOCAL = 419
+		ABL:대상:방위 -= 5
+		ABL:대상:지략 -= 25
+	CASE 420 ; 현룡 & 백호
+		LOCAL = 420
+		ABL:대상:무투 -= 15
+		ABL:대상:방위 -= 15
+	CASE 421 ; 레드 렉터
+		LOCAL = 421
+		ABL:대상:무투 -= 25
+		ABL:대상:야심 -= 25
+	CASE 422 ; 로얄 블렌드
+		LOCAL = 422
+		ABL:대상:지략 -= 10
+		ABL:대상:정치 -= 30
+	CASE 423 ; 창작의…… 고통!
+		LOCAL = 423
+		ABL:대상:지략 -= 10
+		ABL:대상:가창 -= 10
+	CASE 501 ; RABBIT 26식 기관총
+		LOCAL = 501
+		ABL:대상:무투 -= 10
+		ABL:대상:방위 -= 15
+		ABL:대상:지략 -= 5
+	CASE 502 ; 데일리 커틀러리
+		LOCAL = 502
+		ABL:대상:무투 -= 10
+		ABL:대상:방위 -= 20
+		ABL:대상:요리 -= -10
+	CASE 504 ; 마비노기온
+		LOCAL = 504
+		ABL:대상:무투 -= 15
+		ABL:대상:방위 -= 15
+	CASE 505 ; 미니 NO.5
+		LOCAL = 505
+		ABL:대상:무투 -= 20
+		ABL:대상:방위 -= 10
+	CASE 506 ; 오토 래커
+		LOCAL = 506
+		ABL:대상:무투 -= 25
+		ABL:대상:방위 -= 5
+	CASE 507 ; 인의 없는 사격
+		LOCAL = 507
+		ABL:대상:무투 -= 15
+		ABL:대상:가창 -= 15
+	CASE 508 ; 종막의 디스트로이어
+		LOCAL = 508
+		ABL:대상:무투 -= 35
+		ABL:대상:방위 -= 10
+		ABL:대상:정치 -= -10
+	CASE 509 ; 트릭 오어 트릿
+		LOCAL = 509
+		ABL:대상:무투 -= 10
+		ABL:대상:방위 -= 10
+		ABL:대상:지략 -= 10
+	CASE 510 ; 프로페서 K
+		LOCAL = 510
+		ABL:대상:무투 -= 10
+		ABL:대상:방위 -= 10
+		ABL:대상:지략 -= 10
+	CASE 511 ; 멀리 <건>
+		LOCAL = 511
+		ABL:대상:무투 -= 5
+		ABL:대상:방위 -= 5
+		ABL:대상:지략 -= 5
+		ABL:대상:정치 -= 5
+	CASE 601 ; 팬시 라이트
+		LOCAL = 601
+		ABL:대상:무투 -= -10
+		ABL:대상:지략 -= 30
+	CASE 701 ; 빛의 검:슈퍼노바
+		LOCAL = 701
+		ABL:대상:무투 -= 30
+		ABL:대상:방위 -= -10
+	CASE 801 ; 세인트 프레데터
+		LOCAL = 801
+		ABL:대상:무투 -= 20
+		ABL:대상:방위 -= 5
+	CASE 802 ; 도서관 이용수칙7호
+		LOCAL = 802
+		ABL:대상:무투 -= 25
+	CASE 901 ; 호루스의 눈
+		LOCAL = 901
+		ABL:대상:무투 -= 5
+		ABL:대상:방위 -= 30
+	CASE 902 ; 구호의 증명
+		LOCAL = 902
+		ABL:대상:무투 -= 5
+		ABL:대상:방위 -= 25
+	CASE 903 ; 급식부 호신용 총 type B
+		LOCAL = 903
+		ABL:대상:무투 -= 5
+		ABL:대상:방위 -= 25
+	CASE 904 ; 멀티 택티컬
+		LOCAL = 904
+		ABL:대상:무투 -= 5
+		ABL:대상:방위 -= 25
+	CASE 905 ; 미치루류 오버플로우 샷건
+		LOCAL = 905
+		ABL:대상:무투 -= 10
+		ABL:대상:방위 -= 15
+	CASE 906 ; 미치루류 오버플로우 샷건
+		LOCAL = 906
+		ABL:대상:무투 -= 5
+		ABL:대상:방위 -= 20
+	CASE 907 ; 블러드&건파우더
+		LOCAL = 907
+		ABL:대상:무투 -= 35
+	CASE 908 ; 블로 어웨이
+		LOCAL = 908
+		ABL:대상:무투 -= 5
+		ABL:대상:방위 -= 25
+	CASE 909 ; 사쿠라 봉봉
+		LOCAL = 909
+		ABL:대상:요리 -= 5
+		ABL:대상:가창 -= 25
+	CASE 910 ; 슈팅☆스타
+		LOCAL = 910
+		ABL:대상:무투 -= 10
+		ABL:대상:방위 -= 20
+		ABL:대상:가창 -= 10
+	CASE 1001 ; Quis ut Deus
+		LOCAL = 1001
+		ABL:대상:무투 -= 35
+		ABL:대상:방위 -= 5
+		ABL:대상:정치 -= -10
+	CASE 1002 ; 급식부 호신용 총 type A
+		LOCAL = 1002
+		ABL:대상:무투 -= 5
+		ABL:대상:방위 -= 10
+		ABL:대상:요리 -= 20
+	CASE 1003 ; 로직 & 리즌
+		LOCAL = 1003
+		ABL:대상:방위 -= 5
+		ABL:대상:지략 -= 25
+		ABL:대상:정치 -= 10
+	CASE 1004 ; 마이스터·제로
+		LOCAL = 1004
+		ABL:대상:무투 -= -5
+		ABL:대상:방위 -= 10
+		ABL:대상:지략 -= 25
+	CASE 1005 ; 상큼 민트초코? 비욘드 더 루미네이션
+		LOCAL = 1005
+		ABL:대상:무투 -= 10
+		ABL:대상:방위 -= 25
+		ABL:대상:요리 -= 5
+	CASE 1006 ; 사지타리우스 나이트
+		LOCAL = 1006
+		ABL:대상:무투 -= 5
+		ABL:대상:방위 -= 5
+		ABL:대상:지략 -= 5
+	CASE 1007 ; 상큼 민트초코
+		LOCAL = 1007
+		ABL:대상:무투 -= 5
+		ABL:대상:방위 -= 20
+		ABL:대상:요리 -= 15
+	CASE 1008 ; 숙면 도우미 Ⅱ
+		LOCAL = 1008
+		ABL:대상:무투 -= 10
+		ABL:대상:방위 -= 20
+	CASE 1009 ; 이즈나류 슈퍼 닌자 도구
+		LOCAL = 1009
+		ABL:대상:무투 -= 15
+		ABL:대상:방위 -= 10
+	CASE 1010 ; 잿빛 발랄라이카
+		LOCAL = 1010
+		ABL:대상:무투 -= 10
+		ABL:대상:방위 -= 15
+	CASE 1011 ; 츠쿠요류 서브머신건
+		LOCAL = 1011
+		ABL:대상:무투 -= 5
+		ABL:대상:방위 -= 25
+	CASE 1012 ; 트윈 드래곤
+		LOCAL = 1012
+		ABL:대상:무투 -= 15
+		ABL:대상:방위 -= 25
+	CASE 1013 ; RABBIT 31식 기관단총
+		LOCAL = 1013
+		ABL:대상:무투 -= 5
+		ABL:대상:방위 -= 10
+		ABL:대상:지략 -= 15
+	CASE 1014 ; 스코르피우스
+		LOCAL = 1014
+		ABL:대상:방위 -= 20
+		ABL:대상:지략 -= 10
+	CASE 1015 ; 온고지신
+		LOCAL = 1015
+		ABL:대상:요리 -= 30
+	CASE 1101 ; Ideal
+		LOCAL = 1101
+		ABL:대상:무투 -= 25
+		ABL:대상:요리 -= 10
+	CASE 1102 ; RABBIT 39식 소총
+		LOCAL = 1102
+		ABL:대상:무투 -= 10
+		ABL:대상:지략 -= 10
+		ABL:대상:야심 -= -10
+	CASE 1103 ; 볼륨 서프레서
+		LOCAL = 1103
+		ABL:대상:지략 -= 30
+	CASE 1104 ; 비에르나시치
+		LOCAL = 1104
+		ABL:대상:무투 -= 15
+		ABL:대상:방위 -= 10
+	CASE 1105 ; 크랙 샷? 빅 아이
+		LOCAL = 1105
+		ABL:대상:무투 -= 35
+		ABL:대상:정치 -= -10
+	CASE 1106 ; 사랑의 매
+		LOCAL = 1106
+		ABL:대상:무투 -= 35
+		ABL:대상:정치 -= -10
+	CASE 1107 ; 아이덴티티
+		LOCAL = 1107
+		ABL:대상:무투 -= 25
+	CASE 1108 ; 와인레드・어드마이어
+		LOCAL = 1108
+		ABL:대상:무투 -= 25
+		ABL:대상:방위 -= 5
+		ABL:대상:야심 -= 10
+	CASE 1109 ; 임페일먼트
+		LOCAL = 1109
+		ABL:대상:무투 -= 10
+		ABL:대상:지략 -= 20
+	CASE 1110 ; 저스티스 블랙
+		LOCAL = 1110
+		ABL:대상:무투 -= 35
+		ABL:대상:정치 -= -10
+	CASE 1111 ; 정의구현 ? 정의의 현현
+		LOCAL = 1111
+		ABL:대상:무투 -= 15
+		ABL:대상:지략 -= 10
+	CASE 1112 ; 제14호 발키리 제식 소총
+		LOCAL = 1112
+		ABL:대상:방위 -= 5
+		ABL:대상:지략 -= 15
+		ABL:대상:야심 -= -10
+	CASE 1113 ; 진홍빛 재앙
+		LOCAL = 1113
+		ABL:대상:무투 -= 20
+		ABL:대상:지략 -= 15
+	CASE 1115 ; 크랙 샷
+		LOCAL = 1115
+		ABL:대상:무투 -= 15
+		ABL:대상:방위 -= 15
+	CASE 1116 ; 플레시 인스피레이션
+		LOCAL = 1116
+		ABL:대상:지략 -= 15
+		ABL:대상:정치 -= 15
+	CASE 1117 ; 유아독존
+		LOCAL = 1117
+		ABL:대상:지략 -= 15
+		ABL:대상:정치 -= 15
+	CASE 1118 ; 백화요란 제식 소총-검푸른 지혜
+		LOCAL = 1118
+		ABL:대상:무투 -= 10
+		ABL:대상:지략 -= 20
+	CASE 1119 ; 백화요란 제식 소총-소녀의 결의
+		LOCAL = 1119
+		ABL:대상:무투 -= 10
+		ABL:대상:정치 -= 10
+	CASE 1120 ; 백화요란 제식 소총-청춘의 불꽃
+		LOCAL = 1120
+		ABL:대상:무투 -= 10
+		ABL:대상:방위 -= 15
+ENDSELECT
+; 스킬 해제, 아이 캐릭터가 0.5.5 번전 이전엔 스킬 받을수 있었음
+RESULT = LOCAL
+TALENT:대상:웨폰 = 0
+
+@_UPDATE_WEAPON_RMVSKILL(대상)
+#DIM 대상
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "intulit mortem")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "금지된 장난을 시작해볼까요?")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "드론 소환: 화력 지원")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "지식의 방패")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "도와줘요, 페로로 님!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "유탄 일발, 가득 담아서!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "오버라이드")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "갈게!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "사제 섬광탄")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "참 잘했어요")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "누, 누가 당황할 줄 알고?")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "공복의 분노")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "걸리적거리잖아!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "Et Omnia Vanitas!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "EMP 드론 전개")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "창작의 고통")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "집중 치료 세트 A")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "치료시간이에요~")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "이부키의 미술시간!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "시스템: 아비 에슈흐")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "잠깐 부탁하겠슴다.")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "세례의 증표")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "팬으로서의 몸가짐")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "축제 시작이에요!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "전진 또 전진!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "게헨나의 셀러브리티!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "화끈한 거, 좋아하지?")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "아플지도 몰라~")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "응급차량 출동")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "게임, 스타트!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "시구레 특제 보틀 그레네이드")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "강철의 비")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "나님의 걸작이라고!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "갑니다, 토라마루")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "공안국장의 수완")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "따끈따끈 꽃구경이에요")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "마지막 대화수단")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "기록의 생명은 속도랍니다")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "전술 치료 시행")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "감청 개시")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "후후, 실력을 보여드리죠")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "협상은 없습니다!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "우아하게, 제거합니다")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "친위대 소환")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "신성한 가호")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "신호탄, 발사!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "정찰의 결과입니다")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "패닉 브링거")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "특급송달: 전투지원품")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "용호상박")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "자이언트 힐 크러시")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "Time On Target")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "천상의 영감")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "지원사격 개시")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "치즈 초콜릿 햄버거")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "달콤한 포화")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "혼날 시간이에요~♣")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "세상을 더 아름답게!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "연사 모드!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "종막: 이스보셋")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "작열의 세레나데")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "해답상자")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "뜻 밖의 변수")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "아플 확률이 높아")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "밸런스 붕괴")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "헛된 세계")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "위대한 소통법")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "전술 진압")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "신념과 긍지")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "주리의 요리 시간!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "불굴의 의지")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "미치루 인법첩이라구!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "스퍼트 앤 슛")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "기괴멸렬")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "펌프패닝")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "백야당 출장!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "도전장을 받으세요!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "Kyrie Eleison")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "급식 시간!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "Q.E.D")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "천둥이 등장")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "비장의 수단")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "관측 지원")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "아깝지만, 에잇!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "전술방패 전개")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "이즈나 인법첩!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "혁명적 돌격")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "츠, 츠쿠요 인법첩…이에요!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "아앙~? 죽인다?")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "섬광 드론 전개")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "이것도 나의 힘")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "천하일미!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "꿰뚫는 엘레강스")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "소심한 관측")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "고서 전문가")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "여러분, 제 말에 귀 기울여 주세요!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "대상, 삭제")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "나쁜 아이는 어디 있나요?")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "지, 지금 지원할게요!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "하드보일드 샷")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "아머피어싱샷")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "성스러운 수류탄")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "정의의 일격")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "일단은 달콤한 휴식부터")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "진홍빛 꽃점")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "일망타진")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "드로잉 아트")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "시, 실수했다!")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_BASE, "신기묘산의 한 수")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "올곧게 피어난 결의")
+CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "백화요란식 사격술")

@@ -1,0 +1,281 @@
+﻿;-----------------------------------
+;기본치 계산에 앞서 처리하는 것
+;-----------------------------------
+@SKILL_1911_SP_0_EXIST
+RETURN 1
+
+@SKILL_1911_SP_0_NAME
+RESULTS = 그렇다면, 역시!
+
+;레벨은 1-5까지
+@SKILL_1911_SP_0_LEVEL
+RETURN 3
+
+;대상 선택
+@SKILL_1911_SP_0_SETTARGET(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+;부대 대상
+RETURN 1
+
+;발동 판정
+@SKILL_1911_SP_0_CAN_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+RETURN (발동부대 < 0 ? BATTLE_COMMANDER_NUM:발동측 <= 1 # BATTLE_COMMANDER_NUM:발동측 <= 2)
+
+;발동 텍스트를 오바라이드 하고 싶을 때에.
+;「아무개의 스킬 발동!   00했다!」의 「00했다!」의 부분을 실장하고 싶은 경우는,
+;이것이 아니고 INVOKE로 쓰면 좋습니다.
+;@SKILL_1911_SP_0_INVOKE_TEXT(발동자, 스킬, 장르)
+;#DIM 발동자
+;#DIM 스킬
+;#DIMS 장르
+
+;효과를 여기에 기술
+@SKILL_1911_SP_0_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+
+#DIMS DYNAMIC mobName
+#DIM DYNAMIC iTmp, 7
+대상측 = !발동측
+
+
+mobName = "헬멧단"
+iTmp:0 = ABL:발동자:무투 ; 무투
+TIMES iTmp:0, 0.8
+iTmp:1 = ABL:발동자:방위 ; 방위
+TIMES iTmp:1, 0.8
+iTmp:2 = MIN(ABL:발동자:지략 / 2, 80) ; 지략
+SELECTCASE RAND:3
+	CASE 0 ; SG
+		mobName = %mobName% (SG)
+		TIMES iTmp:0, 0.5
+		TIMES iTmp:1, 1.5
+	CASE 1 ; AR
+		mobName = %mobName% (AR)
+	CASEELSE ; SR
+		mobName = %mobName% (SR)
+		TIMES iTmp:0, 1.5
+		TIMES iTmp:1, 0.5
+ENDSELECT
+PRINTFORML %조사처리(ANAME(발동자), "는")% %mobName%을 호출했다!
+CALL BATTLE_ADD_MOB(발동측, 발동부대 >= 0, mobName, iTmp:0, iTmp:1, iTmp:2, 10, 0, 10, 10)
+
+; tohoK 얀샤오그이
+@SKILL_1911_SP_0_EXPLANATION
+RESULTS = 자부대에 빈자리가 있을 때 발동. 헬멧단을 호출해 전투에 참가시킨다.
+; RESULTS = 자부대에 빈자리가 있을 때 발동. 미즈코의 영혼을 호출해 전투에 참가시킨다.
+
+@SKILL_1911_SP_0_CANT_TELL
+
+; 아이가 배울수 없도록 한다
+@SKILL_1911_SP_0_CANT_INHERIT
+
+
+@SKILL_1911_SP_0_RATE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+RETURN 200
+
+; #region == 총력전 ==
+@총력전_스킬_1911_코스트(시전자)
+#DIM 시전자 ; 코스트 당 대미지 스킬 카운터 위해서
+; #DIM 가변
+RETURN 3
+
+; 없으면 기본, 2 로
+; @총력전_스킬_1911_쿨다운(가변)
+; #DIM 가변
+; RETURN 0
+
+; alt.opt.1 무기를 2개로 나누기?
+@총력전_스킬_1911_설명(시전자)
+#DIM 시전자 ; 가변스킬 설명 위해서
+RESULTS = 적을 선택시 1턴간 자신과『헬멧단』치명 대미지 증가 (30 x『헬멧단』), 적에게 대미지 (공격력 120％) 군중제어 추가 (700), 2범위 적에게 2회 튕기면서 대미지 (공격력 120％). 빈 공간 선택시 8턴간『헬멧단』소환 (최대 3명) (SG: 체력 60％, 공격력 35％) (AR: 체력 40％, 공격력 60％) (SR: 체력 20％, 공격력 90％)
+
+@총력전_스킬_1911_발동(시전자)
+#DIM 시전자
+
+#DIM DYNAMIC 목표 ; 목표
+; #DIM DYNAMIC 목표, 총력전_캐릭터수 ; 목표 + 주변 적
+#DIM DYNAMIC 대미지
+#DIM DYNAMIC 공격명중
+; #DIM DYNAMIC iTmp, 2
+#DIMS DYNAMIC sTmp, 3
+
+; 발동 텍스트
+sTmp:0 = 「가자, 얘들아!!」
+sTmp:1 = 「깔끔하게 처리해 주지!」
+sTmp:2 = 「대장을 믿으라구!」
+CALL SKILL_1911_SP_0_NAME
+CALL 총력전_스킬_공통_발동텍스트(시전자, 126, RESULTS, sTmp)
+; 목표 처리
+sTmp = 적 선택: 공격 스킬, 빈 공간 선택:『헬멧단』소환
+CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+CALL 총력전_시퀀스_목표선택(목표, 총력전_선택_빈공간, 총력전_선택_캐릭터)
+; 목표 없으면 스킬 해제
+IF 목표 < 0
+	CALL 총력전_스킬_공통_스킬취소(시전자)
+	RETURN
+ENDIF
+; 상태 확인
+IF 총력전_상태:목표 == 0
+	; 소환
+	CALL _총력전_스킬_1911_소환(시전자, 목표)
+ELSE
+	; 공격
+	CALL _총력전_스킬_1911_공격(시전자, 목표)
+ENDIF
+
+; #region == 소환물 ==
+@총력전_소환_1911_0_해제(소환물)
+#DIM 소환물
+#DIMS DYNAMIC sTmp
+
+sTmp = 헬멧단 소환 해제
+CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+
+; #region == 카운터 ==
+; 소환 해제
+@총력전_스킬_1911_0_카운터_종료(대상, 카운터번호)
+#DIM 대상
+#DIM 카운터번호
+
+#DIM DYNAMIC iTmp
+
+CALL 총력전_소환_1911_0_해제(대상)
+CALL 총력전_해제_캐릭터(대상)
+
+; #region == 개인 함수? ==
+; 헬멧단, 돌격!
+@_총력전_스킬_1911_소환(시전자, 소환물번호)
+#DIM 시전자
+#DIM 소환물번호
+
+#DIM DYNAMIC iTmp
+
+; 소환 위치 처리
+; 소환수 확인
+CALL 총력전_소환물_소환수관리(1911, 3)
+; 소환
+CALL 총력전_소환물_소환(소환물번호, 시전자)
+; 추가 스탯 설정
+SELECTCASE RAND:3
+	CASE 0 ; SG
+		총력전_이름:소환물번호 = 헬멧단 (SG)
+		iTmp = 총력전_최대체력_최초:시전자 * 60
+		iTmp = DIVIDE_ROUND(iTmp, 100)
+		총력전_최대체력_최초:소환물번호 = iTmp
+		iTmp = 총력전_공격력_최초:시전자 * 35
+		iTmp = DIVIDE_ROUND(iTmp, 100)
+		총력전_공격력_최초:소환물번호 = iTmp
+	CASE 1 ; AR
+		총력전_이름:소환물번호 = 헬멧단 (AR)
+		iTmp = 총력전_최대체력_최초:시전자 * 40
+		iTmp = DIVIDE_ROUND(iTmp, 100)
+		총력전_최대체력_최초:소환물번호 = iTmp
+		iTmp = 총력전_공격력_최초:시전자 * 60
+		iTmp = DIVIDE_ROUND(iTmp, 100)
+		총력전_공격력_최초:소환물번호 = iTmp
+	CASEELSE ; SR
+		총력전_이름:소환물번호 = 헬멧단 (SR)
+		iTmp = 총력전_최대체력_최초:시전자 * 20
+		iTmp = DIVIDE_ROUND(iTmp, 100)
+		총력전_최대체력_최초:소환물번호 = iTmp
+		iTmp = 총력전_공격력_최초:시전자 * 90
+		iTmp = DIVIDE_ROUND(iTmp, 100)
+		총력전_공격력_최초:소환물번호 = iTmp
+ENDSELECT
+CALL 총력전_초기화_스탯(소환물번호, 1)
+; 카운터(지속시간) 추가
+CALL 총력전_카운터_추가(소환물번호, 소환물번호, 총력전_방식_지속, 총력전_방식_턴, 8, 1911, 0)
+
+
+; 나 혼자서 충분해!
+@_총력전_스킬_1911_공격(시전자, 목표)
+#DIM 시전자
+#DIM 목표
+
+#DIM DYNAMIC 치댐증가
+#DIM DYNAMIC 대미지
+#DIM DYNAMIC 군중제어
+#DIM DYNAMIC 소환물수
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp
+
+; 대미지 계산 + 헬멧단
+; 헬멧단 수 확인
+소환물수 = 총력전_소환물_수(1911)
+[IF_DEBUG]
+sTmp = 헬멧단 수={소환물수}
+CALL 총력전_UI_텍스트_추가(sTmp, 칼라_파노랑)
+[ENDIF]
+; 치명대미지 버프
+IF 소환물수 > 0
+	; 치댐 계산
+	치댐증가 = 30 * 소환물수
+	; 시전자 버프
+	CALL 총력전_상태효과_추가_텍스트(시전자, 시전자, 상효_종류_치명타대미지, 치댐증가, 1, 총력전_방식_지속, 총력전_방식_턴, 2, 1911)
+	; 헬멧단 버프
+	FOR iTmp, 0, 총력전_캐릭터수
+		IF 총력전_상태:iTmp == 총력전_상태_소환 && 총력전_스킬_번호:iTmp == 총력전_스킬_번호:시전자 && 총력전_팀:iTmp == 총력전_팀:시전자
+			CALL 총력전_상태효과_추가_텍스트(iTmp, 시전자, 상효_종류_치명타대미지, 치댐증가, 1, 총력전_방식_지속, 총력전_방식_턴, 2, 1911)
+		ENDIF
+	NEXT
+ENDIF
+
+; iTmp = 120 + 소환물수 * 20
+대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 120
+대미지 = DIVIDE_ROUND(대미지, 100)
+CALL 총력전_처리_피격(대미지, 목표, 시전자)
+; 첫회만 명중 하면 군중제어 적용
+IF RESULT == 1
+	군중제어 = 700 + GETVAR_RAIDSTAT_SUM(시전자, "군중제어강화")
+	; 군중제어 = DIVIDE_ROUND(군중제어, 100)
+	CALL 총력전_처리_군중제어(군중제어, 목표, 시전자)
+ENDIF
+; 튕기기 추가 피격
+FOR iTmp, 0, 2
+	CALL 총력전_목표_무작위_범위(목표, 1, 1)
+	목표 = RESULT
+	; 목표 없으면 BREAK
+	SIF 목표 == -1
+		BREAK
+	CALL 총력전_처리_피격(대미지, 목표, 시전자)
+NEXT

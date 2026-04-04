@@ -1,0 +1,192 @@
+﻿;-----------------------------------
+;기본치 계산에 앞서 처리하는 것
+;-----------------------------------
+@SKILL_1128_SP_0_EXIST
+RETURN 1
+
+@SKILL_1128_SP_0_NAME
+RESULTS = 파퇴:세열수류탄
+
+;레벨은 1-5까지
+@SKILL_1128_SP_0_LEVEL
+RETURN 4
+
+;대상 선택
+@SKILL_1128_SP_0_SETTARGET(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+SIF BATTLE_COMMANDER_NUM:대상측 == 0
+	RETURN 0
+COMBAT_SKILL_TARGET = RAND:(BATTLE_COMMANDER_NUM:대상측)
+RETURN 1
+
+;발동 판정
+@SKILL_1128_SP_0_CAN_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+RETURN 1
+
+;발동 텍스트를 오바라이드 하고 싶을 때에.
+;「아무개의 스킬 발동!   00했다!」의 「00했다!」의 부분을 실장하고 싶은 경우는,
+;이것이 아니고 INVOKE로 쓰면 좋습니다.
+;@SKILL_1128_SP_0_INVOKE_TEXT(발동자, 스킬, 장르)
+;#DIM 발동자
+;#DIM 스킬
+;#DIMS 장르
+
+;효과를 여기에 기술
+@SKILL_1128_SP_0_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+PRINTFORML %ANAME(BATTLE_COMMANDER:대상측:COMBAT_SKILL_TARGET)%의 무투와 방위가 저하했다!
+; 캐릭터 수 비례, 적을수록 효과 증가
+; 0.97 ~ 0.90
+LOCAL = MAX(BATTLE_COMMANDER_NUM:발동측, 1) + MAX(BATTLE_COMMANDER_NUM:대상측, 1)
+; DEBUGPRINTFORML 세열수류탄 LOCAL={LOCAL}
+SELECTCASE LOCAL
+	CASE 2
+		LOCAL:1 = 87
+	CASE 3
+		LOCAL:1 = 91
+	CASE 4
+		LOCAL:1 = 94
+	CASE 5
+		LOCAL:1 = 96
+	CASE 6
+		LOCAL:1 = 98
+	CASEELSE
+		DEBUGPRINTL 파퇴:세열수류탄 SKILL_1128_SP_0_INVOKE 확인
+		DEBUGPRINTFORML LOCAL:{LOCAL}
+		LOCAL:1 = 98
+ENDSELECT
+BATTLE_무투:대상측:COMBAT_SKILL_TARGET = DIVIDE_ROUND(BATTLE_무투:대상측:COMBAT_SKILL_TARGET * LOCAL:1, 100)
+BATTLE_방위:대상측:COMBAT_SKILL_TARGET = DIVIDE_ROUND(BATTLE_방위:대상측:COMBAT_SKILL_TARGET * LOCAL:1, 100)
+
+@SKILL_1128_SP_0_EXPLANATION
+RESULTS = 적한사람 무투와 방위를 저하시킨다. 캐릭터 수가 적을 때 효과 증가.
+
+@SKILL_1128_SP_0_CANT_TELL
+
+; 아이가 배울수 없도록 한다
+@SKILL_1128_SP_0_CANT_INHERIT
+
+@SKILL_1128_SP_0_RATE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+; RETURN 1000
+RETURN 125
+
+
+; #region == 총력전 ==
+@총력전_스킬_1128_코스트(시전자)
+#DIM 시전자 ; 코스트 당 대미지 스킬 카운터 위해서
+; #DIM 가변
+RETURN 3
+
+; 적에게 대미지, 지속 대미지 수만큼 추가 대미지 (최대 3), 지속 대미지 효과 증가.
+; alt.opt.1 추가 코스트 회복?
+@총력전_스킬_1128_설명(시전자)
+#DIM 시전자 ; 가변스킬 설명 위해서
+RESULTS = 적에게 대미지 (공격력 348％), 지속 대미지 수만큼 추가 대미지 (공격력 77％) (최대 3), 지속 대미지 효과 증가 (+10％).
+
+@총력전_스킬_1128_발동(시전자)
+#DIM 시전자
+
+#DIM DYNAMIC 목표
+#DIM DYNAMIC 대미지
+#DIM DYNAMIC 지속대미지수
+#DIM DYNAMIC 공격명중
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp, 3
+
+; 발동 텍스트
+sTmp:0 = 「하앗! 일격필살!」
+sTmp:1 = 「에잇! 일점필중!」
+sTmp:2 = 「발본색원!」
+CALL SKILL_1128_SP_0_NAME
+CALL 총력전_스킬_공통_발동텍스트(시전자, 94, RESULTS, sTmp)
+; 목표 처리
+CALL 총력전_시퀀스_목표선택(목표, 0, 총력전_선택_캐릭터)
+; 목표 없으면 스킬 해제
+IF 목표 < 0
+	CALL 총력전_스킬_공통_스킬취소(시전자)
+	RETURN
+ENDIF
+; 대미지
+대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 348
+대미지 = DIVIDE_ROUND(대미지, 100)
+CALL 총력전_처리_피격(대미지, 목표, 시전자)
+공격명중 = RESULT
+; 목표 지속 대미지 수 확인
+FOR iTmp, 0, 총력전_상태효과수
+	SIF 총력전_상효_종류:목표:iTmp == 0
+		BREAK
+	; 총력전_상효_긍부정 확인 추가?
+	IF 총력전_상효_종류:목표:iTmp == 상효_종류_대미지 && 총력전_상효_소비방식_0:목표:iTmp == 총력전_방식_턴
+		; 카운트 증가
+		지속대미지수 ++
+	ENDIF
+NEXT
+; 지속 대미지 있으면
+IF 지속대미지수 >= 1
+	; 추가 텍스트
+	sTmp = 『파퇴:세열수류탄』추가 공격!
+	CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+	; 최대 3회
+	지속대미지수 = MIN(지속대미지수, 3)
+	대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 77
+	대미지 = DIVIDE_ROUND(대미지, 100)
+	FOR LOCAL, 0, 지속대미지수
+		CALL 총력전_처리_피격(대미지, 목표, 시전자)
+		공격명중 = MAX(공격명중, RESULT)
+	NEXT
+ENDIF
+; 명중시 지속 대미지 증가
+IF 공격명중 == 1
+	FOR iTmp, 0, 총력전_상태효과수
+		SIF 총력전_상효_종류:목표:iTmp == 0
+			BREAK
+		IF 총력전_상효_종류:목표:iTmp == 상효_종류_대미지 && 총력전_상효_소비방식_0:목표:iTmp == 총력전_방식_턴
+			; 지속 대미지 증가
+			; DEBUGPRINTFORML 지속 대미지 {총력전_상효_양:목표:iTmp} ->
+			총력전_상효_양:목표:iTmp += DIVIDE_ROUND(총력전_상효_양:목표:iTmp * 10, 100)
+			; DEBUGPRINTFORM {총력전_상효_양:목표:iTmp}
+		ENDIF
+	NEXT
+ENDIF
+

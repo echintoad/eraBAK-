@@ -1,0 +1,97 @@
+﻿;======================================================
+;기본적인 ARRAY 함수를 정리한다
+;======================================================
+
+;-------------------------------------------------
+; ARRAYREMOVE 하고 0 으로 변할 갑을 replaceVal로
+; INT 용
+;-------------------------------------------------
+@ARRAYREMOVE_VAL(ary, startIndex, clearCount, replaceVal)
+#DIM REF ary
+#DIM startIndex
+#DIM clearCount
+#DIM replaceVal
+#DIM iTmp, 2
+
+ARRAYREMOVE ary, startIndex, clearCount
+
+VARSIZE ary
+iTmp:1 = RESULT - clearCount
+; DEBUGPRINTFORML clearing from {iTmp:1} to {RESULT}
+FOR iTmp, iTmp:1, RESULT
+	ary:iTmp = replaceVal
+NEXT
+
+;-------------------------------------------------
+; ARRAYREMOVE 하고 0 으로 변할 갑을 replaceVal로
+; STRING 용
+;-------------------------------------------------
+@ARRAYREMOVE_SVAL(ary, startIndex, clearCount, replaceVal)
+#DIMS REF ary
+#DIM startIndex
+#DIM clearCount
+#DIMS replaceVal
+#DIM iTmp, 2
+
+ARRAYREMOVE ary, startIndex, clearCount
+
+VARSIZE ary
+iTmp:1 = RESULT - clearCount
+FOR iTmp, iTmp:1, RESULT
+	ary:iTmp = replaceVal
+NEXT
+
+;-------------------------------------------------
+; 2차원 ARRAYREMOVE
+; 예. #DIM HOGE, 3, 5
+; HOGE:0 = 1, 2, 3, 4, 5
+; HOGE:1 = 6, 7, 8, 9, 10
+; HOGE:2 = 11, 12, 13, 14, 15
+; ARRAYREMOVE_2D(HOGE, 2, 1, 2)
+; HOGE:0 = 1, 2, 3, 4, 5
+; HOGE:1 = 6, 7, 8, 9, 10
+; HOGE:2 = 11, 14, 15, 0, 0
+; 
+; STRING 용은 나중에 필요하면 추가
+;-------------------------------------------------
+@ARRAYREMOVE_2D(ary, iFirstDim, iStart = 0, iClearCnt = 1)
+#DIM REF ary, 0, 0
+#DIM iFirstDim ; 첫 차원
+#DIM iStart
+#DIM iClearCnt
+
+#DIM iSize
+#DIM iTmp
+
+iSize = VARSIZE("ary", 1)
+; DEBUGPRINTFORML ary size: {iSize}
+FOR iTmp, iStart, iSize
+	IF iTmp + iClearCnt < iSize
+		ary:iFirstDim:iTmp = ary:iFirstDim:(iTmp + iClearCnt)
+	ELSE
+		ary:iFirstDim:iTmp = 0
+	ENDIF
+NEXT
+
+;-------------------------------------------------
+; ARRAYREMOVE_2D 하고 0 으로 변할 갑을 replaceVal로
+; STRING 용은 나중에 필요하면 추가
+;-------------------------------------------------
+@ARRAYREMOVE_2D_VAL(ary, iFirstDim, iStart = 0, iClearCnt = 1, replaceVal = 0)
+#DIM REF ary, 0, 0
+#DIM iFirstDim ; 첫번쩨 차원(총력전번호)
+#DIM DYNAMIC iStart
+#DIM DYNAMIC iClearCnt
+#DIM DYNAMIC replaceVal
+
+#DIM iSize
+#DIM iTmp
+
+iSize = VARSIZE("ary", 1)
+FOR iTmp, iStart, iSize
+	IF iTmp + iClearCnt < iSize && iClearCnt != -1
+		ary:iFirstDim:iTmp = ary:iFirstDim:(iTmp + iClearCnt)
+	ELSE
+		ary:iFirstDim:iTmp = replaceVal
+	ENDIF
+NEXT

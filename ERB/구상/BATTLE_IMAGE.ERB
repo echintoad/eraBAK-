@@ -508,19 +508,21 @@ RESULTS = %종류%_전투_B{RESULT}_41
 
 ; 토키
 ; 낮은 확률로 아비 에슈흐 모드로 전환
+; 총력전 변경, B0 으로 고정
 @BATTLE_IMAGE_45(teams, enemies, 종류 = "얼굴")
 #DIM REF teams, 0 
 #DIM REF enemies, 0
 #DIMS DYNAMIC 종류
 
-SELECTCASE RAND:15
-	CASE 0
-		RESULTS = %종류%_전투_B1_45
-	CASE 1
-		RESULTS = %종류%_전투_B2_45
-	CASEELSE
-		RESULTS = %종류%_전투_B0_45
-ENDSELECT
+RESULTS = %종류%_전투_B0_45
+; SELECTCASE RAND:15
+; 	CASE 0
+; 		RESULTS = %종류%_전투_B1_45
+; 	CASE 1
+; 		RESULTS = %종류%_전투_B2_45
+; 	CASEELSE
+; 		RESULTS = %종류%_전투_B0_45
+; ENDSELECT
 
 
 ; 히후미

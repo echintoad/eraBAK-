@@ -72,6 +72,9 @@ RESULTS = 적에게 데미지를 준다.
 
 @SKILL_1117_SP_0_CANT_TELL
 
+; 아이가 배울수 없도록 한다
+@SKILL_1117_SP_0_CANT_INHERIT
+
 
 @SKILL_1117_SP_0_RATE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
 #DIM 발동자
@@ -86,25 +89,87 @@ RESULTS = 적에게 데미지를 준다.
 #DIM 대상부대
 RETURN 400
 
-@총력전_스킬_1117_코스트
+; #region == 총력전 ==
+@총력전_스킬_1117_코스트(시전자)
+#DIM 시전자 ; 코스트 당 대미지 스킬 카운터 위해서
+; #DIM 가변
 RETURN 3
 
-@총력전_스킬_1117_설명
-RESULTS = 적에게 공격력 540％ 대미지 미도리가 함께 있을 경우 추가로 2턴간 공격력 93％ 화상부여
+@총력전_스킬_1117_설명(시전자)
+#DIM 시전자 ; 가변스킬 설명 위해서
+RESULTS = 1범위 적에게 대미지 (공격력 55％ x3), 미도리가 함께 있을 경우 3턴간 지속 대미지 부여 (공격력 50％)
 
-@총력전_스킬_1117_발동(LOCAL)
-#DIM 대미지
-#DIM 미도리찾기
-미도리찾기 = 0
+@총력전_스킬_1117_발동(시전자)
+#DIM 시전자
 
-FOR (LOCAL:1), 0, 총력전_파티_캐릭터수
-    SIF 총력전_파티_캐릭터:(LOCAL:1) == 34
-    미도리찾기 = 1
+#DIM DYNAMIC 주목표
+#DIM DYNAMIC 범위목표, 총력전_캐릭터수
+#DIM DYNAMIC 대미지
+#DIM DYNAMIC 명중
+#DIM DYNAMIC 지속대미지
+#DIM DYNAMIC 미도리찾기
+#DIM DYNAMIC iTmp, 2
+#DIMS DYNAMIC sTmp
+
+; 발동 텍스트
+CALL SKILL_1117_SP_0_NAME
+sTmp = %총력전_이름:시전자% 스킬 시전:『%RESULTS%』
+CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+iTmp = 총력전_ID:시전자
+IF iTmp >= 0 && NO:iTmp == 33
+	; 모모이일 경우
+	SELECTCASE RAND:3
+		CASE 0
+			sTmp = 「내가 이겼!…」
+			CALL 총력전_UI_텍스트_추가(sTmp)
+			sTmp = 「엣?! 졌잖아?! 진짜아아아!」
+		CASE 1
+			sTmp = 「아이스크림 쏘게 됐잖아!」
+			CALL 총력전_UI_텍스트_추가(sTmp)
+			sTmp = 「너네들 때문이야!」
+		CASEELSE
+			sTmp = 「내 분노의 탄환을 받아랏!」
+	ENDSELECT
+	CALL 총력전_UI_텍스트_추가(sTmp)
+ENDIF
+; 목표 처리
+CALL 총력전_시퀀스_목표선택(주목표, 0, 총력전_선택_캐릭터)
+; 범위로 변경, 적팀 1 이상이 되면 수정 필요
+CALL 총력전_목표_범위(범위목표, 주목표, 1)
+; 목표 없으면 스킬 해제
+IF 주목표 < 0
+	CALL 총력전_스킬_공통_스킬취소(시전자)
+	RETURN
+ENDIF
+; 미도리 찾기
+FOR iTmp, 0, 총력전_캐릭터수
+	iTmp:1 = 총력전_ID:iTmp
+	; + 팀 확인?
+	IF iTmp:1 >= 0 && NO:(iTmp:1) == 34
+		미도리찾기 = 1
+		BREAK
+	ENDIF
 NEXT
-
-모모이화상대미지 = (총력전_공격력:LOCAL * 93 / 100)
-대미지 = (총력전_공격력:LOCAL * 541 / 100) * (100 - 총력전_보스_방어력) / 100
-CALL 공격판정처리(대미지,LOCAL)
-
-SIF 미도리찾기 == 1
-CALL 디버프부여처리("화상",1117,2,LOCAL,모모이화상대미지)
+; 대미지
+대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 55
+대미지 = DIVIDE_ROUND(대미지, 100)
+지속대미지 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 50
+지속대미지 = DIVIDE_ROUND(지속대미지, 100)
+FOR iTmp, 0, 총력전_캐릭터수
+	SIF 범위목표:iTmp < 0
+		BREAK
+	명중 = 0
+	FOR iTmp:1, 0, 3
+		CALL 총력전_처리_피격(대미지, 범위목표:iTmp, 시전자)
+		명중 = MAX(명중, RESULT)
+	NEXT
+	IF 명중 == 1 && 미도리찾기 == 1
+		CALL 총력전_상태효과_추가_텍스트(범위목표:iTmp, 시전자, 상효_종류_대미지, 지속대미지, 0, 총력전_방식_턴, 총력전_방식_턴, 3, 1117)
+		; 텍스트 추가
+		; sTmp = %조사처리(총력전_이름:(범위목표:iTmp), "에")% 지속 대미지 ({지속대미지})!
+		; CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+		; ; UI 업데이트
+		; CALL 총력전_UI_Main(0)
+		; WAITANYKEY
+	ENDIF
+NEXT

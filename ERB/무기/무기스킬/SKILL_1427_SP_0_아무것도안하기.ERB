@@ -1,0 +1,169 @@
+﻿;-----------------------------------
+;기본치 계산에 앞서 처리하는 것
+;-----------------------------------
+@SKILL_1427_SP_0_EXIST
+RETURN 1
+
+@SKILL_1427_SP_0_NAME
+RESULTS = 아무것도 안 하기
+
+;레벨은 1-5까지
+@SKILL_1427_SP_0_LEVEL
+RETURN 3
+
+;대상 선택
+@SKILL_1427_SP_0_SETTARGET(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+;부대 대상
+SIF BATTLE_COMMANDER_NUM:대상측 == 0
+	RETURN 0
+RETURN 1
+
+;발동 판정
+@SKILL_1427_SP_0_CAN_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+SIF BATTLE_COMMANDER_NUM:대상측 == 0
+	RETURN 0
+RETURN 1
+
+
+;발동 텍스트를 오바라이드 하고 싶을 때에.
+;「아무개의 스킬 발동!   00했다!」의 「00했다!」의 부분을 실장하고 싶은 경우는,
+;이것이 아니고 INVOKE로 쓰면 좋습니다.
+;@SKILL_1427_SP_0_INVOKE_TEXT(발동자, 스킬, 장르)
+;#DIM 발동자
+;#DIM 스킬
+;#DIMS 장르
+
+;효과를 여기에 기술
+@SKILL_1427_SP_0_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+
+LOCAL:1 = BATTLE_COMMANDER_NUM:대상측
+FOR LOCAL, 0, LOCAL:1
+	CALL DECREASE_SOLDIER(대상세력, 대상부대, MAX(RAND(ABL:발동자:무투*10 , ABL:발동자:무투*15) , RAND(ABL:발동자:지략*10 , ABL:발동자:지략*15)), 1)
+NEXT
+
+; 2117 거의 동일
+@SKILL_1427_SP_0_EXPLANATION
+RESULTS = 적에게 데미지를 준다. 상대 지휘관이 많을수록 추가 피해를 준다.
+
+@SKILL_1427_SP_0_CANT_TELL
+
+; 아이가 배울수 없도록 한다
+@SKILL_1427_SP_0_CANT_INHERIT
+
+
+@SKILL_1427_SP_0_RATE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+; RETURN 1000
+RETURN 400
+
+; #region == 총력전 ==
+@총력전_스킬_1427_코스트(시전자)
+#DIM 시전자 ; 코스트 당 대미지 스킬 카운터 위해서
+RETURN 4
+
+@총력전_스킬_1427_설명(시전자)
+#DIM 시전자 ; 가변스킬 설명 위해서
+RESULTS = 모든 적에게 대미지 (3명 이하 공격력 32％ x2 + 51％) (4~6명 공격력 38％ x2 + 62％) (7명 이상 공격력 45％ x2 + 74％), 명중시 3턴간 적의 방어력 감소 (-15％)
+
+@총력전_스킬_1427_발동(시전자)
+#DIM 시전자
+
+#DIM DYNAMIC 목표, 총력전_캐릭터수
+#DIM DYNAMIC 적수
+#DIM DYNAMIC 대미지, 2
+#DIM DYNAMIC 공격명중
+#DIM CONST 방감수치 = -15
+#DIM DYNAMIC iTmp, 2
+#DIMS DYNAMIC sTmp, 3
+
+; 발동 텍스트
+sTmp:0 = 「우후후. 아~무것도 하지 않았답니다? 저는요.」
+sTmp:1 = 「절경~ 절경이로세~」
+sTmp:2 = 「그럼, 균형을 맞춰볼까요?」
+CALL SKILL_1427_SP_0_NAME
+CALL 총력전_스킬_공통_발동텍스트(시전자, 75, RESULTS, sTmp)
+; 목표 처리
+CALL 총력전_목표_전체(목표, 1)
+; 목표 없으면 스킬 해제
+IF 목표 < 0
+	CALL 총력전_스킬_공통_스킬취소(시전자)
+	RETURN
+ENDIF
+; 적 수 카운팅
+FOR iTmp, 0, 총력전_캐릭터수
+	SIF 목표:iTmp < 0
+		BREAK
+	적수 ++
+NEXT
+; 대미지
+SELECTCASE 적수
+	CASE IS <= 3
+		iTmp:0 = 32
+		iTmp:1 = 51
+	CASE IS <= 6
+		iTmp:0 = 38
+		iTmp:1 = 62
+	CASEELSE
+		iTmp:0 = 45
+		iTmp:1 = 74
+ENDSELECT
+대미지:0 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * iTmp:0
+대미지:0 = DIVIDE_ROUND(대미지:0, 100)
+대미지:1 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * iTmp:1
+대미지:1 = DIVIDE_ROUND(대미지:1, 100)
+FOR iTmp, 0, 총력전_캐릭터수
+	SIF 목표:iTmp < 0
+		BREAK
+	공격명중 = 0
+	FOR iTmp:1, 0, 2
+		CALL 총력전_처리_피격(대미지:0, 목표:iTmp, 시전자)
+		공격명중 = MAX(공격명중, RESULT)
+	NEXT
+	CALL 총력전_처리_피격(대미지:1, 목표:iTmp, 시전자)
+	공격명중 = MAX(공격명중, RESULT)
+	; 명중시 방어 감소
+	IF 공격명중 >= 1
+		CALL 총력전_상태효과_추가_텍스트(목표:iTmp, 시전자, 상효_종류_방어력백분율, 방감수치, 0, 총력전_방식_지속, 총력전_방식_턴, 3, 1427)
+	ENDIF
+NEXT
