@@ -142,81 +142,79 @@ IF CHECK_UPDATE("0.6.0")
 	PRINTL == 0.6.0 업데이트 ==
 	PRINTL 세이브 백업을 강력 추천합니다
 	WAITANYKEY
-	IF RESULT
-		; 보스 무지성 리셋
-		PRINTL 총력전 보스 리셋중...
-		CALL 총력전_보스활동_초기설정
-		PRINTL 무기 리셋중...
-		IF LASTLOAD_VERSION <= GET_VERSION_VALUE("0.5.5")
-			; 무기 리셋
-			FOR LOCAL, 0, CHARANUM
-				LOCAL:1 = 0
-				CALL _UPDATE_WEAPON_UNEQUIP_055(LOCAL) ; 무기 스탯 버프 제거
-				SIF RESULT != 0
-					LOCAL:1 = RESULT ; 해제한 무기 기록
-				CALL _UPDATE_WEAPON_RMVSKILL(LOCAL) ; 무기 스킬 제거
-				; 중복 고정 캐릭터가 있으면 첫번째만 바뀔듯?
-				IF IS_FIXED_CHARA(LOCAL)
-					CALL WEAPON_EQUIP(LOCAL, 100) ; failsafe
-					CALL WEAPON_INIT(LOCAL)
-				ELSEIF LOCAL:1 > 0
-					; 범용 캐릭터/아이 캐릭터가 무기 받아 쓰고 있었으면 그냥 주기
-					CALL WEAPON_ADD(LOCAL, LOCAL:1)
-					CALL WEAPON_EQUIP(LOCAL, LOCAL:1)
-				ELSE
-					; 양산형 돌격소총
-					CALL WEAPON_EQUIP(LOCAL, 100)
-				ENDIF
-			NEXT
-		ELSE
-			; 0.5.5 ~ 0.5.10, 스탯이 이미 어느정도 망쳐졌다 가정
-			; 무기 시스템이 옛날건지 확인후, 무기 리셋
-			FOR LOCAL, 0, CHARANUM
-				; 고정 캐릭터는 무기 초기화 시켜 버리기
-				IF IS_FIXED_CHARA(LOCAL)
-					CALL WEAPON_INIT(LOCAL)
-				ELSEIF _UPDATE_IS_EXISTING_WEAPON(TALENT:LOCAL:웨폰) && WEAPON_OWNED(LOCAL, TALENT:LOCAL:웨폰) == 0
-					; 무기가 허가되지 않았으면 구 시스템이라 가정, 스킬 정리
-					CALL _UPDATE_WEAPON_RMVSKILL(LOCAL)
-					; 범용/아이 캐릭터는 장비한 무기가 허가 무기에 없으면 그냥 주기
-					CALL WEAPON_ADD(LOCAL, TALENT:LOCAL:웨폰)
-					CALL WEAPON_EQUIP(LOCAL, TALENT:LOCAL:웨폰)
-				ELSEIF _UPDATE_IS_EXISTING_WEAPON(TALENT:LOCAL:웨폰) == 0 && _UPDATE_IS_FIXED_WEAPON(TALENT:LOCAL:웨폰) == 0
-					; 버그 방지 양산형 돌격소총
-					CALL WEAPON_EQUIP(LOCAL, 100)
-				ENDIF
-			NEXT
-		ENDIF
-		; 목걸이 있으면 장비 스탯 재계산
-		PRINTL 목걸이 있으면 장비 재계산...
+	; 보스 무지성 리셋
+	PRINTL 총력전 보스 리셋중...
+	CALL 총력전_보스활동_초기설정
+	PRINTL 무기 리셋중...
+	IF LASTLOAD_VERSION <= GET_VERSION_VALUE("0.5.5")
+		; 무기 리셋
 		FOR LOCAL, 0, CHARANUM
-			; 목걸이 있으면 장비 장착 해제후 총력전장비스탯상승 초기화
-			IF 장비타입(착용장비:LOCAL:2) == "목걸이"
-				; 기존 장비번호 기록
-				LOCAL:2 = 착용장비:LOCAL:0
-				LOCAL:3 = 착용장비:LOCAL:1
-				LOCAL:4 = 착용장비:LOCAL:2
-				; 장비 해제
-				SIF LOCAL:2 >= 0
-					CALLFORM 총력전장비장착_{착용장비:LOCAL:0}(LOCAL, -1)
-				SIF LOCAL:3 >= 0
-					CALLFORM 총력전장비장착_{착용장비:LOCAL:1}(LOCAL, -1)
-				SIF LOCAL:4 >= 0
-					CALLFORM 총력전장비장착_{착용장비:LOCAL:2}(LOCAL, -1)
-				; 총력전장비스탯상승 초기화
-				FOR LOCAL:1, 0, 12
-					총력전장비스탯상승:LOCAL:(LOCAL:1) = 0
-				NEXT
-				; 장비 장착
-				SIF LOCAL:2 >= 0
-					CALLFORM 총력전장비장착_{LOCAL:2}(LOCAL, 1)
-				SIF LOCAL:3 >= 0
-					CALLFORM 총력전장비장착_{LOCAL:3}(LOCAL, 1)
-				SIF LOCAL:4 >= 0
-					CALLFORM 총력전장비장착_{LOCAL:4}(LOCAL, 1)
+			LOCAL:1 = 0
+			CALL _UPDATE_WEAPON_UNEQUIP_055(LOCAL) ; 무기 스탯 버프 제거
+			SIF RESULT != 0
+				LOCAL:1 = RESULT ; 해제한 무기 기록
+			CALL _UPDATE_WEAPON_RMVSKILL(LOCAL) ; 무기 스킬 제거
+			; 중복 고정 캐릭터가 있으면 첫번째만 바뀔듯?
+			IF IS_FIXED_CHARA(LOCAL)
+				CALL WEAPON_EQUIP(LOCAL, 100) ; failsafe
+				CALL WEAPON_INIT(LOCAL)
+			ELSEIF LOCAL:1 > 0
+				; 범용 캐릭터/아이 캐릭터가 무기 받아 쓰고 있었으면 그냥 주기
+				CALL WEAPON_ADD(LOCAL, LOCAL:1)
+				CALL WEAPON_EQUIP(LOCAL, LOCAL:1)
+			ELSE
+				; 양산형 돌격소총
+				CALL WEAPON_EQUIP(LOCAL, 100)
+			ENDIF
+		NEXT
+	ELSE
+		; 0.5.5 ~ 0.5.10, 스탯이 이미 어느정도 망쳐졌다 가정
+		; 무기 시스템이 옛날건지 확인후, 무기 리셋
+		FOR LOCAL, 0, CHARANUM
+			; 고정 캐릭터는 무기 초기화 시켜 버리기
+			IF IS_FIXED_CHARA(LOCAL)
+				CALL WEAPON_INIT(LOCAL)
+			ELSEIF _UPDATE_IS_EXISTING_WEAPON(TALENT:LOCAL:웨폰) && WEAPON_OWNED(LOCAL, TALENT:LOCAL:웨폰) == 0
+				; 무기가 허가되지 않았으면 구 시스템이라 가정, 스킬 정리
+				CALL _UPDATE_WEAPON_RMVSKILL(LOCAL)
+				; 범용/아이 캐릭터는 장비한 무기가 허가 무기에 없으면 그냥 주기
+				CALL WEAPON_ADD(LOCAL, TALENT:LOCAL:웨폰)
+				CALL WEAPON_EQUIP(LOCAL, TALENT:LOCAL:웨폰)
+			ELSEIF _UPDATE_IS_EXISTING_WEAPON(TALENT:LOCAL:웨폰) == 0 && _UPDATE_IS_FIXED_WEAPON(TALENT:LOCAL:웨폰) == 0
+				; 버그 방지 양산형 돌격소총
+				CALL WEAPON_EQUIP(LOCAL, 100)
 			ENDIF
 		NEXT
 	ENDIF
+	; 목걸이 있으면 장비 스탯 재계산
+	PRINTL 목걸이 있으면 장비 재계산...
+	FOR LOCAL, 0, CHARANUM
+		; 목걸이 있으면 장비 장착 해제후 총력전장비스탯상승 초기화
+		IF 장비타입(착용장비:LOCAL:2) == "목걸이"
+			; 기존 장비번호 기록
+			LOCAL:2 = 착용장비:LOCAL:0
+			LOCAL:3 = 착용장비:LOCAL:1
+			LOCAL:4 = 착용장비:LOCAL:2
+			; 장비 해제
+			SIF LOCAL:2 >= 0
+				CALLFORM 총력전장비장착_{착용장비:LOCAL:0}(LOCAL, -1)
+			SIF LOCAL:3 >= 0
+				CALLFORM 총력전장비장착_{착용장비:LOCAL:1}(LOCAL, -1)
+			SIF LOCAL:4 >= 0
+				CALLFORM 총력전장비장착_{착용장비:LOCAL:2}(LOCAL, -1)
+			; 총력전장비스탯상승 초기화
+			FOR LOCAL:1, 0, 12
+				총력전장비스탯상승:LOCAL:(LOCAL:1) = 0
+			NEXT
+			; 장비 장착
+			SIF LOCAL:2 >= 0
+				CALLFORM 총력전장비장착_{LOCAL:2}(LOCAL, 1)
+			SIF LOCAL:3 >= 0
+				CALLFORM 총력전장비장착_{LOCAL:3}(LOCAL, 1)
+			SIF LOCAL:4 >= 0
+				CALLFORM 총력전장비장착_{LOCAL:4}(LOCAL, 1)
+		ENDIF
+	NEXT
 ENDIF
 
 ;-------------------------------------------------
