@@ -909,11 +909,7 @@ SELECTCASE 총력전_보스_난이도
 		난이도계수:3 = 90
 		난이도계수:4 = 82
 	CASEELSE
-		난이도계수 = 100
-		난이도계수:1 = 100
-		난이도계수:2 = 100
-		난이도계수:3 = 100
-		난이도계수:4 = 100
+		VARSET 난이도계수, 100
 ENDSELECT
 ; 체력
 총력전_최대체력_최초:보스번호 = 28000 * 난이도계수:2 / 100
@@ -988,11 +984,24 @@ ENDIF
 @총력전_보스_시퀀스_스킬_0
 #DIM DYNAMIC 스킬수
 #DIM DYNAMIC 시전가능스킬, 3
-#DIM DYNAMIC 보스번호
+#DIM CONST 보스번호 = 10
+#DIM DYNAMIC 보스_군중제어
 #DIM DYNAMIC iTmp, 2
+#DIMS DYNAMIC sTmp
 
+; 군중제어 확인
+CALL 총력전_처리_군중제어_적용(보스번호)
+보스_군중제어 = RESULT
 ; 시전중인 스킬 있으면 마저 시전
 IF 총력전_보스_시전스킬 >= 0
+	IF 보스_군중제어 ; 스턴, 스킬 취소
+		CALL 총력전_보스_스킬종료
+		sTmp = %총력전_이름:보스번호% 행동 불가!
+		CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+		CALL 총력전_UI_Main(0)
+		WAITANYKEY
+		RETURN
+	ENDIF
 	GOTO CAST_SKILL
 ENDIF
 
@@ -1000,6 +1009,10 @@ ENDIF
 IF 총력전_보스_난이도 >= 3
 	CALL 총력전_보스_0_스킬_3
 ENDIF
+
+; 보스가 한명이라 스킬 선택 취소
+SIF 보스_군중제어
+	RETURN
 
 ; 페이즈 변경후 "정화의 폭풍" 시전
 IF 총력전_보스_페이즈 == 1 && 총력전_보스_쿨다운:2 > 20
@@ -1029,9 +1042,9 @@ FOR iTmp, 0, 스킬수
 	ENDIF
 NEXT
 ; 시전 가능 스킬 없으면
-IF 시전가능스킬:0 < 0
+SIF 시전가능스킬:0 < 0
 	RETURN
-ENDIF
+
 ; 시전스킬 선택
 iTmp = RAND:(iTmp:1)
 총력전_보스_시전스킬 = 시전가능스킬:iTmp
@@ -1041,7 +1054,6 @@ $CAST_SKILL
 ; iTmp = 1
 ; CALL 총력전_목표(iTmp, 0, 총력전_캐릭터수)
 ; 보스번호 = RESULT
-보스번호 = 10
 ; 상태효과 적용
 ; 비나는 혼자라서 for loop 불필요
 SETBIT 총력전_스탯상태:보스번호, 총력전_방식_스킬

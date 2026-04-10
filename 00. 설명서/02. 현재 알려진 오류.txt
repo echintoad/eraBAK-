@@ -4,16 +4,32 @@
 ========================================================
 
 □ 특수 세력 화상, 지휘관 + 총력전 화면 기본 (남/여) 화상 뜸
+  ○ PMC는 정상적으로 뜸
+
 □ 후우카 첫인사가 여러번 나옴
   ○ "다시 확인해서 보니 처음 만난 날 함락 없을 떄 이야기한다 시 패턴 중 하나로 껴있는듯"
 
-□ 군준제어시 보스 스킬 취소 되야됨
-  ○ 아마 업데이트 하면서 잘못 건드린듯...
+□ 우미카 폭죽 장치 4개 소환
+  ○ 아마 총력전_소환물_소환수관리 확인 필요
+
+□ 『영내 훌쩍 에로의 여행』
+  ○ 2[온 마을 산책]
+    - 2[숙소에 데리고 들어간다]
+	  - 너무나 돌연의 일로 곧바로 대답은 할 수 없지만, 우선 받고 나서 대답을 한다
+	  - 그렇게 전하면, 그녀는 작고 수긍 빠른 걸음을 떠나 갔다
+	- 틀린 대답
+
+----- 확인 중 -----
 
 □ 특정 상황에 [지도] 버튼 누루면 오류
   ○ 개발자 노트, 오류 났던 세이브:
     ○ [39 ] 2026-04-03 22:07:36 시나리오20 거잔행동:6 78기 히나세력
   ○ 오류가 다시 나오진 않았음, 찾는데 시간 걸릴거라 나중에
+  ○ LINECOUNT - FIRST_COLUMN_RIGHT_LINE_SLG
+  ○ @SHOW_SHOP_SLG: FIRST_COLUMN_RIGHT_LINE_SLG = LINECOUNT
+  ○ (확인) 총력전 종료 -> [지도]
+	- 아마 총력전에서 LINECLEAR LINECOUNT 하면서 LINECOUNT - FIRST_COLUMN 갑 이상해지면서 생기는 문제일듯
+	- 총력전 끝내면서 FIRST_COLUMN_RIGHT_LINE_SLG 재 계산 필요?
 SHOP\SHOP_SLG_COLUMN_LEFT.ERB at line 122Error has occurred:Emuera.NET 1.824+v22+EMv18+EEv53
 		IF COLUMN_LEFT_CATEGORY_NUM_SLG:(ARG:0) != 0
 Error description: Array variable "COLUMN_LEFT_CATEGORY_NUM_SLG" at the 1 argument (-8842) is out of the range of the array
@@ -23,18 +39,32 @@ Function call stack:
 ↑SHOP\SHOP.ERB at line 313（function@EVENTBUY）
 ※※※Log file emuera.log has been created. Please provide stacktrace or save data with steps to reproduce to help fix it※※※
 
+SHOP\SHOP_SLG_COLUMN_LEFT.ERB at line 122Error has occurred:Emuera.NET 1.824+v22+EMv18+EEv53
+		IF COLUMN_LEFT_CATEGORY_NUM_SLG:(ARG:0) != 0
+Error description: Array variable "COLUMN_LEFT_CATEGORY_NUM_SLG" at the 1 argument (-10780) is out of the range of the array
+Function: @COLUMN_LEFT_MENU_SHOW_SLG（file:SHOP\SHOP_SLG_COLUMN_LEFT.ERB in line 86）
+Function call stack:
+↑SLG\SLG_CITY.ERB at line 17（function@SHOW_CITY_INFO）
+↑SHOP\SHOP.ERB at line 313（function@EVENTBUY）
+※※※Log file emuera.log has been created. Please provide stacktrace or save data with steps to reproduce to help fix it※※※
+
+
 □ 부대 이미지 오류?
   ○ 고정 캐릭터가 지휘관이라고 적혀있는데(히후미, 하나코), 이미지는 부대에 없는 범용 캐릭터 하나만 뜸
   ○ 적 캐릭터중 그 이미지 쓰는 캐릭터가 있긴 했음
   ○ 하면서 어떤 상황에 나오는지 확인
   ○ BATTLE_IMAGE.ERB 일 확률 높음
 
+□ 『최면술사의 수중』 대상?
+  ○ 대사가 플레이어가 대상인 상태로 된듯?
 
 =============================================================
 해결한 문제
 =============================================================
 
 □ 카이저 돈 양도 [쫒아낸다] 시 버그 (아마?)
-0.6.0
-□ 버그: 츠루기 스킬 퍼센트 확인
-□ 자식 무기 깨짐?(웨폼_0)
+0.6.1
+□ 군준제어시 보스 스킬 취소 되야됨
+  ○ 임시 수정, 보스 스킬 처리 방식 업데이트
+    - 시전중인 보스 마크
+  ○ 군중제어 처리를 다른 곳에서?
