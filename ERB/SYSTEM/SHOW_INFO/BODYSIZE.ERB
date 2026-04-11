@@ -27,9 +27,11 @@ SIF GETBIT(세트위치, 사이즈_페니스) || 세트위치 == 0
 @SET_BODYSIZE_HEIGHT(대상)
 #DIM 대상
 #DIM 신장기초치
-
-MAXBASE:대상:신장 = CALC_BODYSIZE_HEIGHT(대상)
-BASE:대상:신장 = MAXBASE:대상:신장
+; CSV 있고, 키 설정 되있으면 스킵?
+IF !(IS_FIXED_CHARA(대상) && MAXBASE:대상:신장 > 0)
+	MAXBASE:대상:신장 = CALC_BODYSIZE_HEIGHT(대상)
+	BASE:대상:신장 = MAXBASE:대상:신장
+ENDIF
 
 
 @CALC_BODYSIZE_HEIGHT(대상)
