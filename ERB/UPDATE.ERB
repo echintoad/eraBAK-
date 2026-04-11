@@ -217,6 +217,27 @@ IF CHECK_UPDATE("0.6.0")
 	NEXT
 ENDIF
 
+IF CHECK_UPDATE("0.6.2")
+	PRINTL == 0.6.2 버전에 캐릭터 신장이 정밀하게 설정되었습니다 ==
+	PRINTL 고정 캐릭터 키를 초기화합니까?
+	CALL ASK_YN
+	IF RESULT == 0 ; YES
+		FOR LOCAL, 0, CHARANUM
+			IF IS_FIXED_CHARA(LOCAL)
+				LOCAL:1 = NO:LOCAL
+				TALENT:LOCAL:체격 = CSVTALENT(LOCAL:1, GETNUM(TALENT, "체격"))
+				LOCAL:1 = CSVBASE(LOCAL:1, GETNUM(BASE, "신장"))
+				IF LOCAL:1 > 0
+					MAXBASE:LOCAL:신장 = LOCAL:1
+					BASE:LOCAL:신장 = MAXBASE:LOCAL:신장
+					CALL SET_BODYSIZE(LOCAL)
+				ENDIF
+			ENDIF
+		NEXT
+		CALL ADDITIONAL_CHARA_SETTING_HEIGHT
+	ENDIF
+ENDIF
+
 ;-------------------------------------------------
 ; 임시 업데이트 개인 함수
 ; 더이상 필요없을때 제거
