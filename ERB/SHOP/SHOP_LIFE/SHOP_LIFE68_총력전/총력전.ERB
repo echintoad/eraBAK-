@@ -817,21 +817,6 @@ IF 총력전_전투단계 == 총력전_전투단계_종료
 	RETURN 1
 ENDIF
 
-;  - 턴수 확인, 30/30 까지 가능... 해야됨
-IF 총력전_턴수 > 총력전_턴_종료
-	총력전클리어플래그 = 1
-	; 실패
-	sTmp = 시간 경과
-	CALL 총력전_UI_텍스트_추가(sTmp, 칼라_빨강)
-	sTmp = %총력전_보스_이름% 토벌에 실패했다...
-	CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
-	; UI 업데이트
-	CALL 총력전_UI_Main(0)
-	WAITANYKEY
-	; GOTO FAIL?
-	RETURN 1
-ENDIF
-
 ; 상태_보스 가 없는지 확인
 FOR iTmp, 0, 총력전_캐릭터수
 	IF 총력전_상태:iTmp == 총력전_상태_보스 || 총력전_상태:iTmp == 총력전_상태_보스_비공격
@@ -850,6 +835,21 @@ FOR iTmp, 0, 총력전_캐릭터수
 		RETURN 1
 	ENDIF
 NEXT
+
+;  - 턴수 확인, 30/30 까지 가능... 해야됨
+IF 총력전_턴수 > 총력전_턴_종료
+	총력전클리어플래그 = 1
+	; 실패
+	sTmp = 시간 경과
+	CALL 총력전_UI_텍스트_추가(sTmp, 칼라_빨강)
+	sTmp = %총력전_보스_이름% 토벌에 실패했다...
+	CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+	; UI 업데이트
+	CALL 총력전_UI_Main(0)
+	WAITANYKEY
+	; GOTO FAIL?
+	RETURN 1
+ENDIF
 
 ; 상태_보통 이 없는지 확인
 FOR iTmp, 0, 총력전_캐릭터수
