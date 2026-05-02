@@ -174,7 +174,7 @@ IF CHECK_UPDATE("0.6.0")
 			; 고정 캐릭터는 무기 초기화 시켜 버리기
 			IF IS_FIXED_CHARA(LOCAL)
 				CALL WEAPON_INIT(LOCAL)
-			ELSEIF _UPDATE_IS_EXISTING_WEAPON(TALENT:LOCAL:웨폰) && WEAPON_OWNED(LOCAL, TALENT:LOCAL:웨폰) == 0
+			ELSEIF TALENT:LOCAL:웨폰 != 0 && _UPDATE_IS_EXISTING_WEAPON(TALENT:LOCAL:웨폰) && WEAPON_OWNED(LOCAL, TALENT:LOCAL:웨폰) == 0
 				; 무기가 허가되지 않았으면 구 시스템이라 가정, 스킬 정리
 				CALL _UPDATE_WEAPON_RMVSKILL(LOCAL)
 				; 범용/아이 캐릭터는 장비한 무기가 허가 무기에 없으면 그냥 주기
