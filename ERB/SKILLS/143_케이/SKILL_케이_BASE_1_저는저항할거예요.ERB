@@ -1,0 +1,92 @@
+﻿;-----------------------------------
+;기본치 계산에 앞서 처리하는 것
+;-----------------------------------
+@SKILL_143_BASE_2_EXIST
+RETURN 1
+
+@SKILL_143_BASE_2_NAME
+RESULTS = 저는 저항할 거예요!
+
+;레벨은 1-5까지
+@SKILL_143_BASE_2_LEVEL
+RETURN 3
+
+;대상 선택
+@SKILL_143_BASE_2_SETTARGET(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+;부대 대상
+RETURN 1
+
+;발동 판정
+@SKILL_143_BASE_2_CAN_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+RETURN 1
+
+;발동 텍스트를 오바라이드 하고 싶을 때에.
+;「아무개의 스킬 발동!   00했다!」의 「00했다!」의 부분을 실장하고 싶은 경우는,
+;이것이 아니고 INVOKE로 쓰면 좋습니다.
+;@SKILL_143_BASE_2_INVOKE_TEXT(발동자, 스킬, 장르)
+;#DIM 발동자
+;#DIM 스킬
+;#DIMS 장르
+
+;효과를 여기에 기술
+@SKILL_143_BASE_2_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+PRINTFORML 자신 부대의 받은 피해가 감소했다!
+IF CITY_OWNER:발동세력 == CFLAG:발동자:소속
+	BATTLE_RATE_GRD:발동측 += 20
+ELSE
+	BATTLE_RATE_GRD:발동측 += 10
+ENDIF
+
+@SKILL_143_BASE_2_EXPLANATION
+RESULTS = 자부대의 피해를 경감한다. 자세력에서의 전투시에 추가로 경감한다.
+; 지략에 비례해서 자신의 무투를 증가시킨다. (SP)
+; 자신의 방위를 지략과 동일하게한다. (SP)
+
+@SKILL_143_BASE_2_CANT_TELL
+
+
+@SKILL_143_BASE_2_RATE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+RETURN 300
