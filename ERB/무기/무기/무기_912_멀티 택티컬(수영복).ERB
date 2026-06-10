@@ -1,0 +1,91 @@
+﻿;------------------------------------------
+;이름
+;+ 무기 있는지 확인용
+;------------------------------------------
+@무기_이름_912(iLen = 0)
+#DIM DYNAMIC iLen
+IF iLen > 0 && iLen < 19
+	RESULTS = 수)멀티 택티컬
+ELSE 		 ;123456789 123456789 123456789
+	RESULTS = 멀티 택티컬(수영복)
+ENDIF
+;------------------------------------------
+;착용 효과 (대상, 착용 1,미착용 -1)
+;------------------------------------------
+@무기_착용_912(대상, 탈착 = 1)
+#DIM 대상
+#DIM 탈착
+#DIM 스탯증가, 2
+IF 대상 >= 0 && NO:대상 == 49
+	스탯증가:0 = 10 ; 방위
+	스탯증가:1 = 20 ; 지략
+ELSE
+	스탯증가:0 = 5 ; 방위
+	스탯증가:1 = 10 ; 지략
+ENDIF
+; 스탯
+ABL:대상:방위 += 스탯증가:0 * 탈착
+ABL:대상:지략 += 스탯증가:1 * 탈착
+
+IF 탈착 == 1
+	TALENT:대상:웨폰 = 912
+	CALL SKILL_LEARN(대상, 스킬_장르_SP, 1912, 0)
+ELSEIF 탈착 == -1
+	TALENT:대상:웨폰 = 0
+	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_SP, "믿음직한 지원군")
+ENDIF
+
+RETURN 탈착
+
+;------------------------------------------
+; 임시: 총력전 스탯 추가
+; 나중에 총력전 장비 스탯 정리 하면서 같이 처리 되도록 변경
+;------------------------------------------
+@무기_총력전스탯_912(대상)
+#DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+IF 대상 >= 0 && NO:대상 == 49
+	RESULT:총력전_무기_최대체력 = 200
+	RESULT:총력전_무기_명중률 = 10
+	RESULT:총력전_무기_치유력 = 70
+ELSE
+	RESULT:총력전_무기_최대체력 = 100
+	RESULT:총력전_무기_명중률 = 5
+	RESULT:총력전_무기_치유력 = 35
+ENDIF
+
+;------------------------------------------
+;무기설명
+;------------------------------------------
+@무기_설명_스탯_912(isRaid = 0)
+#DIM DYNAMIC isRaid
+IF isRaid
+	CALL ICPRINT(@"에이미: 최대체력: <200> 명중률: <10> 치유력: <70>", "L", 칼라_주의)
+	CALL ICPRINT(@"나머지: 최대체력: <100> 명중률: <5> 치유력: <35>", "L", 칼라_주의)
+ELSE
+	CALL ICPRINT(@"에이미: 방위: <10> 지략: <20>", "L", 칼라_주의)
+	CALL ICPRINT(@"나머지: 방위: <5> 지략: <10>", "L", 칼라_주의)
+ENDIF
+
+@무기_설명_912
+CALL SINGLE_DRAWLINE
+PRINTL 전용스킬
+PRINTL 
+CALL SKILL_1912_SP_0_NAME
+SETCOLOR 칼라_선택불가
+PRINT   · 
+RESETCOLOR
+PRINTFORML %RESULTS%
+CALL COLOR_LINE
+SETCOLOR 칼라_선택불가
+PRINT   · 
+RESETCOLOR
+CALL SKILL_1912_SP_0_EXPLANATION
+PRINTFORML %RESULTS%
+PRINTL
+SETCOLOR 칼라_선택불가
+PRINT   · 
+RESETCOLOR
+CALL ICPRINT(@"영향 받는 능력치 : <방위>", "L", 칼라_주의)
+PRINTL 
+RETURN
