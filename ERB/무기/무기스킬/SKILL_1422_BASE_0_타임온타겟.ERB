@@ -66,7 +66,7 @@ RETURN 1
 대상측 = !발동측
 ; PRINTFORML "멋진 티 타임에 음악이 빠질 순 없겠지요."
 TIMES BATTLE_DEF:대상측, 0.85
-LOCAL:1 = RAND(4, 12)
+LOCAL:1 = RAND(2, 10)
 FOR LOCAL, 0, LOCAL:1
 	CALL DECREASE_SOLDIER(대상세력, 대상부대, RAND(ABL:발동자:지략, ABL:발동자:지략*5), 1)
 NEXT

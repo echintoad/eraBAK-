@@ -67,7 +67,7 @@ RETURN 1
 ; PRINTFORML "적 위치 확인. 발포 준비 완료."
 LOCAL:1 = 5
 FOR LOCAL, 0, LOCAL:1
-	CALL DECREASE_SOLDIER(대상세력, 대상부대, RAND(ABL:발동자:지략*10 , ABL:발동자:지략*15), 1)
+	CALL DECREASE_SOLDIER(대상세력, 대상부대, RAND(ABL:발동자:지략*2 , ABL:발동자:지략*10), 1)
 NEXT
 
 @SKILL_1601_SP_0_EXPLANATION
