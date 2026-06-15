@@ -629,11 +629,13 @@ FOR LOCAL, 0, 2
 			BREAK
 		; 무기 번호
 		LOCAL:2 = RAND:iP_Weapon_Cnt
-		; 무기 상속 확률
-		IF RAND:100 < 50
+		; 무기 상속 확률, 75%, 50%, 30%
+		IF LOCAL:1 == 0 && RAND:100 < 75
 			CALL WEAPON_ADD(TARGET, iP_Weapon_Ary:(LOCAL:2))
-			; TALENT:TARGET:iWeapon_Cnt = iP_Weapon_Ary:(LOCAL:2)
-			; iWeapon_Cnt ++
+		ELSEIF LOCAL:1 == 1 && RAND:100 < 50
+			CALL WEAPON_ADD(TARGET, iP_Weapon_Ary:(LOCAL:2))
+		ELSEIF LOCAL:1 > 1 && RAND:100 < 30
+			CALL WEAPON_ADD(TARGET, iP_Weapon_Ary:(LOCAL:2))
 		ENDIF
 		; 사용한 번호 제거
 		ARRAYREMOVE iP_Weapon_Ary, LOCAL:2, 1
