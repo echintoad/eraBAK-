@@ -311,6 +311,7 @@ CALL 총력전_상태효과_소비(공, 총력전_방식_공격)
 #DIM 대미지
 #DIM 수
 #DIM DYNAMIC 공 ; 공격 캐 총력전 ID 필요 없으면 = -1
+; 이름 변경? 회피 -> 명중확인 / 명중계산
 #DIM DYNAMIC 회피 ; BOOL: 회피 가능한지, 2 = 확정 명중
 #DIM DYNAMIC 치명타 ; BOOL: 치명타 가능한지, 2 = 확정 치명
 #DIM DYNAMIC 엄폐물 ; BOOL: 엄폐물 사용여부
@@ -474,7 +475,7 @@ FOR iTmp, 0, 총력전_상태효과수
 	SIF 총력전_상효_종류:수:iTmp == 0
 		BREAK
 	; 적용 방식 확인 안 함
-	SIF 총력전_상효_종류:수:iTmp == 상효_종류_받는대미지량백분율
+	SIF 총력전_상효_종류:수:iTmp == 상효_종류_받는대미지량
 		대미지 += 총력전_상효_양:수:iTmp
 NEXT
 대미지 = MAX(대미지, 1)
@@ -2414,7 +2415,7 @@ RETURNF iTmp:1
 
 FOR iTmp, 시작번호, 총력전_캐릭터수
 	IF 총력전_상태:iTmp == 총력전_상태_소환 || 총력전_상태:iTmp == 총력전_상태_소한_비공격
-		IF 추가번호 <= -1 && 총력전_스킬_번호:iTmp
+		IF 추가번호 <= -1 && 총력전_스킬_번호:iTmp == 스킬번호
 			RETURNF iTmp
 		ELSEIF 총력전_스킬_번호:iTmp == 스킬번호 && 총력전_스킬_가변:iTmp == 추가번호
 			RETURNF iTmp
