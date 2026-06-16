@@ -1,9 +1,10 @@
-﻿@SET_BODYSIZE(대상, 세트위치 = 0)
+﻿@SET_BODYSIZE(대상, 세트위치 = 0, 초기 = 0)
 #DIM 대상
 #DIM 세트위치
+#DIM 초기 ; 캐릭터 처음 만들었을때만 활성화되게
 
 SIF GETBIT(세트위치, 사이즈_신장) || 세트위치 == 0
-	CALL SET_BODYSIZE_HEIGHT(대상)
+	CALL SET_BODYSIZE_HEIGHT(대상, 초기)
 
 SIF GETBIT(세트위치, 사이즈_가슴) || 세트위치 == 0
 	CALL SET_BODYSIZE_BUST(대상)
@@ -24,14 +25,16 @@ SIF GETBIT(세트위치, 사이즈_페니스) || 세트위치 == 0
 ;-------------------------
 ;신장의 설정
 ;-------------------------
-@SET_BODYSIZE_HEIGHT(대상)
+@SET_BODYSIZE_HEIGHT(대상, 초기 = 0)
 #DIM 대상
+#DIM 초기 ; 캐릭터 처음 만들었을때만 활성화되게
 #DIM 신장기초치
 ; CSV 있고, 키 설정 되있으면 스킵?
-IF !(IS_FIXED_CHARA(대상) && MAXBASE:대상:신장 > 0)
-	MAXBASE:대상:신장 = CALC_BODYSIZE_HEIGHT(대상)
-	BASE:대상:신장 = MAXBASE:대상:신장
+IF 초기 == 1 && IS_FIXED_CHARA(대상) && MAXBASE:대상:신장 > 0
+	RETURN
 ENDIF
+MAXBASE:대상:신장 = CALC_BODYSIZE_HEIGHT(대상)
+BASE:대상:신장 = MAXBASE:대상:신장
 
 
 @CALC_BODYSIZE_HEIGHT(대상)

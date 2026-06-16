@@ -455,6 +455,6 @@ FOR iTmp, 0, CHARANUM
 	ENDSELECT
 	IF 신장업데이트 == 1
 		BASE:iTmp:신장 = MAXBASE:iTmp:신장
-		CALL SET_BODYSIZE(iTmp)
+		CALL SET_BODYSIZE(iTmp, 0, 1)
 	ENDIF
 NEXT
