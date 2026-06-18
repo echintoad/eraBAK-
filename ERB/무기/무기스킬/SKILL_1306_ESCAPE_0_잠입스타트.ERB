@@ -133,6 +133,7 @@ FOR iTmp, 0, 총력전_캐릭터수
 		BREAK
 	IF 범위목표:iTmp == 주목표
 		CALL 총력전_처리_피격(대미지:0, 범위목표:iTmp, 시전자)
-	ENDIF
+	ELSE
 		CALL 총력전_처리_피격(대미지:1, 범위목표:iTmp, 시전자)
+	ENDIF
 NEXT
