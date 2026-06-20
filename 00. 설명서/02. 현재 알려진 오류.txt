@@ -19,35 +19,32 @@
 	  - 그렇게 전하면, 그녀는 작고 수긍 빠른 걸음을 떠나 갔다
 	- 틀린 대답
 
+□ 포로 처우 경정중, 아이 캐릭터 화상 오류
+  ○ <img src='아이_AI_스탠딩_통상_1_1' height='160'>
+  ○ <img src='아이_AI_스탠딩_통상_모브_1' height='160'>
+
+□ 총력전: 도발중 행동불능 시 기본 공격 종료
+  ○ 예. 레이사 도발 -> 첫번째 공격후 행동불능 -> 보스 기본 공격 페이즈 종료
+
 ----- 확인 중 -----
 
-□ 특정 상황에 [지도] 버튼 누루면 오류
-  ○ 개발자 노트, 오류 났던 세이브:
-    ○ [39 ] 2026-04-03 22:07:36 시나리오20 거잔행동:6 78기 히나세력
-  ○ 오류가 다시 나오진 않았음, 찾는데 시간 걸릴거라 나중에
-  ○ LINECOUNT - FIRST_COLUMN_RIGHT_LINE_SLG
-  ○ @SHOW_SHOP_SLG: FIRST_COLUMN_RIGHT_LINE_SLG = LINECOUNT
-  ○ (확인) 총력전 종료 -> [지도]
-	- 아마 총력전에서 LINECLEAR LINECOUNT 하면서 LINECOUNT - FIRST_COLUMN 갑 이상해지면서 생기는 문제일듯
-	- 총력전 끝내면서 FIRST_COLUMN_RIGHT_LINE_SLG 재 계산 필요?
-SHOP\SHOP_SLG_COLUMN_LEFT.ERB at line 122Error has occurred:Emuera.NET 1.824+v22+EMv18+EEv53
-		IF COLUMN_LEFT_CATEGORY_NUM_SLG:(ARG:0) != 0
-Error description: Array variable "COLUMN_LEFT_CATEGORY_NUM_SLG" at the 1 argument (-8842) is out of the range of the array
-Function: @COLUMN_LEFT_MENU_SHOW_SLG（file:SHOP\SHOP_SLG_COLUMN_LEFT.ERB in line 86）
+□ 캐릭터 번호 이상?
+  ○ TALENT:선택중인캐릭터:성명역전 라 어디서 꼬일수있는거 같은데;;;
+TRAIN\PREGNANT\PREGNANT.ERB at line 1019Error has occurred:Emuera.NET 1.824+v22+EMv18+EEv53
+	TALENT:성명역전 = 0
+Error description: Character array variable "TALENT" at the 1 argument (405) is out of the range of the character registration number 
+Function: @INPUT_CHILD_NAME（file:TRAIN\PREGNANT\PREGNANT.ERB in line 909）
 Function call stack:
-↑SLG\SLG_CITY.ERB at line 17（function@SHOW_CITY_INFO）
-↑SHOP\SHOP.ERB at line 313（function@EVENTBUY）
-※※※Log file emuera.log has been created. Please provide stacktrace or save data with steps to reproduce to help fix it※※※
+↑TRAIN\PREGNANT\PREGNANT.ERB at line 514（function@NORMAL_BIRTH_CHILD）
+↑TRAIN\PREGNANT\PREGNANT.ERB at line 331（function@BIRTH_CHILD）
+↑TRAIN\PREGNANT\PREGNANT.ERB at line 169（function@TURNEND_PREGNANT_CHECK_MOTHER）
+↑TRAIN\PREGNANT\PREGNANT.ERB at line 124（function@TURNEND_PREGNANT_CHECK）
+↑TRAIN\PREGNANT\PREGNANT.ERB at line 676（function@TURNEND_PREGNANT_PHASE）
+↑SYSTEM\TURNEND.ERB at line 383（function@TURNEND_COMMON）
+↑SYSTEM\TURNEND.ERB at line 244（function@TURNEND_POLITICS）
+↑SYSTEM\TURNEND.ERB at line 19（function@EVENTTURNEND）
 
-SHOP\SHOP_SLG_COLUMN_LEFT.ERB at line 122Error has occurred:Emuera.NET 1.824+v22+EMv18+EEv53
-		IF COLUMN_LEFT_CATEGORY_NUM_SLG:(ARG:0) != 0
-Error description: Array variable "COLUMN_LEFT_CATEGORY_NUM_SLG" at the 1 argument (-10780) is out of the range of the array
-Function: @COLUMN_LEFT_MENU_SHOW_SLG（file:SHOP\SHOP_SLG_COLUMN_LEFT.ERB in line 86）
-Function call stack:
-↑SLG\SLG_CITY.ERB at line 17（function@SHOW_CITY_INFO）
-↑SHOP\SHOP.ERB at line 313（function@EVENTBUY）
-※※※Log file emuera.log has been created. Please provide stacktrace or save data with steps to reproduce to help fix it※※※
-
+□ 토키, 환상들이, 메이드복이 아니라 기본복장으로 나옴
 
 □ 부대 이미지 오류?
   ○ 고정 캐릭터가 지휘관이라고 적혀있는데(히후미, 하나코), 이미지는 부대에 없는 범용 캐릭터 하나만 뜸
@@ -59,8 +56,22 @@ Function call stack:
   ○ 대사가 플레이어가 대상인 상태로 된듯?
 
 =============================================================
-해결한 문제
+해결한 (확인중) 문제
 =============================================================
+
+0.6.3
+□ 미용수술 사용시 고정 캐릭터 쓰리 싸이즈 재 계산시 키가 안 바뀜
+  ○ 체격 비교, CSV 버전 이랑 동일할시 고정 신장, 다를시 키 계산
+□ 특정 상황에 [지도] 버튼 누루면 오류
+  ○ 개발자 노트, 오류 났던 세이브:
+    ○ [39 ] 2026-04-03 22:07:36 시나리오20 거잔행동:6 78기 히나세력
+  ○ 오류가 다시 나오진 않았음, 찾는데 시간 걸릴거라 나중에
+  ○ LINECOUNT - FIRST_COLUMN_RIGHT_LINE_SLG
+  ○ @SHOW_SHOP_SLG: FIRST_COLUMN_RIGHT_LINE_SLG = LINECOUNT
+  ○ (확인) 총력전 종료 -> [지도]
+	- 아마 총력전에서 LINECLEAR LINECOUNT 하면서 LINECOUNT - FIRST_COLUMN 갑 이상해지면서 생기는 문제일듯
+	- 총력전 끝내면서 FIRST_COLUMN_RIGHT_LINE_SLG 재 계산 필요?
+
 
 □ 카이저 돈 양도 [쫒아낸다] 시 버그 (아마?)
 0.6.1

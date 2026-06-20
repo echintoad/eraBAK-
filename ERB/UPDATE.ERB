@@ -231,7 +231,7 @@ IF CHECK_UPDATE("0.6.2")
 				IF LOCAL:1 > 0
 					MAXBASE:LOCAL:신장 = LOCAL:1
 					BASE:LOCAL:신장 = MAXBASE:LOCAL:신장
-					CALL SET_BODYSIZE(LOCAL)
+					CALL SET_BODYSIZE(LOCAL, 0, 1)
 				ENDIF
 			ENDIF
 		NEXT
@@ -239,10 +239,81 @@ IF CHECK_UPDATE("0.6.2")
 	ENDIF
 ENDIF
 
+IF CHECK_UPDATE("0.6.3")
+	; 무기 추가
+	PRINTL == 0.6.3 업데이트 ==
+	PRINTL 무기 추가...
+	LOCAL = NO_TO_CHARA(28) ; 리오
+	CALL WEAPON_ADD(LOCAL,428)
+	LOCAL = NO_TO_CHARA(32) ; 아리스
+	CALL WEAPON_ADD(LOCAL,703)
+	LOCAL = NO_TO_CHARA(33) ; 모모이
+	CALL WEAPON_ADD(LOCAL,132)
+	LOCAL = NO_TO_CHARA(34) ; 미도리
+	CALL WEAPON_ADD(LOCAL,1122)
+	LOCAL = NO_TO_CHARA(35) ; 유즈
+	CALL WEAPON_ADD(LOCAL,306)
+	LOCAL = NO_TO_CHARA(36) ; 히마리
+	CALL WEAPON_ADD(LOCAL,429)
+	LOCAL = NO_TO_CHARA(45) ; 토키
+	CALL WEAPON_ADD(LOCAL,131)
+	LOCAL = NO_TO_CHARA(49) ; 에이미
+	CALL WEAPON_ADD(LOCAL,912)
+	; 케이 추가
+	GETCHARA 143
+	IF RESULT == -1
+		CALL _UPDATE_ADD_KEI
+	ENDIF
+ENDIF
+
 ;-------------------------------------------------
 ; 임시 업데이트 개인 함수
 ; 더이상 필요없을때 제거
 ;-------------------------------------------------
+
+; 케이 추가, 아리스 소속 확인
+@_UPDATE_ADD_KEI
+#DIM DYNAMIC 아이디_케이
+#DIM DYNAMIC 아이디_아리스
+#DIM DYNAMIC 소속_아리스
+
+PRINTL 케이가 추가 되었음니다, 추가 합니까?
+PRINTBUTTON "0[예(추천)]", 0
+PRINTL
+PRINTBUTTON "1[아니오]", 1
+INPUT
+IF RESULT == 0
+	; 캐릭터 추가
+	CALL ADD_CHARA_FROM_CSV(143)
+	아이디_케이 = RESULT ; 케이 번호 저장
+	; 아리스
+	GETCHARA 32
+	아이디_아리스 = RESULT ; 아리스 번호 저장
+	; 아리스 방랑 확인
+	IF CFLAG:아이디_아리스:특수상태 == 특수상태_방랑
+		$KEIROAM
+		CFLAG:아이디_케이:특수상태 = 특수상태_방랑
+		PRINTFORML 케이는 방랑했다
+	ELSE
+		; 아리스 소속 확인
+		소속_아리스 = GET_COUNTRY_BOSS(CFLAG:(아이디_아리스):소속)
+		IF 소속_아리스 == 아이디_아리스
+			PRINTFORML 케이를 아리스 세력으로 변경 합니까?
+		ELSE
+			PRINTFORML 아리스는 %ANAME(소속_아리스)% 소속입니다, 케이도 동일한 세력으로 변경 합니까?
+		ENDIF
+		PRINTBUTTON "0[예]", 0
+		PRINTL
+		PRINTBUTTON "1[아니오]", 1
+		INPUT
+		IF RESULT == 0
+			PRINTFORML 케이를 %ANAME(소속_아리스)% 소속으로 변경합니다
+			CALL CHANGE_COUNTRY(아이디_케이, CFLAG:아이디_아리스:소속, 1)
+		ELSE
+			GOTO KEIROAM
+		ENDIF
+	ENDIF
+ENDIF
 
 ; 범용 무기 인지
 @_UPDATE_IS_FIXED_WEAPON(무기번호)
