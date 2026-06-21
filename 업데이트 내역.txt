@@ -212,6 +212,23 @@
 		메인 시나리오, 동아리집결:
 			소라, 아로나: 미등장 -> 방랑
 				미등장 이여야 됬는데 오류로 방랑으로 변경 됬었음
+	@INPUT_CHILD_NAME: TALENT:성명역전 = 0 오류
+		TARGET 이 제대로 설정 되지 않은 상태에서 TALENT:성명역전 == TALENT:TARGET:성명역전 을 써서 오류 생길수 있음
+		e.g. 임시 캐릭터 만드는 이벤트/스킬 -> TARGET 이 CHARANUM 보다 커짐
+		- INPUT_CHILD_NAME 함수에 CSTR:(ARG:0):0 [ARG:0 는 아이 캐릭터 번호] 처럼 쓰이고
+		- [랜덤(한국명/서양명/일본명)]:
+			LOCAL:0 = TARGET
+			TARGET = ARG:0
+			IF IS_MALE(TARGET)
+				CALL SET_FIRST_NAME_KRM
+			ELSE
+				CALL SET_FIRST_NAME_KRF
+			ENDIF
+			TARGET = LOCAL:0
+			로 쓰임 (TARGET 이 아이 캐릭터가 아니라 가정 하는듯?)
+		위 이유로:
+			TALENT:성명역전 -> TALENT:(ARG:0):성명역전
+			로 변경해서 해결
 
 ---------------------------------26.05.03 패치 내역 ---------------------------------
 
