@@ -3,7 +3,8 @@
 ;-------------------------------------------------
 ;캐릭터 가입시의 공통 설정
 ;-------------------------------------------------
-@INIT_NEWCHARA(ARG:0)
+@INIT_NEWCHARA(ARG:0, 초기 = 0)
+#DIM DYNAMIC 초기
 ;캐릭터 ID를 설정(1으로부터 시작된다)
 FLAG:998 ++
 CFLAG:(ARG:0):캐릭터ＩＤ = FLAG:998
@@ -54,7 +55,7 @@ ENDIF
 
 TALENT:(ARG:0):위험일 = RAND:5
 
-CALL SET_BODYSIZE(ARG:0)
+CALL SET_BODYSIZE(ARG:0, 0, 초기)
 
 CALL TAG_INIT(ARG:0, NO:(ARG:0))
 
@@ -3080,7 +3081,7 @@ RETURNF 0
 ;캐릭터를 CSV로부터 읽어내고 나서 초기설정을 한다
 ADDCHARA CSVNO
 ;초기설정
-CALL INIT_NEWCHARA(CHARANUM - 1)
+CALL INIT_NEWCHARA(CHARANUM - 1, 1)
 RETURN CHARANUM - 1
 
 ;특수 캐릭터용의 빈자리 NO를 취득하는 함수

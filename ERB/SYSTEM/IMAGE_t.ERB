@@ -39,7 +39,7 @@ clothes = %RESULTS%
 
 ; 의상 체크: 최적화 문제시 삭제
 ; 이벤트/구상 등 의상용 메뉴를 통과하지 않고 의상이 바뀔 상황에 대비용
-chk = 얼굴_%clothes%_통상_{대상}
+chk = 얼굴_%clothes%_통상_{NO:대상}
 IF !SPRITECREATED(chk)
 	CALL GET_CLOTH_NAME_CSV(0, 0)
 	clothes = %RESULTS%
@@ -47,7 +47,7 @@ ENDIF
 ; 의상 체크 끝
 
 CALL GET_CLOTH_NAME_CSV(1, CLOTH:옷대상:의상부위_악세서리)
-chk = 얼굴_%RESULTS%%clothes%_통상_{대상}
+chk = 얼굴_%RESULTS%%clothes%_통상_{NO:대상}
 SIF SPRITECREATED(chk)
 	clothes = %RESULTS%%clothes%
 ; DEBUGPRINTFORML %clothes%
@@ -105,7 +105,7 @@ ELSE
 	;해당 캐릭터가 고정 캐릭터라면
 	ELSEIF IS_FIXED_CHARA(대상)
 		CALL PRINT_IMAGE_OTHER_CLOTHES(대상)
-		sName = %종류%%RESULTS%_%표정%_{대상}
+		sName = %종류%%RESULTS%_%표정%_{NO:대상}
 	;해당 캐릭터가 아이라면
 	ELSEIF IS_CHILD(대상)
 		TRYCALLFORM ADDON_AI_CHILD_IMAGE_CORE
@@ -631,12 +631,11 @@ RETURN
 #FUNCTION
 #DIM ID
 
-SELECTCASE ID
-CASE 1 TO 142
-		RETURNF 1
-	CASEELSE
-		RETURNF 0
-ENDSELECT
+IF ID > 0
+	RETURNF EXISTCSV(ID)
+ELSE
+	RETURNF 0
+ENDIF
 
 ;-------------------------------------------------------------
 ;PRINT COMMANDER

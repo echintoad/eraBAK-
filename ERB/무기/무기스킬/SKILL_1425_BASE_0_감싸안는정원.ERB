@@ -42,8 +42,10 @@ RETURN 1
 #DIM 대상세력
 #DIM 대상부대
 대상측 = !발동측
+; 도시 방위가 아니면
+SIF 발동부대 < 0
+	RETURN 0
 RETURN 1
-
 
 ;발동 텍스트를 오바라이드 하고 싶을 때에.
 ;「아무개의 스킬 발동!   00했다!」의 「00했다!」의 부분을 실장하고 싶은 경우는,
@@ -67,7 +69,7 @@ RETURN 1
 #DIM 대상부대
 대상측 = !발동측
 PRINTFORML 자부대의 지략이 증가했지만, 피로도도 증가했다.
-TIMES BATTLE_INT:발동측, 1.05
+TIMES BATTLE_INT:발동측, 1.20
 ; RAND 1(inclusive), 3(exclusive)
 UNIT_TIRED_COUNT:발동측:발동부대 += RAND(1, 3)
 

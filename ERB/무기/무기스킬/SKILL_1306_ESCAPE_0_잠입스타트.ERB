@@ -1,0 +1,139 @@
+﻿;-----------------------------------
+;기본치 계산에 앞서 처리하는 것
+;-----------------------------------
+@SKILL_1306_ESCAPE_0_EXIST
+RETURN 1
+
+@SKILL_1306_ESCAPE_0_NAME
+RESULTS = 잠입, 스타트!
+
+;레벨은 1-5까지
+@SKILL_1306_ESCAPE_0_LEVEL
+RETURN 2
+
+;대상 선택
+@SKILL_1306_ESCAPE_0_SETTARGET(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+;부대 대상
+RETURN 1
+
+;발동 판정
+@SKILL_1306_ESCAPE_0_CAN_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+RETURN 1
+
+;발동 텍스트를 오바라이드 하고 싶을 때에.
+;「아무개의 스킬 발동!   00했다!」의 「00했다!」의 부분을 실장하고 싶은 경우는,
+;이것이 아니고 INVOKE로 쓰면 좋습니다.
+;@SKILL_1306_ESCAPE_0_INVOKE_TEXT(발동자, 스킬, 장르)
+;#DIM 발동자
+;#DIM 스킬
+;#DIMS 장르
+
+;효과를 여기에 기술
+@SKILL_1306_ESCAPE_0_INVOKE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+대상측 = !발동측
+CAPTURE_RATE:발동번호 = MIN_DECREASE(CAPTURE_RATE:발동번호, 300, 0)
+
+; 스토리에서 메이드 유즈 = 아스나
+; RESULTS = 자신의 무투를 증가시키고 포박될 확률을 줄인다.
+@SKILL_1306_ESCAPE_0_EXPLANATION
+RESULTS = 자신의 포박율을 저하시킨다.
+
+@SKILL_1306_ESCAPE_0_CANT_TELL
+
+; 아이가 배울수 없도록 한다
+@SKILL_1306_ESCAPE_0_CANT_INHERIT
+
+@SKILL_1306_ESCAPE_0_RATE(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
+#DIM 발동자
+#DIM 발동번호
+#DIM 스킬
+#DIMS 장르
+#DIM 발동측
+#DIM 발동세력
+#DIM 발동부대
+#DIM 대상측
+#DIM 대상세력
+#DIM 대상부대
+RETURN 500
+
+; #region == 총력전 ==
+@총력전_스킬_1306_코스트(시전자)
+#DIM 시전자 ; 코스트 당 대미지 스킬 카운터 위해서
+; #DIM 가변
+RETURN 5
+
+@총력전_스킬_1306_설명(시전자)
+#DIM 시전자 ; 가변스킬 설명 위해서
+RESULTS = 1범위 적에게 대미지 (주 목표, 공격력 300％, 나머지 공격력 180％).
+; 3턴 마다 1범위 무작위 적에게 대미지 (공격력 100％)
+
+@총력전_스킬_1306_발동(시전자)
+#DIM 시전자
+
+#DIM DYNAMIC 주목표
+#DIM DYNAMIC 범위목표, 총력전_캐릭터수
+#DIM DYNAMIC 대미지, 2
+#DIM DYNAMIC iTmp
+#DIMS DYNAMIC sTmp, 3
+
+; 발동 텍스트
+sTmp:0 = 「눈치채이지 않도록…!」
+sTmp:1 = 「타겟, 확인했습니다!」
+sTmp:2 = 「우, 움직이지 마세요!」
+CALL SKILL_1306_ESCAPE_0_NAME
+CALL 총력전_스킬_공통_발동텍스트(시전자, 35, RESULTS, sTmp)
+; 목표 처리
+CALL 총력전_시퀀스_목표선택(주목표, 0, 총력전_선택_캐릭터)
+; 목표 없으면 스킬 해제
+IF 주목표 < 0
+	CALL 총력전_스킬_공통_스킬취소(시전자)
+	RETURN
+ENDIF
+; 범위로 변경, 적팀 1 이상이 되면 수정 필요
+CALL 총력전_목표_범위(범위목표, 주목표, 1)
+; 대미지
+대미지:0 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 300
+대미지:1 = GETVAR_RAIDSTAT_SUM(시전자, "공격력") * 180
+대미지:0 = DIVIDE_ROUND(대미지:0, 100)
+대미지:1 = DIVIDE_ROUND(대미지:1, 100)
+FOR iTmp, 0, 총력전_캐릭터수
+	SIF 범위목표:iTmp < 0
+		BREAK
+	IF 범위목표:iTmp == 주목표
+		CALL 총력전_처리_피격(대미지:0, 범위목표:iTmp, 시전자)
+	ELSE
+		CALL 총력전_처리_피격(대미지:1, 범위목표:iTmp, 시전자)
+	ENDIF
+NEXT

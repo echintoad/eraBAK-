@@ -473,6 +473,14 @@ ENDIF
 CALL BATTLE_IMAGE_CHANCE(pickFrom)
 RESULTS = %종류%_전투_B{RESULT}_31
 
+; 히마리
+@BATTLE_IMAGE_36(teams, enemies, 종류 = "얼굴")
+#DIM REF teams, 0 
+#DIM REF enemies, 0
+#DIMS DYNAMIC 종류
+
+; B0 는 총력전 스킬 전용, 의복_통상 으로 고정
+RESULTS = %종류%_의복_통상_36
 
 ; 네루
 @BATTLE_IMAGE_41(teams, enemies, 종류 = "얼굴")

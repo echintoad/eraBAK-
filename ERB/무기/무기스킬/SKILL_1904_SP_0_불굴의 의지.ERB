@@ -9,7 +9,7 @@ RESULTS = 불굴의 의지
 
 ;레벨은 1-5까지
 @SKILL_1904_SP_0_LEVEL
-RETURN 4
+RETURN 3
 
 ;대상 선택
 @SKILL_1904_SP_0_SETTARGET(발동자, 발동번호, 발동측, 발동세력, 발동부대, 대상세력, 대상부대)
@@ -25,7 +25,6 @@ RETURN 4
 #DIM 대상부대
 대상측 = !발동측
 ;부대 대상
-
 RETURN 1
 
 ;발동 판정
@@ -41,7 +40,6 @@ RETURN 1
 #DIM 대상세력
 #DIM 대상부대
 대상측 = !발동측
- 
 RETURN 1
 
 ;발동 텍스트를 오바라이드 하고 싶을 때에.
@@ -66,10 +64,12 @@ RETURN 1
 #DIM 대상부대
 대상측 = !발동측
 ; PRINTFORML "인터프리터 기동. 해석 개시."
-BATTLE_RATE_GRD:발동측 += (ABL:발동자:방위 / 3)
+PRINTFORML 자신 부대의 병력이 회복되었다!
+CALL INCREASE_SOLDIER(발동세력, 발동부대, RAND(BATTLE_방위:발동측:발동번호, BATTLE_방위:발동측:발동번호 * 7), 1)
 
 @SKILL_1904_SP_0_EXPLANATION
-RESULTS = 자신 부대의 받는 피해를 감소시킨다.
+RESULTS = 자신의 방위에 의존해 부대의 병력을 회복시킨다.
+; RESULTS = 자신 부대의 받는 피해를 감소시킨다.
 
 @SKILL_1904_SP_0_CANT_TELL
 
@@ -88,7 +88,7 @@ RESULTS = 자신 부대의 받는 피해를 감소시킨다.
 #DIM 대상측
 #DIM 대상세력
 #DIM 대상부대
-RETURN 400
+RETURN 300
 
 ; #region == 총력전 ==
 @총력전_스킬_1904_코스트(시전자)

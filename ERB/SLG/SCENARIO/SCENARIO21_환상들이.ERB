@@ -107,6 +107,7 @@ COUNTRY_BOSS:7                                = GET_ID(NAME_TO_CHARA("유즈"))
 COUNTRY_COLOR:7                               = 0xFE8085
 CFLAG:NAME_TO_CHARA("유즈"):소속              = GET_COUNTRY_FROM_BOSS_NAME("유즈")
 CFLAG:NAME_TO_CHARA("아리스"):소속              = GET_COUNTRY_FROM_BOSS_NAME("유즈")
+CFLAG:NAME_TO_CHARA("케이"):소속              = GET_COUNTRY_FROM_BOSS_NAME("유즈")
 CFLAG:NAME_TO_CHARA("모모이"):소속              = GET_COUNTRY_FROM_BOSS_NAME("유즈")
 CFLAG:NAME_TO_CHARA("미도리"):소속              = GET_COUNTRY_FROM_BOSS_NAME("유즈")
 CITY_OWNER:GET_CITYNUMBER("칠천계단")           = GET_COUNTRY_FROM_BOSS_NAME("유즈")
@@ -341,6 +342,16 @@ CITY_OWNER:GET_CITYNUMBER("와타츠키노 저택")           = GET_COUNTRY_FROM
 CITY_OWNER:GET_CITYNUMBER("달토끼 거리")           = GET_COUNTRY_FROM_BOSS_NAME("미야코")
 CITY_OWNER:GET_CITYNUMBER("약도장")           = GET_COUNTRY_FROM_BOSS_NAME("미야코")
 
+;---------방랑 캐릭터 설정----------
+;지정되지 않았던 캐릭터는 방랑 「당신」는 제외（MASTER 바꿔 넣었을 때에 방랑하는 것을 막는다）.
+FOR LOCAL:0, 1, CHARANUM
+	SIF CFLAG:(LOCAL:0):1 == 0  && CSTR:(LOCAL:0):99 != "당신"
+		CFLAG:(LOCAL:0):특수상태 = 특수상태_방랑
+NEXT
+
+;---------미등장 캐릭터 설정----------
+; 등장 이벤트 완성돼면 활성화
+CFLAG:NAME_TO_CHARA("페이"):특수상태 = 특수상태_미등장 ; 컨셉만 있던 캐릭터라 미등장으로
 
 ;병력의 초기 배치
 CALL INIT_ARMY

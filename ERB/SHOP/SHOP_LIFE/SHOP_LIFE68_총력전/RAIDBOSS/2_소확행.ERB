@@ -464,7 +464,7 @@ CALL 총력전_보스_스킬종료(2)
 #DIM CONST 보스번호 = 10, 11, 12
 #DIM DYNAMIC 대상, 총력전_캐릭터수
 #DIM DYNAMIC 카운터번호
-#DIM DYNAMIC iTmp
+#DIM DYNAMIC iTmp, 2
 #DIMS DYNAMIC sTmp
 ; 경고 후 종료
 IF 총력전_보스_시전중 == 0
@@ -484,7 +484,32 @@ ENDIF
 ; 피격 카운터 확인
 CALL 총력전_카운터_검색_스킬번호(보스번호:1, 2, 0)
 카운터번호 = RESULT
-IF 총력전_카운터_증가양:(보스번호:1):카운터번호 == 1
+IF 총력전_카운터_증가양:(보스번호:1):카운터번호 > 0
+	; 반격
+	sTmp = 「이런 예술도 모르는 것들이!」
+	CALL 총력전_UI_텍스트_추가(sTmp)
+	sTmp = %조사처리(총력전_이름:(보스번호:1),"가")% 반격해 왔다
+	CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+	CALL 총력전_UI_Main(0)
+	; iTmp = 대미지
+	SELECTCASE 총력전_보스_난이도
+		CASE 4, 3
+			iTmp = GETVAR_RAIDSTAT_SUM((보스번호:1), "공격력") * 110
+		CASE 2, 1
+			iTmp = GETVAR_RAIDSTAT_SUM((보스번호:1), "공격력") * 80
+		CASEELSE ; 0
+			iTmp = GETVAR_RAIDSTAT_SUM((보스번호:1), "공격력") * 40
+	ENDSELECT
+	iTmp = DIVIDE_ROUND(iTmp, 100)
+	; 무작위 공격 3번
+	FOR iTmp:1, 0, 3
+		CALL 총력전_목표_무작위(0)
+		IF RESULT == -1
+			DEBUGPRINTFORML 목표 없음
+			BREAK
+		ENDIF
+		CALL 총력전_처리_피격(iTmp, RESULT, (보스번호:1))
+	NEXT
 	GOTO CLEANUP
 ENDIF
 ; 시전 텍스트
@@ -614,45 +639,45 @@ CALL 총력전_보스_스킬종료(2)
 ; #endregion == 스킬 ==
 
 ; #region == 카운터 ==
-@총력전_스킬_2_0_카운터_증가(캐릭터, 대상, 카운터번호, 증가양)
-#DIM 캐릭터
-#DIM 대상
-#DIM 카운터번호
-#DIM 증가양
+; @총력전_스킬_2_0_카운터_증가(캐릭터, 대상, 카운터번호, 증가양)
+; #DIM 캐릭터
+; #DIM 대상
+; #DIM 카운터번호
+; #DIM 증가양
 
-; #DIM DYNAMIC 목표
-#DIM DYNAMIC 대미지
-#DIM DYNAMIC iTmp
-#DIMS DYNAMIC sTmp
+; ; #DIM DYNAMIC 목표
+; #DIM DYNAMIC 대미지
+; #DIM DYNAMIC iTmp
+; #DIMS DYNAMIC sTmp
 
-IF 총력전_카운터_증가양:캐릭터:카운터번호 == 0
-	총력전_카운터_증가양:캐릭터:카운터번호 = 1
-	sTmp = 「이런 예술도 모르는 것들이!」
-	CALL 총력전_UI_텍스트_추가(sTmp)
-	sTmp = %조사처리(총력전_이름:캐릭터,"가")% 반격해 왔다
-	CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
-	CALL 총력전_UI_Main(0)
-	WAITANYKEY
-	; 대미지
-	SELECTCASE 총력전_보스_난이도
-		CASE 4, 3
-			대미지 = GETVAR_RAIDSTAT_SUM(캐릭터, "공격력") * 110
-		CASE 2, 1
-			대미지 = GETVAR_RAIDSTAT_SUM(캐릭터, "공격력") * 80
-		CASEELSE ; 0
-			대미지 = GETVAR_RAIDSTAT_SUM(캐릭터, "공격력") * 40
-	ENDSELECT
-	대미지 = DIVIDE_ROUND(대미지, 100)
-	; 무작위 공격 3번
-	FOR iTmp, 0, 3
-		CALL 총력전_목표_무작위(0)
-		IF RESULT == -1
-			DEBUGPRINTFORML 목표 없음
-			BREAK
-		ENDIF
-		CALL 총력전_처리_피격(대미지, RESULT, 캐릭터)
-	NEXT
-ENDIF
+; IF 총력전_카운터_증가양:캐릭터:카운터번호 == 0
+; 	총력전_카운터_증가양:캐릭터:카운터번호 = 1
+; 	sTmp = 「이런 예술도 모르는 것들이!」
+; 	CALL 총력전_UI_텍스트_추가(sTmp)
+; 	sTmp = %조사처리(총력전_이름:캐릭터,"가")% 반격해 왔다
+; 	CALL 총력전_UI_텍스트_추가(sTmp, 칼라_노랑)
+; 	CALL 총력전_UI_Main(0)
+; 	WAITANYKEY
+; 	; 대미지
+; 	SELECTCASE 총력전_보스_난이도
+; 		CASE 4, 3
+; 			대미지 = GETVAR_RAIDSTAT_SUM(캐릭터, "공격력") * 110
+; 		CASE 2, 1
+; 			대미지 = GETVAR_RAIDSTAT_SUM(캐릭터, "공격력") * 80
+; 		CASEELSE ; 0
+; 			대미지 = GETVAR_RAIDSTAT_SUM(캐릭터, "공격력") * 40
+; 	ENDSELECT
+; 	대미지 = DIVIDE_ROUND(대미지, 100)
+; 	; 무작위 공격 3번
+; 	FOR iTmp, 0, 3
+; 		CALL 총력전_목표_무작위(0)
+; 		IF RESULT == -1
+; 			DEBUGPRINTFORML 목표 없음
+; 			BREAK
+; 		ENDIF
+; 		CALL 총력전_처리_피격(대미지, RESULT, 캐릭터)
+; 	NEXT
+; ENDIF
 
 ; AR, 피격 취소 1
 @총력전_스킬_2_1_카운터_증가(캐릭터, 대상, 카운터번호, 증가양)
