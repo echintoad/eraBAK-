@@ -266,6 +266,22 @@ IF CHECK_UPDATE("0.6.3")
 	ENDIF
 ENDIF
 
+IF CHECK_UPDATE("0.6.4") && FLAG:주회수 > 1
+	PRINTL == 0.6.4 업데이트 ==
+	PRINTL 다음과 같은 문제가 있나요?:
+	PRINTL - 고정 캐릭터 무기 없음
+	PRINTL - 캐릭터 화상 없음
+	CALL ASK_YN
+	IF RESULT == 0 ; YES
+		PRINTW 고정 캐릭터 무기를 초기화 합니다
+		FOR LOCAL, 0, CHARANUM
+			IF IS_FIXED_CHARA(LOCAL)
+				CALL WEAPON_INIT(LOCAL)
+			ENDIF
+		NEXT
+	ENDIF
+ENDIF
+
 ;-------------------------------------------------
 ; 임시 업데이트 개인 함수
 ; 더이상 필요없을때 제거
