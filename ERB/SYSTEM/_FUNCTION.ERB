@@ -362,9 +362,10 @@ NEXT
 SEXUAL_PREFERENCE:(ARG:0):0 = 0
 SEXUAL_PREFERENCE_EXP:(ARG:0):0 = 0
 
-CALL SET_BODYSIZE(ARG:0)
+CALL SET_BODYSIZE(ARG:0, 0, 1)
 CALL SKILL_INIT(ARG:0)
 CALL CLOTH_INIT(ARG:0)
+CALL WEAPON_INIT(ARG:0)
 ;-------------------------------------------------
 ;TALENT의 초기치를 현재의 값으로 설정하는 함수
 ;-------------------------------------------------
