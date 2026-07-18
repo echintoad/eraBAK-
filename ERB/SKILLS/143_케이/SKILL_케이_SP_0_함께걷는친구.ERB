@@ -24,10 +24,6 @@ RETURN 3
 #DIM 대상세력
 #DIM 대상부대
 대상측 = !발동측
-;부대 대상
-SIF BATTLE_COMMANDER_NUM:대상측 == 0
-	RETURN 0
-; COMBAT_SKILL_TARGET = RAND:(BATTLE_COMMANDER_NUM:대상측)
 RETURN 1
 
 ;발동 판정
@@ -43,9 +39,9 @@ RETURN 1
 #DIM 대상세력
 #DIM 대상부대
 대상측 = !발동측
-SIF 대상부대 < 0
-	RETURN 0
-RETURN 1
+SIF BATTLE_COMMANDER_NUM:발동측 > 1
+	RETURN 1
+RETURN 0
 
 ;발동 텍스트를 오바라이드 하고 싶을 때에.
 ;「아무개의 스킬 발동!   00했다!」의 「00했다!」의 부분을 실장하고 싶은 경우는,
@@ -68,22 +64,22 @@ RETURN 1
 #DIM 대상세력
 #DIM 대상부대
 대상측 = !발동측
-PRINTFORML %ANAME(BATTLE_COMMANDER:대상측:COMBAT_SKILL_TARGET)%는 이 전투로 기술을 발동 할 수 없다!
-BATTLE_SKILL_SEALED:대상측:COMBAT_SKILL_TARGET = 1
-FOR LOCAL, 0, BATTLE_COMMANDER_NUM:대상측
+; PRINTFORML %ANAME(BATTLE_COMMANDER:대상측:COMBAT_SKILL_TARGET)%는 이 전투로 기술을 발동 할 수 없다!
+; BATTLE_SKILL_SEALED:대상측:COMBAT_SKILL_TARGET = 1
+FOR LOCAL, 0, BATTLE_COMMANDER_NUM:발동측
 	; 아리스 확인
 	IF BATTLE_COMMANDER:발동측:LOCAL == NAME_TO_CHARA("아리스")
 		BATTLE_SKILL_RATE:발동측:LOCAL += 15
 		; 디버그 확인용
-		PRINTFORML %ANAME(BATTLE_COMMANDER:대상측:LOCAL)%스킬 발동확률 +15 증가!
+		PRINTFORML %ANAME(BATTLE_COMMANDER:발동측:LOCAL)% 스킬 발동확률 +15 증가!
 	ELSE
 		BATTLE_SKILL_RATE:발동측:LOCAL += 5
-		PRINTFORML %ANAME(BATTLE_COMMANDER:대상측:LOCAL)%스킬 발동확률 +5 증가!
+		PRINTFORML %ANAME(BATTLE_COMMANDER:발동측:LOCAL)% 스킬 발동확률 +5 증가!
 	ENDIF
 NEXT
 
 @SKILL_143_SP_3_EXPLANATION
-RESULTS = 아군의 스킬을 발동하기 쉽게 한다, 아리스는 추가로 증가.
+RESULTS = 아군 지휘관이 1명 이상일때, 아군의 스킬을 발동하기 쉽게 한다, 아리스는 추가로 증가.
 ; 아군 지략 증가 (BASE)
 ; 자부대의 병수를 증가시킨다. (SP)
 
@@ -102,4 +98,5 @@ RESULTS = 아군의 스킬을 발동하기 쉽게 한다, 아리스는 추가로
 #DIM 대상측
 #DIM 대상세력
 #DIM 대상부대
-RETURN 300
+RETURN 1000
+; RETURN 300
