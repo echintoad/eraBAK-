@@ -466,7 +466,7 @@ ENDIF
 #DIM iFont_Hei_mag
 #DIM iEnter_Con
 #DIM iSpace
-#DIMS String
+#DIMS DYNAMIC String
 #DIM Integer
 #DIM iID
 #DIMS test
@@ -513,7 +513,9 @@ IF FLAG:화상설정
 		PRINTFORML 〇%LOCALS:0, 40, LEFT%
 	ENDIF
 
-	;タグ表示
+	; 태그 String
+	; 태그 -1 CONTINUE, 작동 가능하게 하면서 없으면 무소속 나오게
+	String = [%TAG_NAME:태그_무소속%]
 	FOR Integer, 0, MAX_TAG
 		SIF TAG:iID:Integer == -1
 			CONTINUE
