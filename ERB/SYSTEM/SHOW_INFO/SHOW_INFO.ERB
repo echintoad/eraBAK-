@@ -543,7 +543,6 @@ IF FLAG:화상설정
 	
 	IF TALENT:iID:웨폰 && 인포장비이미지 == 0
 		sHtml += @"<shape type='space' param='{iSpace * 13}'><img src='웨폰_{TALENT:iID:웨폰}' height='{iFont_Hei_mag - 50}' ypos='-{iEnter_Con * 125}'>"
-	HTML_PRINT sHtml
 	ELSEIF 인포장비이미지 == 1
 		iEnter_Con = 0
 		sHtml +=  @"%TOSTR_SPACE(18)%"
@@ -552,8 +551,8 @@ IF FLAG:화상설정
 			sHtml +=  @"%TOSTR_SPACE(9)%<img src='%장비이름(착용장비:iID:LOCAL)%' height='800' ypos='{iYpos-250}'>"
 			iEnter_Con++
 		NEXT
-		HTML_PRINT sHtml
 	ENDIF
+	HTML_PRINT sHtml
 	Integer = GET_COUNTRY_BOSS(CFLAG:iID:소속)
 	IF Integer >= 0
 		String = %ANAME(Integer), MAX_CHARANAME_LENGTH, LEFT%
@@ -664,6 +663,10 @@ IF FLAG:화상설정
 		PRINTBUTTON @"【 %장비이름(착용장비:iID:0), 18, LEFT% 】", 4000
 		PRINTBUTTON @"【 %장비이름(착용장비:iID:1), 18, LEFT% 】", 4000
 		PRINTBUTTON @"【 %장비이름(착용장비:iID:2), 18, LEFT% 】", 4000
+	ELSE
+		PRINTFORM %TOSTR_SPACE(28)%
+		; PRINT 　　　　　　　　　　　　　
+		PRINTBUTTON @"【 무기 없음 】", 4000
 	ENDIF
 	PRINTL
 ELSE
