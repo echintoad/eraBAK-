@@ -589,8 +589,13 @@ NEXT
 SIF 어머니 < 0
 	RETURN
 FOR LOCAL, 0, MAX_TAG
-	SIF TAG:어머니:LOCAL != -1 && RAND:2
+	IF TAG:어머니:LOCAL != -1; && RAND:2
 		CALL ADD_TAG(TARGET, TAG:어머니:LOCAL)
+		; 최대 태그가 하나면 그것만 더하고 BREAK
+		; 아이 캐릭터 -1 태그 방지
+		SIF MAX_TAG == 1
+			BREAK
+	ENDIF
 NEXT
 
 @CHILD_WEAPON_SETTING
