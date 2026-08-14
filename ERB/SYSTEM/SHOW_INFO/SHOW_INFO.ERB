@@ -594,7 +594,9 @@ IF FLAG:화상설정
 	sHtml += @"height='{iFont_Hei_mag}' ypos='-{iEnter_Con * 100}'>"
 	HTML_PRINT sHtml
 	
-	IF HAS_TAG(iID, 태그_게헨나)
+	IF HAS_TAG(iID, 태그_아비도스)
+		String = 아비도스_2
+	ELSEIF HAS_TAG(iID, 태그_게헨나)
 		String = 게헨나_2
 	ELSEIF HAS_TAG(iID, 태그_밀레니엄)
 		String = 밀레니엄_2
@@ -608,14 +610,20 @@ IF FLAG:화상설정
 		String = 붉은겨울_2
 	ELSEIF HAS_TAG(iID, 태그_발키리)
 		String = 발키리_2
+	ELSEIF HAS_TAG(iID, 태그_SRT)
+		String = SRT_2
 	ELSEIF HAS_TAG(iID, 태그_아리우스)
 		String = 아리우스_2
-	ELSEIF HAS_TAG(iID, 태그_오디세이)
-		String = 샬레_2
 	ELSEIF HAS_TAG(iID, 태그_총학생회)
 		String = 총학생회_2
-	ELSEIF HAS_TAG(iID, 태그_아비도스)
-		String = 아비도스_2
+	ELSEIF HAS_TAG(iID, 태그_오디세이)
+		String = 오디세이_2
+	ELSEIF HAS_TAG(iID, 태그_하이랜더)
+		String = 하이랜더_2
+	ELSEIF HAS_TAG(iID, 태그_와일드헌트)
+		String = 와일드헌트_2
+	ELSEIF HAS_TAG(iID, 태그_크로노스)
+		String = 크로노스_2
 	ELSEIF HAS_TAG(iID, 태그_용역)
 		String = 용역단_2
 	ELSEIF HAS_TAG(iID, 태그_헬멧단)
@@ -624,6 +632,8 @@ IF FLAG:화상설정
 		String = 불량배_2
 	ELSEIF HAS_TAG(iID, 태그_PMC)
 		String = 카이저_2
+	ELSEIF HAS_TAG(iID, 태그_샬레)
+		String = 샬레_2
 	ELSE
 		String = 무소속_2
 	ENDIF
