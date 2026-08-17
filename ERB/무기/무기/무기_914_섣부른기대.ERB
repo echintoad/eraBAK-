@@ -1,0 +1,86 @@
+﻿;------------------------------------------
+;이름
+;+ 무기 있는지 확인용
+;------------------------------------------
+@무기_이름_914(iLen = 0)
+#DIM DYNAMIC iLen
+RESULTS = 섣부른 기대
+
+;------------------------------------------
+;착용 효과 (대상, 착용 1,미착용 -1)
+;------------------------------------------
+@무기_착용_914(대상, 탈착 = 1)
+#DIM 대상
+#DIM 탈착
+#DIM 스탯증가, 2
+IF 대상 >= 0 && NO:대상 == 147
+	스탯증가:0 = 20 ; 방위
+	스탯증가:1 = 10 ; 정치
+ELSE
+	스탯증가:0 = 10 ; 방위
+	스탯증가:1 = 5 ; 정치
+ENDIF
+; 스탯
+ABL:대상:방위 += 스탯증가:0 * 탈착
+ABL:대상:정치 += 스탯증가:1 * 탈착
+
+IF 탈착 == 1
+	TALENT:대상:웨폰 = 914
+	CALL SKILL_LEARN(대상, 스킬_장르_CAPTURE, 1914, 0)
+ELSEIF 탈착 == -1
+	TALENT:대상:웨폰 = 0
+	CALL SKILL_FORGET_BY_NAME(대상, 스킬_장르_CAPTURE, "수, 수리하러 가야 해요……!")
+ENDIF
+
+RETURN 탈착
+
+;------------------------------------------
+; 임시: 총력전 스탯 추가
+; 나중에 총력전 장비 스탯 정리 하면서 같이 처리 되도록 변경
+;------------------------------------------
+@무기_총력전스탯_914(대상)
+#DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+IF 대상 >= 0 && NO:대상 == 147
+	RESULT:총력전_무기_최대체력 = 500
+	RESULT:총력전_무기_방어력 = 30
+ELSE
+	RESULT:총력전_무기_최대체력 = 250
+	RESULT:총력전_무기_방어력 = 15
+ENDIF
+
+;------------------------------------------
+;무기설명
+;------------------------------------------
+@무기_설명_스탯_914(isRaid = 0)
+#DIM DYNAMIC isRaid
+IF isRaid
+	CALL ICPRINT(@"아오바: 최대체력: <500> 방어력: <30>", "L", 칼라_주의)
+	CALL ICPRINT(@"나머지: 최대체력: <250> 방어력: <15>", "L", 칼라_주의)
+ELSE
+	CALL ICPRINT(@"아오바: 방위: <20> 정치: <10>", "L", 칼라_주의)
+	CALL ICPRINT(@"나머지: 방위: <10> 정치: <5>", "L", 칼라_주의)
+ENDIF
+
+@무기_설명_914
+CALL SINGLE_DRAWLINE
+PRINTL 전용스킬
+PRINTL 
+CALL SKILL_1914_CAPTURE_0_NAME
+SETCOLOR 칼라_선택불가
+PRINT   · 
+RESETCOLOR
+PRINTFORML %RESULTS%
+CALL COLOR_LINE
+SETCOLOR 칼라_선택불가
+PRINT   · 
+RESETCOLOR
+CALL SKILL_1914_CAPTURE_0_EXPLANATION
+PRINTFORML %RESULTS%
+PRINTL
+SETCOLOR 칼라_선택불가
+PRINT   · 
+RESETCOLOR
+CALL ICPRINT(@"영향 받는 능력치 : <정치>", "L", 칼라_주의)
+PRINTL 
+RETURN
