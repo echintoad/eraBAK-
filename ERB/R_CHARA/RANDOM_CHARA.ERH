@@ -1,5 +1,5 @@
 ﻿;여성 모브 캐릭터 수
-#DIM CONST MOB_PACE_F = 45
+#DIM CONST MOB_PACE_F = 48
 
 ;남성 모브 캐릭터 수
 #DIM CONST MOB_PACE_M = 12
