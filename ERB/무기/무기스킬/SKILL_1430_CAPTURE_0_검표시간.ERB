@@ -72,6 +72,7 @@ RETURN 0
 #DIM 대상부대
 
 #DIM 도시번호
+#LOCALSIZE 2
 
 대상측 = !발동측
 ; 도시번호 검색
@@ -81,7 +82,7 @@ ELSE
 	도시번호 = UNIT_POSITION:발동세력:발동부대
 ENDIF
 ; 포박율 계산 (20 ~ 200), 도시 경제 340 = 50, 2000 = 200
-LOCAL:1 = MIN(CITY_ECONOMY:발동세력 / 1111, 180) + 20
+LOCAL:1 = MIN(CITY_ECONOMY:도시번호 / 1111, 180) + 20
 ; 포박율 증가
 FOR LOCAL, 0, BATTLE_COMMANDER_NUM:대상측
 	SIF BATTLE_SUMMONED_CHARA:대상측:LOCAL
@@ -115,7 +116,7 @@ RESULTS = 현 도시의 경제에 비례, 적전원의 포박율을 증가시킨
 #DIM 대상측
 #DIM 대상세력
 #DIM 대상부대
-RETURN 420
+RETURN 400
 
 ; #region == 총력전 ==
 @총력전_스킬_1430_코스트(시전자)
