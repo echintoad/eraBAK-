@@ -448,6 +448,11 @@ NEXT
 ; CFLAG:NAME_TO_CHARA("소라"):특수상태 = 특수상태_미등장
 ; CFLAG:NAME_TO_CHARA("아로나"):특수상태 = 특수상태_미등장
 CFLAG:NAME_TO_CHARA("페이"):특수상태 = 특수상태_미등장 ; 컨셉만 있던 캐릭터라 미등장으로
+; 하이랜더 이벤트까지 미등장
+CFLAG:NAME_TO_CHARA("히카리"):특수상태 = 특수상태_미등장
+CFLAG:NAME_TO_CHARA("노조미"):특수상태 = 특수상태_미등장
+CFLAG:NAME_TO_CHARA("스오우"):특수상태 = 특수상태_미등장
+CFLAG:NAME_TO_CHARA("아오바"):특수상태 = 특수상태_미등장
 
 ;병력의 초기 배치
 CALL INIT_ARMY
@@ -702,3 +707,14 @@ CALL INIT_RELATION("카야", "린", 0, 1500)
 CALL 총력전_보스활동_초기설정
 ; 시나리오 전용 추가 설정
 ; 예. 총력전_보스_활동_쿨다운:0 = -2
+
+;-------------------------------------------------
+; 이벤트 변수
+; SCVAR:200 하이랜더 봉기
+;-------------------------------------------------
+@SCENARIO_EVENT_20
+
+; 하이랜더 봉기: SP 세력이랑 비슷한 시기,
+IF !SCVAR:200 && DAY > SLG_PP:1 && RAND:100 <= 30
+	CALL SCENARIO_EVENT_1_RISE_HIGHLANDER
+ENDIF
