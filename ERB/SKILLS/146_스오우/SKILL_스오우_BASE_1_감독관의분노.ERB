@@ -69,6 +69,8 @@ RETURN 0
 IF 발동부대 == -1 ; 도시 방어면 공격력 소 증가
 	TIMES BATTLE_ATK:발동측, 1.1
 ELSE ; 도시 방어 아니면 피로도, 공격력 추가 증가
+	PRINTFORML %ANAME(발동자)%의 부대 공격력 상승!
+	PRINTFORML %ANAME(발동자)%의 부대는 피폐 했다!
 	TIMES BATTLE_ATK:발동측, 1.4
 	UNIT_TIRED_COUNT:발동세력:발동부대 = UNIT_TIRED_COUNT:발동세력:발동부대 + RAND(1, 3)
 ENDIF
