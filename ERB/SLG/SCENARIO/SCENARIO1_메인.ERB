@@ -317,7 +317,11 @@ NEXT
 ;CFLAG:NAME_TO_CHARA("나구사"):특수상태 = 특수상태_미등장
 CFLAG:NAME_TO_CHARA("페이"):특수상태 = 특수상태_미등장
 ;CFLAG:NAME_TO_CHARA("슈로"):특수상태 = 특수상태_미등장
-
+; 하이랜더 이벤트까지 미등장
+CFLAG:NAME_TO_CHARA("히카리"):특수상태 = 특수상태_미등장
+CFLAG:NAME_TO_CHARA("노조미"):특수상태 = 특수상태_미등장
+CFLAG:NAME_TO_CHARA("스오우"):특수상태 = 특수상태_미등장
+CFLAG:NAME_TO_CHARA("아오바"):특수상태 = 특수상태_미등장
 
 ;병력의 초기 배치
 CALL INIT_ARMY
@@ -369,10 +373,25 @@ CALL 총력전_보스활동_초기설정
 ; 시나리오 전용 추가 설정
 ; 예. 총력전_보스_활동_쿨다운:0 = -2
 
+;-------------------------------------------------
+;이벤트 변수
+; SCVAR:0 나구사 등장? eraK 는 디버그 메뉴 쉽게 가용 가능, 특수상태_미등장 으로 캐릭터가 등장 했었는지 확인 하긴엔 문제 있을수도?
+; SCVAR:200 하이랜더 봉기
+; 200 까진 캐릭터 등장 전용 플래그?
+; 아님 SETBIT(SCVAR:0) / GETBIT(SCVAR:0) 으로 간단한 등장 확인?
+;-------------------------------------------------
 @SCENARIO_EVENT_1
-CUSTOMDRAWLINE =
-PRINTFORML 시나리오 진행
-CALL COLOR_LINE
+
+IF DAY >= 25 && CFLAG:NAME_TO_CHARA("나구사"):특수상태 == 특수상태_미등장
+	CALL SCENARIO_EVENT_1_ENTERCHARA_NAGUSA
+ENDIF
+; 하이랜더 봉기: SP 세력이랑 비슷한 시기,
+IF !SCVAR:200 && ((DAY > SLG_PP:1 && RAND:100 <= 30) || DAY > SLG_PP:1 * 3)
+	CALL SCENARIO_EVENT_1_RISE_HIGHLANDER
+ENDIF
+
+
+@SCENARIO_EVENT_1_ENTERCHARA_NAGUSA
 ;-----------------------나구사 등장 테스트----------------------------
 ; IF DAY >= 25 && CFLAG:NAME_TO_CHARA("나구사"):특수상태 == 특수상태_미등장
 ; 	CALL FACE_IMAGE_N("표정_131_일반_2")
@@ -381,4 +400,241 @@ CALL COLOR_LINE
 ; 	CFLAG:NAME_TO_CHARA("나구사"):특수상태 = 특수상태_방랑
 ; ENDIF
 ;--------------------------------------------------------------------
-CALL SINGLE_DRAWLINE
+CUSTOMDRAWLINE =
+PRINTFORML 시나리오 진행
+PRINTL  
+CALL FACE_IMAGE_N("표정_131_일반_2")
+PRINTFORMW 「... 원래라면 이런 일에 개입하지 않아야하지만, 어쩔 수 없네」
+PRINTFORMW 나구사가 등장했습니다.
+CFLAG:NAME_TO_CHARA("나구사"):특수상태 = 특수상태_방랑
+CALL COLOR_LINE
+
+; 하이랜더 봉기
+@SCENARIO_EVENT_1_RISE_HIGHLANDER
+#DIMS CONST 화상_하이랜더 = "커스텀_F_얼굴_의복_통상_46", "커스텀_F_얼굴_의복_통상_47", "커스텀_F_얼굴_의복_통상_48"
+#DIM CONST 화상_모브_옵션 = 25, 26, 28, 29, 30, 44, 45
+#DIMS DYNAMIC 화상_모브
+#DIM DYNAMIC 세력번호
+; 세력 보스로. 히카리, 노조미랑 관계 안 좋음
+; 오랫동안 유지되면 히카리나 노조미가 한번 더 봉기하게
+#DIM DYNAMIC 스오우번호
+#DIM DYNAMIC 미노리합류 = 0
+#DIM DYNAMIC 총경제감소
+#DIM DYNAMIC tmp_cityNum
+#LOCALSIZE 3
+; 오류 방지, 캐릭터 상황 확인
+IF CFLAG:NAME_TO_CHARA("히카리"):특수상태 != 특수상태_미등장 || CFLAG:NAME_TO_CHARA("노조미"):특수상태 != 특수상태_미등장 || CFLAG:NAME_TO_CHARA("스오우"):특수상태 != 특수상태_미등장 || CFLAG:NAME_TO_CHARA("아오바"):특수상태 != 특수상태_미등장
+	SCVAR:200 = 1
+	; 오류로 미등장 캐릭터가 랜덤 봉기시 등장할수 있음
+	CALL SCENARIO_EVENT_1_RISE_HIGHLANDER_FALLBACK
+	RETURN 0
+ENDIF
+; 필요 캐릭터가 세력 보스인지 확인
+LOCAL = NAME_TO_CHARA("히카리")
+IF GET_COUNTRY_BOSS(CFLAG:LOCAL:소속) == LOCAL
+	SCVAR:200 = 1
+	CALL SCENARIO_EVENT_1_RISE_HIGHLANDER_FALLBACK
+	RETURN 0
+ENDIF
+LOCAL = NAME_TO_CHARA("노조미")
+IF GET_COUNTRY_BOSS(CFLAG:LOCAL:소속) == LOCAL
+	SCVAR:200 = 1
+	CALL SCENARIO_EVENT_1_RISE_HIGHLANDER_FALLBACK
+	RETURN 0
+ENDIF
+LOCAL = NAME_TO_CHARA("스오우")
+IF GET_COUNTRY_BOSS(CFLAG:LOCAL:소속) == LOCAL
+	SCVAR:200 = 1
+	CALL SCENARIO_EVENT_1_RISE_HIGHLANDER_FALLBACK
+	RETURN 0
+ENDIF
+LOCAL = NAME_TO_CHARA("아오바")
+IF GET_COUNTRY_BOSS(CFLAG:LOCAL:소속) == LOCAL
+	SCVAR:200 = 1
+	CALL SCENARIO_EVENT_1_RISE_HIGHLANDER_FALLBACK
+	RETURN 0
+ENDIF
+
+세력번호 = GET_NEW_COUNTRY()
+; 세력을 만들 수 없으면 종료
+SIF 세력번호 <= 0
+	RETURN 0
+; 모브 설정
+화상_모브 = 커스텀_F_얼굴_의복_통상_{화상_모브_옵션:(RAND:7)}
+; 미노리 방랑 확인
+SIF CFLAG:NAME_TO_CHARA("미노리"):특수상태 == 특수상태_방랑
+	미노리합류 = 1
+; 봉기
+CUSTOMDRAWLINE =
+PRINTL 하이랜더 봉기
+PRINTL  
+SCVAR:200 = 1 ; 이벤트 플래그 처리, 한번만 나오게
+
+; 이벤트 텍스트, 변경 자유
+CALL IMAGE_ILLUST("TrainStation_0")
+PRINTW *띵동*
+PRINTL  
+PRINTL 지역에 계신 분들께 안내 방송 드립니다.
+PRINTL J 노선이 폭격으로 운행 불가하게 되어,
+PRINTW J 노선 승객 여러분께서는...
+PRINTL  
+CALL FACE_IMAGE_N(화상_모브)
+PRINTL 아 또야?!
+PRINTW 정상 운행한 적이 언젠지도 기억이 안 나네!
+PRINTL  
+CALL FACE_IMAGE_N(화상_하이랜더:0)
+PRINTL ...이 전쟁 통에 운행하는 거 자체가 기적 아닌가요?
+PRINTW 싸움 때문에 선로가 멀쩡할 때가 없다고요.
+PRINTL  
+CALL FACE_IMAGE_N(화상_모브)
+PRINTL 아앙?! 그래서 티켓 가격도 올렸잖아!
+PRINTW 듣기로는 각 나라에서도 따로 돈 받는다고 들었는데?!
+PRINTL  
+CALL FACE_IMAGE_N(화상_하이랜더:1)
+PRINTL 뭐?! 돈만 있다고 뚝딱하고 다 고쳐지는 줄 아나!
+PRINTL 그리고 지금 받는 돈으로도 겨우 유지하는 거야!
+PRINTW 이틀전 사고 후 벌써 돌아가게 한것도 엄청난 거라고!
+PRINTL  
+CALL FACE_IMAGE_N(화상_모브)
+PRINTL 그게 너희 일이잖아!
+PRINTW 잘 관리하든, 선로 보호를 하든, 돈을 받았으면 알아서 해야 하는 거 아니야?!
+PRINTL  
+PRINTL ...응? 
+PRINTW 그 사고는 너희 열차가 스턴트 점프하...
+PRINTL  
+CALL FACE_IMAGE_N(화상_하이랜더:2)
+PRINTW 안 그래도 그럴 계획이었다!
+PRINTL  
+CALL FACE_IMAGE_N(화상_모브)
+PRINTW ...어?;;;
+PRINTL  
+CALL FACE_IMAGE_N(화상_하이랜더:2)
+PRINTL 전쟁 통에 공공 철도망 관리하는 것도 이제 지긋지긋해!
+PRINTW 우리 없이 얼마나 잘 돌아가나 보자!
+PRINTL  
+CALL FACE_IMAGE_N(화상_하이랜더:0)
+PRINTW 무임승차에 적절한 처벌을!
+PRINTL  
+CALL FACE_IMAGE_N(화상_하이랜더:1)
+PRINTW 선도 관리에 적절한 예산을!
+PRINTL  
+; 미노리 방랑이면
+IF 미노리합류
+	CALL FACE_IMAGE_N("얼굴_의복_통상_103")
+	PRINTW 음, 하이랜더 동지들이 일어서겠다는데 우리가 못 본체할 순 없지.
+	PRINTW 용역부, 작업 중지!
+	PRINTL  
+	CALL FACE_IMAGE_N("얼굴_의복_분노_103")
+	PRINTW 지금부터 우리 붉은겨울 용역부는, 하이랜더 동지들과 함께한다!
+	PRINTL  
+ENDIF
+CALL FACE_IMAGE_N(화상_하이랜더:2)
+PRINTW 와아아아!
+PRINTL  
+; 세력 설정
+스오우번호 = (NAME_TO_CHARA("스오우"))
+COUNTRY_BOSS:세력번호 = CFLAG:스오우번호:캐릭터ＩＤ
+CALL CHANGE_COUNTRY(스오우번호, 세력번호, 1)
+CFLAG:스오우번호:특수상태 = 0
+; AI 설정? 할거면 만행, 통상. 낮은 확률로 내정, 방위
+; SELECTCASE RAND:13
+; 	CASE 0 TO 4
+; 		COUNTRY_AI_TYPE:세력번호 = AI_만행
+; 	CASE 5 TO 10
+; 		COUNTRY_AI_TYPE:세력번호 = AI_통상
+; 	CASE 11
+; 		COUNTRY_AI_TYPE:세력번호 = AI_내정
+; 	CASEELSE
+; 		COUNTRY_AI_TYPE:세력번호 = AI_방위
+; ENDSELECT
+COUNTRY_COLOR:세력번호 = CHARA_COUNTRY_COLOR(스오우번호)
+INDEPENDENCE_COUNTER:세력번호 = 10
+DIPLOMACY_HATE:세력번호 += 10
+
+; SP_COUNTRY_RISE, "하이랜더가" 뜨게 하려면 따로 처리 필요
+CALL SP_COUNTRY_RISE_SELECT_CITY
+LOCAL = RESULT
+CALL SP_COUNTRY_RISE_TAKEOVER_CITY(세력번호, LOCAL)
+; 봉기 메세지
+PRINTFORML %조사처리(ANAME(스오우번호),"가")% 하이랜더를 이끌고 봉기했습니다!
+PRINTFORMW %CITY_NAME:(LOCAL)%\@ GET_OWN_CITY(세력번호) > 1 ? 등 # \@를 점거한 것 같습니다……
+
+; 세력 경제력 감소 CITY_NUM
+PRINTFORMW 하이랜더가 철수 하면서 선로를 파괴했다!
+FOR LOCAL, 0, CITY_NUM
+	SIF CITY_OWNER:LOCAL == 세력번호 ; 자세력 건너뛰기
+		CONTINUE
+	SIF !IS_COUNTRY(CITY_OWNER:LOCAL) ; 무소속 건너뛰기
+		CONTINUE
+	LOCAL:1 = MIN(CITY_ECONOMY:LOCAL / 5, 20000)
+	; PRINTFORML CITY_NAME %CITY_NAME:LOCAL% 경제 감소: {CITY_ECONOMY:LOCAL}-{LOCAL:1}
+	CITY_ECONOMY:LOCAL -= LOCAL:1
+	총경제감소 += LOCAL:1
+	tmp_cityNum ++
+NEXT
+
+; 감소한 경제 비례 소지병 증가, 평군 소지병 = 최대치
+LOCAL:1 = 0 ; 소지병수의 합계치
+LOCAL:2 = 0 ; SP 세력 뺀 세력 수
+FOR LOCAL, 0, MAX_COUNTRY
+	SIF !IS_COUNTRY(LOCAL)
+		CONTINUE
+	SIF IS_SP_COUNTRY(LOCAL) ; SP 세력 무시
+		CONTINUE
+	LOCAL:1 += GET_SUM_SOLDIER(LOCAL)
+	LOCAL:2 ++
+NEXT
+LOCAL:1 /= LOCAL:2
+총경제감소 = 총경제감소 / tmp_cityNum
+; PRINTFORML avg soldier = {LOCAL:1}, avg econ = {총경제감소}
+COUNTRY_SOLDIER:세력번호 = MIN(총경제감소, LOCAL:1)
+
+; 멤버 세력 변경
+LOCAL = NAME_TO_CHARA("히카리")
+PRINTFORMW %조사처리(ANAME(LOCAL),"가")% 찬동 해, 하이랜더에 합류했다
+CALL CHANGE_COUNTRY(LOCAL, 세력번호, 1)
+CFLAG:LOCAL:특수상태 = 0
+
+LOCAL = NAME_TO_CHARA("노조미")
+PRINTFORMW %조사처리(ANAME(LOCAL),"가")% 찬동 해, 하이랜더에 합류했다
+CALL CHANGE_COUNTRY(LOCAL, 세력번호, 1)
+CFLAG:LOCAL:특수상태 = 0
+
+LOCAL = NAME_TO_CHARA("아오바")
+PRINTFORMW %조사처리(ANAME(LOCAL),"가")% 찬동 해, 하이랜더에 합류했다
+CALL CHANGE_COUNTRY(LOCAL, 세력번호, 1)
+CFLAG:LOCAL:특수상태 = 0
+; 미노리 방랑이면
+IF 미노리합류
+	LOCAL = NAME_TO_CHARA("미노리")
+	PRINTFORMW %조사처리(ANAME(LOCAL),"가")% 찬동 해, 하이랜더에 합류했다
+	CALL CHANGE_COUNTRY(LOCAL, 세력번호, 1)
+	CFLAG:LOCAL:특수상태 = 0
+ENDIF
+CALL COLOR_LINE
+RETURN 1
+
+; 하이랜더 이벤트 발동 실패시 등장 안한 캐릭터 추가
+@SCENARIO_EVENT_1_RISE_HIGHLANDER_FALLBACK
+#LOCALSIZE 1
+
+LOCAL = NAME_TO_CHARA("히카리")
+IF LOCAL > 0 && CFLAG:LOCAL:특수상태 == 특수상태_미등장
+	CFLAG:LOCAL:특수상태 = 특수상태_방랑
+ENDIF
+LOCAL = NAME_TO_CHARA("노조미")
+IF LOCAL > 0 && CFLAG:LOCAL:특수상태 == 특수상태_미등장
+	CFLAG:LOCAL:특수상태 = 특수상태_방랑
+ENDIF
+LOCAL = NAME_TO_CHARA("스오우")
+IF LOCAL > 0 && CFLAG:LOCAL:특수상태 == 특수상태_미등장
+	CFLAG:LOCAL:특수상태 = 특수상태_방랑
+ENDIF
+LOCAL = NAME_TO_CHARA("아오바")
+IF LOCAL > 0 && CFLAG:LOCAL:특수상태 == 특수상태_미등장
+	CFLAG:LOCAL:특수상태 = 특수상태_방랑
+ENDIF
+
+CUSTOMDRAWLINE =
+PRINTL 하이랜더 캐릭터가 방랑했다.
+CALL COLOR_LINE

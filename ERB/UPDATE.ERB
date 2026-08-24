@@ -282,6 +282,57 @@ IF CHECK_UPDATE("0.6.4") && FLAG:주회수 > 1
 	ENDIF
 ENDIF
 
+IF CHECK_UPDATE("0.6.5")
+	PRINTL == 0.6.5 업데이트 ==
+	PRINTL 태그 업데이트, 캐릭터 태그 수정...
+	FOR LOCAL, 0, CHARANUM
+		; 0.6.5 버전 + 이전은 MAX_TAG == 1, 0으로 처리 가능... 할듯?
+		; FOR LOCAL:1, 0, MAX_TAG
+		; NEXT
+		SIF TAG:LOCAL:0 >= 13 ; 전 태그_용역 이상
+			TAG:LOCAL:0 += 3
+	NEXT
+	PRINTL 케이 밀레니엄 태그 추가...
+	CALL ADD_TAG(NAME_TO_CHARA("케이"), 태그_밀레니엄)
+	PRINTL 태그 수정 완료
+	PRINTL  
+	PRINTL 하이랜더 캐릭터가 추가 되었습니다, 방랑으로 추가합니까?
+	PRINTL (히카리, 노조미, 스오우, 아오바)
+	PRINTBUTTON "0[예(추천)]", 0
+	PRINTL
+	PRINTBUTTON "1[아니오]", 1
+	INPUT
+	IF RESULT == 0
+		CALL ADD_CHARA_FROM_CSV(144)
+		CFLAG:RESULT:특수상태 = 특수상태_방랑
+		CALL ADD_CHARA_FROM_CSV(145)
+		CFLAG:RESULT:특수상태 = 특수상태_방랑
+		CALL ADD_CHARA_FROM_CSV(146)
+		CFLAG:RESULT:특수상태 = 특수상태_방랑
+		CALL ADD_CHARA_FROM_CSV(147)
+		CFLAG:RESULT:특수상태 = 특수상태_방랑
+	ELSE
+		IF SCENARIOID != "21"
+			PRINTL 하이랜더 봉기 이벤트를 활성화 합니까?
+			PRINTL (히카리, 노조미, 스오우, 아오바가 이벤트로 추가 됩니다)
+			CALL ASK_YN
+			IF RESULT ; NO
+				SCVAR:200 = 1
+			ELSE
+				CALL ADD_CHARA_FROM_CSV(144)
+				CFLAG:RESULT:특수상태 = 특수상태_미등장
+				CALL ADD_CHARA_FROM_CSV(145)
+				CFLAG:RESULT:특수상태 = 특수상태_미등장
+				CALL ADD_CHARA_FROM_CSV(146)
+				CFLAG:RESULT:특수상태 = 특수상태_미등장
+				CALL ADD_CHARA_FROM_CSV(147)
+				CFLAG:RESULT:특수상태 = 특수상태_미등장
+			ENDIF
+		ENDIF
+	ENDIF
+
+ENDIF
+
 ;-------------------------------------------------
 ; 임시 업데이트 개인 함수
 ; 더이상 필요없을때 제거
