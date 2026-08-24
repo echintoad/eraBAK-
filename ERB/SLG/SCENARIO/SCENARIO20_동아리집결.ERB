@@ -714,7 +714,7 @@ CALL 총력전_보스활동_초기설정
 ;-------------------------------------------------
 @SCENARIO_EVENT_20
 
-; 하이랜더 봉기: SP 세력이랑 비슷한 시기,
-IF !SCVAR:200 && DAY > SLG_PP:1 && RAND:100 <= 30
+; 하이랜더 봉기: SP 세력이랑 비슷한 시기, 동아리 집결에선 확률 증가
+IF !SCVAR:200 && ((DAY > SLG_PP:1 && RAND:100 <= 40) || DAY > SLG_PP:1 * 2)
 	CALL SCENARIO_EVENT_1_RISE_HIGHLANDER
 ENDIF
