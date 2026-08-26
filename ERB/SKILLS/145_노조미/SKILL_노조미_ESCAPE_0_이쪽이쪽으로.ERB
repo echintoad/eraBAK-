@@ -39,9 +39,7 @@ RETURN 1
 #DIM 대상세력
 #DIM 대상부대
 대상측 = !발동측
-SIF BATTLE_COMMANDER_NUM:발동측 > 1
-	RETURN 1
-RETURN 0
+RETURN 1
 
 ;발동 텍스트를 오바라이드 하고 싶을 때에.
 ;「아무개의 스킬 발동!   00했다!」의 「00했다!」의 부분을 실장하고 싶은 경우는,
@@ -63,8 +61,17 @@ RETURN 0
 #DIM 대상측
 #DIM 대상세력
 #DIM 대상부대
+
+#DIM 도시번호
 #LOCALSIZE 2
 대상측 = !발동측
+
+; 도시번호 검색
+IF 발동부대 == -1
+	도시번호 = 발동세력
+ELSE
+	도시번호 = UNIT_POSITION:발동세력:발동부대
+ENDIF
 
 ; 포박율 감소 계산 (0 ~ 350), 도시 경제 171 = 50, 1200 = 350
 LOCAL:1 = MIN(CITY_ECONOMY:도시번호 / 342, 350)
