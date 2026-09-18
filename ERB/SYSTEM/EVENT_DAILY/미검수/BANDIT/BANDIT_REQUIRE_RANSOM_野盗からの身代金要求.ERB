@@ -72,7 +72,7 @@ VARSET 몸값
 몸값 = MAX(GET_SUM_ECONOMY(CFLAG:MASTER:소속) * (ABL:MASTER:무투 + ABL:MASTER:방위 + ABL:MASTER:지략 + ABL:MASTER:정치 + 100) / 40000 * 5, 몸값)
 
 PRINTFORML %조사처리(ANAME(MASTER),"가")% 일을 하고 있으면, 당번 학생이 손님을 고했다
-PRINTFORML 사용이라고 자칭하는 남자가 온 것이라고 하지만, 어디에서 왔는지 말하지 않는 것이라고 한다
+PRINTFORML 사용인이라고 자칭하는 남자가 온 것이라고 하지만, 어디에서 왔는지 말하지 않는 것이라고 한다
 PRINTFORMW 의아스럽게 생각한 %조사처리(ANAME(MASTER),"는")%, 우선 만나 보기로 했다……
 PRINTFORML
 PRINTFORML
@@ -80,23 +80,24 @@ PRINTFORML
 ;첫대면
 IF DVAR:도둑몸값요구_발생플래그 == 0
 	PRINTFORML 「헤헤헤, 너가 %ANAME(MASTER)%인가」
-	PRINTFORMW 사용이라고 자칭 하는 것은, 건달 같아 보인, 분명하게 정당하지 않는 남자였다
+	; 옵션?: 카이저 병사였다
+	PRINTFORMW 사용인이라고 자칭 하는 것은, 건달 같아 보인는 PMC 병사였다
 ;전회 지불했다
 ELSEIF DVAR:도둑몸값요구_발생플래그 == 1
 	PRINTFORML 「여어, 또 금지불해 받으러 왔다구」
-	PRINTFORMW 방에서 기다리고 있던 것은, 예의 도둑의 사용의 남자였다. 히죽히죽 천하게 보인 미소를 띄우고 있다
+	PRINTFORMW 방에서 기다리고 있던 것은, 예의 PMC 병사였다. 히죽히죽 천하게 보인 미소를 띄우고 있다
 	PRINTFORML 「어이쿠, 난폭한 흉내는 없음이다. 여기에는 %조사처리(ANAME(대상),"가")% 있다. 그렇겠지?」
 	PRINTFORMW 매우 아니꼽지만, 그 대로다. %조사처리(ANAME(MASTER),"는")% 무기를 거두지 않을 수 없었다
 ;전회 조교
 ELSEIF DVAR:도둑몸값요구_발생플래그 == 2
 	PRINTFORML 「여어, 또 와 주었다구?   이번이야말로 금지불하면 어때?」
-	PRINTFORMW 방에서 기다리고 있던 것은, 예의 도둑의 사용의 남자였다. 히죽히죽 천하게 보인 미소를 띄우고 있다
+	PRINTFORMW 방에서 기다리고 있던 것은, 예의 PMC 병사였다. 히죽히죽 천하게 보인 미소를 띄우고 있다
 	PRINTFORML 「어이쿠, 난폭한 흉내는 없음이다. 여기에는 %조사처리(ANAME(대상),"가")% 있다. 그렇겠지?」
 	PRINTFORMW 매우 아니꼽지만, 그 대로다. %조사처리(ANAME(MASTER),"는")% 무기를 거두지 않을 수 없었다
 ;전회 대역
 ELSEIF DVAR:도둑몸값요구_발생플래그 == 3
 	PRINTFORML 「여어, 와 주었다구」
-	PRINTFORMW 방에서 기다리고 있던 것은, 예의 도둑의 사용의 남자였다. 히죽히죽 천하게 보인 미소를 띄우고 있다
+	PRINTFORMW 방에서 기다리고 있던 것은, 예의 PMC 병사였다. 히죽히죽 천하게 보인 미소를 띄우고 있다
 	PRINTFORML 「헤헤헤, 너, 꽤 『사용감』도 나쁘지 않았다」
 	PRINTFORMW 「어때?   또 우리들의 곳에 오지 않는지, 귀여워해 주겠어?」
 	PRINTFORMW 야비한 시선이 신체에 기어진다. 그것만으로 %ANAME(MASTER)%의 신체는 한 때의 능욕을 생각해 내, 열을 품어 버린다……
@@ -121,7 +122,7 @@ SELECTCASE RAND:5
 	CASE 2
 		PRINTFORML 「오늘은, 너에게 보여 주고 싶은 것이 있는거야」
 		PRINTFORML 남이 손을 울리면, 방의 밖으로부터 누군가가 들어 온다
-		PRINTFORMW 무려 그것은, 도둑과의 싸움의 한중간에 행방불명이 된, %조사처리(ANAME(대상),"가")% 아닌가!
+		PRINTFORMW 무려 그것은, 카이저와의 싸움의 한중간에 행방불명이 된, %조사처리(ANAME(대상),"가")% 아닌가!
 		PRINTFORML 그 모습은, 보는 것도 끔찍한 것이 되어 있었다
 		PRINTFORML 추잡한 낙서를 베풀어진 전신은 백탁 투성이가 되어 목걸이 이외에는 아무것도 몸에 대게 해 받을 수 있지 않았다
 		PRINTFORML 눈동자는 공허해, 처음부터 자식을 흘려 보내는 입술로부터, 투덜투덜 남근을 조르는 말을 중얼거리고 있다
@@ -130,7 +131,7 @@ SELECTCASE RAND:5
 	CASE 3
 		PRINTFORML 「오늘은, 너에게 보여 주고 싶은 것이 있는거야」
 		PRINTFORML 남이 손을 울리면, 방의 밖으로부터 누군가가 들어 온다
-		PRINTFORML 무려 그것은, 도둑과의 싸움의 한중간에 행방불명이 된, %조사처리(ANAME(대상),"가")% 아닌가!
+		PRINTFORML 무려 그것은, 카이저와의 싸움의 한중간에 행방불명이 된, %조사처리(ANAME(대상),"가")% 아닌가!
 		PRINTFORMW 몸에 감긴 의상은, 바디 라인을 강조하는 것 같은, 뭐라고도 추잡한 것이었다
 		PRINTFORML 「오우 암퇘지, 빨리 준비해라」
 		PRINTFORML 남이 명하면, %조사처리(ANAME(대상),"는")% 불평하나 말하는 것 없이, 벽에 손을 찔러 %조사처리(STR_BODY("엉덩이", 대상),"를")% 내민다
@@ -142,7 +143,7 @@ SELECTCASE RAND:5
 	CASE 4
 		PRINTFORML 「오늘은, 너에게 보여 주고 싶은 것이 있는거야」
 		PRINTFORML 남이 손을 울리면, 방의 밖으로부터 누군가가 들어 온다
-		PRINTFORML 무려 그것은, 도둑과의 싸움의 한중간에 행방불명이 된, %조사처리(ANAME(대상),"가")% 아닌가!
+		PRINTFORML 무려 그것은, 카이저와의 싸움의 한중간에 행방불명이 된, %조사처리(ANAME(대상),"가")% 아닌가!
 		PRINTFORMW 한가닥의 실 휘감지 않은 나신의 유방과 비부에는, 딱한 금빛의 피어스가 매달려 있다
 		PRINTFORML 「이봐요, 인사해라」
 		PRINTFORML 남이 그렇게 중얼거리면, %조사처리(ANAME(대상),"는")% 마루에 머리를 붙여, 바닥에 엎드리며 보였다
@@ -281,7 +282,7 @@ IF GROUPMATCH(RESULT, 1, 3)
 		PRINTFORML
 		SETCOLOR 칼라_경고
 		PRINTFORMW 솔직하게 돈을 지불하지 않는 %ANAME(MASTER)%에의 울분에,
-		PRINTFORMW 도둑은 %ANAME(대상)%에 평상시 이상으로 처참한 능욕을 입에 물어 간다……
+		PRINTFORMW 카이저는 %ANAME(대상)%에 평상시 이상으로 처참한 능욕을 입에 물어 간다……
 		RESETCOLOR
 		PRINTFORMW 
 		SELECTCASE RAND:5
@@ -303,7 +304,7 @@ IF GROUPMATCH(RESULT, 1, 3)
 				CFLAG:(대상):약물의존 += 150
 			CASE 1
 				PRINTFORML 부랑자들의 집합소에, 여자의 교성이 울려 퍼지고 있다
-				PRINTFORMW 도둑은 %조사처리(ANAME(대상),"를")%, 부랑자들에게 싼 편이어 불하한 것이다
+				PRINTFORMW 카이저는 %조사처리(ANAME(대상),"를")%, 부랑자들에게 싼 편이어 불하한 것이다
 				PRINTFORML 여자 가뭄의 그들은, 앞 다투어 %ANAME(대상)%에 모여, 치구 투성이의 그 봉을, 그림의떡으로 쑤셔 넣고 있다
 				PRINTFORMW 무참을 다하는 것 같은 능욕 풍경이지만, %조사처리(ANAME(대상),"는")% 싫어해 아우성치기는 커녕, 스스로 허리를 흔들어, 육봉을 조르고 있다
 				PRINTFORML 이유는, 그녀의 팔에 얼마든지 할 수 있던 주사자취의 멍이 이야기하고 있다
@@ -316,7 +317,7 @@ IF GROUPMATCH(RESULT, 1, 3)
 				PRINTFORMW 저변의 존재에 휴지 정도의 편안함으로 사용되어 욕소리까지 퍼부어지면서, 더욱 더 그녀는 아헤얼굴을 쬐어 계속 좋아했다……
 			CASE 2
 				PRINTFORML 축사에게, 웨딩드레스를 입은 여자가 있다
-				PRINTFORMW 도둑은, %조사처리(ANAME(대상),"를")% 돼지와 결혼시켜 주려고 하고 있다
+				PRINTFORMW 카이저는, %조사처리(ANAME(대상),"를")% 돼지와 결혼시켜 주려고 하고 있다
 				PRINTFORMW 상궤를 벗어난 발상이지만, %조사처리(ANAME(대상),"는")% 울음도 외침도 하지 않는다. 약물에 의해, 아무것도 모르게 여겨지고 있다
 				PRINTFORML 순백의 드레스에 몸을 싼 공주님은, 그대로 돼지의 페니스에, 생애의 사랑을 맹세하는 키스를 하게 했다
 				PRINTFORML 지금의 그녀에게 있어서는, 육봉이면 사람의 것이든 짐승의 것이든 아무래도 좋다
@@ -329,21 +330,21 @@ IF GROUPMATCH(RESULT, 1, 3)
 				PRINTFORMW 그녀는 격렬하게 좋아해 미쳐, 아내로서 남편의 정액을 몇 번이나 받아 들여 갔다……
 				EXP:(대상):수간경험 += 20
 			CASE 3
-				PRINTFORMW 도둑은, %조사처리(ANAME(대상),"를")% 육변기로 한 것 같다
+				PRINTFORMW 카이저는, %조사처리(ANAME(대상),"를")% 육변기로 한 것 같다
 				PRINTFORML 벽에 열린 구멍에 신체를 통해, 하반신만 노출로 한 상태로, 그녀는 방치되어 있다
 				PRINTFORMW 잇달아 남자가 와서는, 드러내진 그녀의 여자구멍을, 엉덩이 구멍을 범해서는, 그 중에 자식을 추방해 간다
 				PRINTFORML 회화가 없기는 커녕 서로의 얼굴도 모르는 상태로, 여자로서 가장 중요한 장소를, 오나홀 정도의 감각으로 사용되고 있다
 				PRINTFORMW 그것은 존엄이 뭐고 있던 것이 아닌 행위라고 말하는데, %조사처리(ANAME(대상),"는")% 달콤한 소리를 높여, 삽입질을 받아 들이고 있다
-				PRINTFORML 사전에 도둑들에게 맞은 규정량의 몇배의 약품이, 그녀로부터 이성을 빼앗아, 자지 이상의 암컷구멍으로 만들어 내고 있다
+				PRINTFORML 사전에 카이저들에게 맞은 규정량의 몇배의 약품이, 그녀로부터 이성을 빼앗아, 자지 이상의 암컷구멍으로 만들어 내고 있다
 				PRINTFORML 그리고 또, 얼굴도 모르는 누군가가, 그녀의 안에서 비열한 욕망을 푼다
 				PRINTFORMW 엉성한 방법으로 존엄을 짓밟아져 덧붙여 %조사처리(ANAME(대상),"는")% 쾌락에 몸부림쳐, 자궁에 흘러드는 뜨거움에 몇 번이나 절정 한다
 				PRINTFORML 손님이 만족해, 고기구멍으로부터 봉을 뽑아 내면, 문자 그대로 세지 못할(정도)만큼 씨뿌리기 된 질구로부터, 흰 것이 뚝뚝흘러넘친다
 				PRINTFORMW 그런데도 더 해방되는 일은 없고, 곧바로 다음의 손님이 %ANAME(대상)%의 하반신을 사용해, 그녀는 쾌락에 빠진다
-				PRINTFORMW 제 정신이 되는 것은 용서되지 않는다. 도둑이 다음으로부터 다음에, 약물을 추가해 오니까……
+				PRINTFORMW 제 정신이 되는 것은 용서되지 않는다. 카이저가 다음으로부터 다음에, 약물을 추가해 오니까……
 			CASE 4
 				PRINTFORML %조사처리(ANAME(대상),"가")%, 떠돌이 개와 사귀고 있다
 				PRINTFORMW 꼼꼼한 훈련을 받으면서도 야성미를 남긴 피스톤은 그녀를 가차 없이 좋아하게 해 야무지지 못한 신음소리를 주게 하고 있다
-				PRINTFORML 도둑은, %조사처리(ANAME(대상),"를")% 어딘가의 부호에게 팔아치운 것 같다
+				PRINTFORML 카이저는, %조사처리(ANAME(대상),"를")% 어딘가의 부호에게 팔아치운 것 같다
 				PRINTFORML 하지만 부호에게 있어서는, 어디의 말뼈다귀라고도 모르는 여자 따위, 다소 상등품이어도 안을 생각 따위 없다
 				PRINTFORMW 그는 원래, 애완동물에게위안할당 위해(때문에), %조사처리(ANAME(대상),"를")% 산 것이다
 				PRINTFORML 펫 쪽은이라고 한다면, 새로운 「신부」를 매우 마음에 든 것 같았다
@@ -375,7 +376,7 @@ IF GROUPMATCH(RESULT, 1, 3)
 		PRINTFORMW %조사처리(ANAME(대상),"가")% 해방되었습니다만, 행방 알지 못하고가 되었습니다
 		RESETCOLOR
 		FOR LOCAL, 0, RAND(5, 8)
-			CALL FUCK_GANGBANG(대상, GET_SPERM_ID("도둑"), @"도둑의 \@ RAND:2 ? 페니스 # 입술\@", "도둑")
+			CALL FUCK_GANGBANG(대상, GET_SPERM_ID("PMC병사"), @"PMC병사의 \@ RAND:2 ? 페니스 # 입술\@", "PMC병사")
 		NEXT
 		CALL CHANGE_COUNTRY(대상, 0, 1)
 		SETCOLOR 칼라_경고
@@ -385,13 +386,13 @@ IF GROUPMATCH(RESULT, 1, 3)
 		ENDIF
 		IF IS_LOVER(대상)
 			SETCOLOR 칼라_경고
-			PRINTFORML %ANAME(대상)%중(안)에서, %ANAME(MASTER)%에의 애정보다, 도둑들에게 사용되는 쾌락이 웃돌았다
+			PRINTFORML %ANAME(대상)%중(안)에서, %ANAME(MASTER)%에의 애정보다, 카이저 병사들에게 사용되는 쾌락이 웃돌았다
 			RESETCOLOR
 			CALL LOSE_RELATION_TALENT(대상)
 		ENDIF
 		IF IS_SLAVE(대상)
 			SETCOLOR 칼라_경고
-			PRINTFORML %ANAME(대상)%중(안)에서, %ANAME(MASTER)%에의 충성보다, 도둑들에게 사용되는 쾌락이 웃돌았다
+			PRINTFORML %ANAME(대상)%중(안)에서, %ANAME(MASTER)%에의 충성보다, 카이저 병사들에게 사용되는 쾌락이 웃돌았다
 			RESETCOLOR
 			CALL LOSE_RELATION_TALENT(대상)
 			TALENT:(대상):낙인 = 0
