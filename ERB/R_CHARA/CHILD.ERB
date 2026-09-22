@@ -598,59 +598,131 @@ FOR LOCAL, 0, MAX_TAG
 	ENDIF
 NEXT
 
+
+; LOCAL:1 = WEAPON_NUM(캐릭터번호)
+; LOCAL:2 = RAND:(LOCAL:1) + 1
+; WEAPON_NTH(캐릭터번호, LOCAL:2)
 @CHILD_WEAPON_SETTING
 ; #DIM 아버지
 ; #DIM 어머니
-#DIM CONST iInherit_Max = 2 ; 각 부모로부터 상속할 수 있는 최대 무기수
+#DIM CONST iInherit_Odds = 90, 70, 40, 10 ; 상속 확률, 백분율
+#DIM DYNAMIC iInherit_Odds_Max
+#DIM DYNAMIC iInherit_Max
 #DIM DYNAMIC iParent, 2
-#DIM DYNAMIC iP_Weapon_Ary, 200 ; 부모 무기 번호, TALENT.csv 허가웨폰 확인
+#DIM DYNAMIC iP_Num
+#DIM DYNAMIC iP_Weapon_Ary, 6 ; 부모 무기 번호, +각 부모로부터 상속할 수 있는 최대 무기수
 #DIM DYNAMIC iP_Weapon_Cnt ; 부모 무기수, RAND 용
-; #DIM DYNAMIC iWeapon_Cnt = 501 ; 아이 캐릭터 무기 번호 카운터
 #LOCALSIZE 3
 
+VARSIZE iP_Weapon_Ary
+iInherit_Max = RESULT
+VARSIZE iInherit_Odds
+iInherit_Odds_Max = RESULT
 iParent:0 = ID_TO_CHARA(CFLAG:부친)
 iParent:1 = ID_TO_CHARA(CFLAG:모친)
+; test parent number output
+; end test
 ; 아이 캐릭터 무기 번호 카운터
-FOR LOCAL, 0, 2
+FOR iP_Num, 0, 2
 	; 부모 없으면
-	SIF iParent:LOCAL < 0
+	SIF iParent:iP_Num < 0
 		CONTINUE
+	DEBUGPRINTL ====================
+	DEBUGPRINTFORML Parent:{iP_Num}({NO:(iParent:iP_Num)}) = %CALLNAME:(iParent:iP_Num)%
 	; 부모 무기 처리
 	iP_Weapon_Cnt = 0
 	VARSET iP_Weapon_Ary, 0
-	FOR LOCAL:1, 501, 701 ; TALENT.csv 허가웨폰 확인
-		IF TALENT:(iParent:LOCAL):(LOCAL:1) <= 0
-			BREAK
-		ENDIF
-		iP_Weapon_Ary:iP_Weapon_Cnt = TALENT:(iParent:LOCAL):(LOCAL:1)
-		iP_Weapon_Cnt ++
-	NEXT
-	; 무기 없으면
-	SIF iP_Weapon_Cnt <= 0
+	iP_Weapon_Cnt = WEAPON_NUM(iParent:iP_Num)
+	DEBUGPRINTFORML WEAPON_NUM = {iP_Weapon_Cnt}
+	IF iP_Weapon_Cnt <= 0
+		; 무기 없으면
+		DEBUGPRINTL No weapon
 		CONTINUE
-	FOR LOCAL:1, 0, iInherit_Max
+	ELSEIF iP_Weapon_Cnt <= iInherit_Max
+		; 무기 Cnt_Max 이하
+		FOR LOCAL, 0, iP_Weapon_Cnt
+			iP_Weapon_Ary:LOCAL = WEAPON_NTH(iParent:iP_Num, LOCAL)
+		NEXT
+	ELSE
+		; 무기 Cnt_Max 이상
+		DEBUGPRINTFORML weapon number over {iInherit_Max}
+		; 무작위로 Cnt_Max 선택
+		FOR LOCAL, 0, iInherit_Max
+			; 무작위 선택
+			LOCAL:1 = RAND:iP_Weapon_Cnt
+			LOCAL:1 = WEAPON_NTH(iParent:iP_Num, LOCAL:1)
+			DEBUGPRINTFORML attempt add {LOCAL:1}
+			; 중복 확인
+			IF MATCH(iP_Weapon_Ary, LOCAL:1) <= 0
+				DEBUGPRINTFORML -> added
+				iP_Weapon_Ary:LOCAL = LOCAL:1
+			ELSE
+				DEBUGPRINTFORML -> is duplicate
+				; 중복 시 WEAPON_NEXT, -1 이면 100 부터 WEAPON_NEXT 확인
+				FOR LOCAL:2, 0, iP_Weapon_Cnt
+					LOCAL:1 = WEAPON_NEXT(iParent:iP_Num, LOCAL:1 + 1)
+					IF LOCAL:1 == -1
+						DEBUGPRINTL --> fixing -1
+						LOCAL:1 = WEAPON_NEXT(iParent:iP_Num, 100)
+					ENDIF
+					DEBUGPRINTFORML -> attempt add {LOCAL:1}
+					IF MATCH(iP_Weapon_Ary, LOCAL:1) <= 0
+						iP_Weapon_Ary:LOCAL = LOCAL:1
+						BREAK
+					ENDIF
+				NEXT
+			ENDIF
+		NEXT
+		; iInherit_Max 로 감소
+		iP_Weapon_Cnt = iInherit_Max
+	ENDIF
+	; debug, chk max && final num
+	DEBUGPRINTL final weapon array
+	LOCAL:1 = iP_Weapon_Cnt
+	IF iP_Weapon_Cnt < iInherit_Max
+		LOCAL:1 = iP_Weapon_Cnt + 1
+	ELSE
+		LOCAL:1 = iP_Weapon_Cnt
+	ENDIF
+	FOR LOCAL, 0, LOCAL:1
+		DEBUGPRINTFORML {LOCAL}:{iP_Weapon_Ary:LOCAL}
+	NEXT
+	DEBUGPRINTL final weapon array END
+	; 아이 무기 선택
+	FOR LOCAL, 0, iInherit_Max
 		; 남은 무기 없으면
 		SIF iP_Weapon_Cnt <= 0
 			BREAK
 		; 무기 번호
-		LOCAL:2 = RAND:iP_Weapon_Cnt
-		; 무기 상속 확률, 75%, 50%, 30%
-		IF LOCAL:1 == 0 && RAND:100 < 75
-			CALL WEAPON_ADD(TARGET, iP_Weapon_Ary:(LOCAL:2))
-		ELSEIF LOCAL:1 == 1 && RAND:100 < 50
-			CALL WEAPON_ADD(TARGET, iP_Weapon_Ary:(LOCAL:2))
-		ELSEIF LOCAL:1 > 1 && RAND:100 < 30
-			CALL WEAPON_ADD(TARGET, iP_Weapon_Ary:(LOCAL:2))
+		LOCAL:1 = RAND:iP_Weapon_Cnt
+		; 무기 상속 확률
+		; 중복 확인은 안할듯
+		DEBUGPRINTFORML odds:{iInherit_Odds:(MIN(LOCAL, iInherit_Odds_Max - 1))}
+		IF RAND:100 < iInherit_Odds:(MIN(LOCAL, iInherit_Odds_Max - 1))
+			DEBUGPRINTFORML weapon add: {iP_Weapon_Ary:(LOCAL:1)}
+			CALL WEAPON_ADD(TARGET, iP_Weapon_Ary:(LOCAL:1))
 		ENDIF
 		; 사용한 번호 제거
-		ARRAYREMOVE iP_Weapon_Ary, LOCAL:2, 1
+		ARRAYREMOVE iP_Weapon_Ary, LOCAL:1, 1
+		; chk array
+		FOR LOCAL:1, 0, iP_Weapon_Cnt
+			DEBUGPRINTFORML {LOCAL:1}:{iP_Weapon_Ary:(LOCAL:1)}
+		NEXT
 		iP_Weapon_Cnt --
 	NEXT
+	DEBUGPRINTL end weapon assign
 NEXT
-; 501 번 무기 장착, 없으면 RANDOM_CHARA_WEAPON_SETTING
-; DEBUGPRINTFORML TARGET({TARGET}) WEAPON 501 = {TALENT:TARGET:501}
-IF TALENT:TARGET:501 > 0
-	CALL WEAPON_EQUIP(TARGET, TALENT:TARGET:501)
+; 무작위 무기 장착, 없으면 RANDOM_CHARA_WEAPON_SETTING
+DEBUGPRINTL ====================
+DEBUGPRINTFORML %CALLNAME:TARGET%, WEAPON NUM = {WEAPON_NUM(TARGET)}
+; chk array
+FOR LOCAL, 0, WEAPON_NUM(TARGET)
+	DEBUGPRINTFORML {LOCAL}:{WEAPON_NTH(TARGET, LOCAL)}
+NEXT
+IF WEAPON_NUM(TARGET) > 0
+	LOCAL = WEAPON_NTH(TARGET, RAND:(WEAPON_NUM(TARGET)))
+	DEBUGPRINTFORML Equip: {LOCAL}
+	CALL WEAPON_EQUIP(TARGET, LOCAL)
 ELSE
 	CALL RANDOM_CHARA_WEAPON_SETTING
 ENDIF
