@@ -136,23 +136,24 @@ PRINTL
 
 ; 무기 버튼
 ; 고유 무기/특수 무기? 아이+선생도 쓸수 있어서...
+; 그냥 WEAPON_NEXT 사용?
 LOCAL:2 = 0 ; 줄당 버튼 확인
 CALL SINGLE_DRAWLINE
 PRINTL 고유 무기
 FOR LOCAL, 501, 웨폰_TALENT_MAX
 	; 0 이면 건너뛰기
-	IF TALENT:대상:LOCAL == 0
-		DEBUGPRINTFORML skip {LOCAL}
+	IF TALENT:대상:LOCAL <= 0
+		; DEBUGPRINTFORML skip {LOCAL}
 		CONTINUE
 	ENDIF
 	; BIT 확인
-	FOR LOCAL:1, 0, 64
+	FOR LOCAL:1, 0, 63
 		; BIT 확인
-		DEBUGPRINTFORML check ({LOCAL}:{LOCAL:1})
+		; DEBUGPRINTFORML check ({LOCAL}:{LOCAL:1})
 		; 있으면 버튼 스폰
 		IF GETBIT(TALENT:대상:LOCAL, LOCAL:1)
-			WEAPON_SELECT = (LOCAL-501) * 64 + LOCAL:1 + 100
-			DEBUGPRINTFORML %CALLNAME:대상% has weapon {WEAPON_SELECT} ({LOCAL}:{LOCAL:1})
+			WEAPON_SELECT = (LOCAL-501) * 63 + LOCAL:1 + 100
+			; DEBUGPRINTFORML %CALLNAME:대상% has weapon {WEAPON_SELECT} ({LOCAL}:{LOCAL:1})
 			; 장착중인 무기 확인
 			IF WEAPON_SELECT == TALENT:대상:웨폰
 				DEBUGPRINTL weapon is equipped
@@ -173,9 +174,9 @@ FOR LOCAL, 501, 웨폰_TALENT_MAX
 			ENDIF
 			$NEXTLINE
 			; 확인후 계속 확인해야 되나 확인
-			DEBUGPRINTFORML ({TALENT:대상:LOCAL} < {1 << (LOCAL:1 + 1)})
+			; DEBUGPRINTFORML ({TALENT:대상:LOCAL} < {1 << (LOCAL:1 + 1)})
 			IF TALENT:대상:LOCAL < (1 << (LOCAL:1 + 1))
-				DEBUGPRINTFORML no more in {LOCAL}
+				; DEBUGPRINTFORML no more in {LOCAL}
 				BREAK
 			ENDIF
 		ENDIF
@@ -264,16 +265,17 @@ ENDCATCH
 #LOCALSIZE 2
 
 ; 양산형 이면 무시?
-IF MATCH(웨폰_양산무기, 무기)
+SIF MATCH(웨폰_양산무기, 무기)
 	RETURN
-ENDIF
+SIF 무기 < 100
+	RETURN
 
 ; 이진수 버전 (0~63)
 ; 무기 번호 100 ~ 1200 까진 17 변수 필요(17, 11 Bit)
 ; 예. 무기 1199 GETBIT(TALENT:518, 11) == 1
 LOCAL:1 = 무기 - 100
-LOCAL:0 = LOCAL:1 / 64 + 501
-LOCAL:1 = LOCAL:1 % 64
+LOCAL:0 = LOCAL:1 / 63 + 501
+LOCAL:1 = LOCAL:1 % 63
 SETBIT TALENT:대상:LOCAL, LOCAL:1
 
 
@@ -284,13 +286,14 @@ SETBIT TALENT:대상:LOCAL, LOCAL:1
 #LOCALSIZE 2
 
 ; 양산형 이면 무시?
-IF MATCH(웨폰_양산무기, 무기)
+SIF MATCH(웨폰_양산무기, 무기)
 	RETURN
-ENDIF
+SIF 무기 < 100
+	RETURN
 
 LOCAL:1 = 무기 - 100
-LOCAL:0 = LOCAL:1 / 64 + 501
-LOCAL:1 = LOCAL:1 % 64
+LOCAL:0 = LOCAL:1 / 63 + 501
+LOCAL:1 = LOCAL:1 % 63
 CLEARBIT TALENT:대상:LOCAL, LOCAL:1
 
 
@@ -302,11 +305,92 @@ CLEARBIT TALENT:대상:LOCAL, LOCAL:1
 #LOCALSIZE 2
 
 ; 양산형
-IF MATCH(웨폰_양산무기, 무기)
+SIF MATCH(웨폰_양산무기, 무기)
 	RETURNF 1
-ENDIF
+SIF 무기 < 100
+	RETURNF 0
 
 LOCAL:1 = 무기 - 100
-LOCAL:0 = LOCAL:1 / 64 + 501
-LOCAL:1 = LOCAL:1 % 64
+LOCAL:0 = LOCAL:1 / 63 + 501
+LOCAL:1 = LOCAL:1 % 63
 RETURNF GETBIT(TALENT:대상:LOCAL, LOCAL:1)
+
+; 고유 무기 중 다음 장착 가능한 무기 번호
+; 없으면 -1
+@WEAPON_NEXT(대상, 확인번호)
+#FUNCTION
+#DIM 대상
+#DIM 확인번호
+#DIM DYNAMIC bitchk
+#LOCALSIZE 2
+
+; 오류방지
+SIF 확인번호 < 100
+	RETURNF -1
+bitchk = (확인번호 - 100) % 63
+확인번호 = (확인번호 - 100) / 63 + 501
+FOR LOCAL, 확인번호, 웨폰_TALENT_MAX
+	; 0 이면 건너뛰기
+	IF TALENT:대상:LOCAL <= 0
+		bitchk = 0
+		CONTINUE
+	ENDIF
+	; BIT 확인
+	FOR LOCAL:1, bitchk, 63
+		; BIT 확인
+		SIF GETBIT(TALENT:대상:LOCAL, LOCAL:1)
+			RETURNF (LOCAL-501) * 63 + LOCAL:1 + 100
+		IF TALENT:대상:LOCAL < (1 << (LOCAL:1 + 1))
+			BREAK
+		ENDIF
+	NEXT
+	bitchk = 0
+NEXT
+RETURNF -1
+
+; 갖고 있는 무기 개수
+@WEAPON_NUM(대상)
+#FUNCTION
+#DIM 대상
+#DIM DYNAMIC num
+#LOCALSIZE 2
+
+FOR LOCAL, 501, 웨폰_TALENT_MAX
+	; 0 이면 건너뛰기
+	SIF TALENT:대상:LOCAL <= 0
+		CONTINUE
+	FOR LOCAL:1, 0, 63
+		SIF GETBIT(TALENT:대상:LOCAL, LOCAL:1)
+			num++
+		IF TALENT:대상:LOCAL < (1 << (LOCAL:1 + 1))
+			BREAK
+		ENDIF
+	NEXT
+NEXT
+RETURNF num
+
+; n 번째 무기, 0 부터 시작
+@WEAPON_NTH(대상, 무기)
+#FUNCTION
+#DIM 대상
+#DIM 무기
+#DIM DYNAMIC num = -1
+#LOCALSIZE 2
+
+FOR LOCAL, 501, 웨폰_TALENT_MAX
+	; 0 이면 건너뛰기
+	SIF TALENT:대상:LOCAL <= 0
+		CONTINUE
+	FOR LOCAL:1, 0, 63
+		IF GETBIT(TALENT:대상:LOCAL, LOCAL:1)
+			num++
+			IF num >= 무기
+				RETURNF (LOCAL-501) * 63 + LOCAL:1 + 100
+			ENDIF
+		ENDIF
+		IF TALENT:대상:LOCAL < (1 << (LOCAL:1 + 1))
+			BREAK
+		ENDIF
+	NEXT
+NEXT
+RETURNF -1
