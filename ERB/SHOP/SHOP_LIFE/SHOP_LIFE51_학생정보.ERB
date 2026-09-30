@@ -123,7 +123,7 @@ ELSE
 ENDIF
 CALL PRINTBUTTON_EX(" 2[능력 상세]", 2, 1, FLAG:능력표시모드 == 2)
 CALL PRINTBUTTON_EX(" 3[임신 기록]", 3, 1, FLAG:능력표시모드 == 3)
-CALL PRINTBUTTON_EX(" 4[스킬 표시]", 4, 1, FLAG:능력표시모드 == 4)
+CALL PRINTBUTTON_EX(" 5[스킬 표시]", 5, 1, FLAG:능력표시모드 == 5)
 IF ARG:1
 	PRINTL
 	PRINTBUTTON " 7[이전캐릭터]", 7
@@ -162,7 +162,7 @@ ENDIF
 
 IF RESULT == 9
 	RETURN 0
-ELSEIF RESULT >= 0 && RESULT <= 4 && FLAG:능력표시모드 != RESULT && !(RESULT == 1 && ARG:0 == MASTER)
+ELSEIF RESULT >= 0 && RESULT <= 5 && FLAG:능력표시모드 != RESULT && !(RESULT == 1 && ARG:0 == MASTER)
 	FLAG:능력표시모드 = RESULT
 	RETURN 1
 ELSEIF RESULT == 7 && ARG:1

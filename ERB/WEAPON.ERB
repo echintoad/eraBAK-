@@ -79,21 +79,15 @@ SELECTCASE ARG
 ENDSELECT
 RETURNF LOCALS
 
+;무기 종류 출력과 버튼화
 @WEAPON_MENU(대상)
 #DIM 대상
-#DIM WEAPON_SELECT
-#DIM FIRST_LINE
-#LOCALSIZE 3
+#DIM DYNAMIC 무기
+#DIM DYNAMIC 줄당버튼
+#LOCALSIZE 2
 #LOCALSSIZE 1
 
-FIRST_LINE = LINECOUNT
-;무기 종류 출력과 버튼화
-$INPUT_LOOP1
-CLEARLINE LINECOUNT - FIRST_LINE
-;---------------------------------------스킬설명부분---------------------------------------
-CALL SINGLE_DRAWLINE
 CALL ICPRINT(@"현재 <%ANAME(대상)%>의 무기", "L", 칼라_주의)
-CALL SINGLE_DRAWLINE
 IF FLAG:화상설정
 	CALL WEAPON_IMAGE(TALENT:대상:웨폰, 7, 0)
 	PRINTL
@@ -102,6 +96,7 @@ ENDIF
 CALL WEAPON_NAME(TALENT:대상:웨폰)
 PRINTFORML [%RESULTS, 30, LEFT%]
 TRYCALLFORM 무기_설명_스탯_{TALENT:대상:웨폰}(총력전무기스킬)
+;---------------------------------------스킬설명부분---------------------------------------
 IF 총력전무기스킬 == 0
 	TRYCALLFORM 무기_설명_{TALENT:대상:웨폰}
 ELSEIF 총력전무기스킬 == 1
@@ -114,6 +109,8 @@ ELSEIF 총력전무기스킬 == 1
 	RESULTS = 
 	TRYCALLFORM SKILL_{TALENT:대상:웨폰+1000}_SP_0_NAME
 	TRYCALLFORM SKILL_{TALENT:대상:웨폰+1000}_BASE_0_NAME
+	TRYCALLFORM SKILL_{TALENT:대상:웨폰+1000}_CAPTURE_0_NAME
+	TRYCALLFORM SKILL_{TALENT:대상:웨폰+1000}_ESCAPE_0_NAME
 	PRINTFORML %RESULTS%
 	CALL COLOR_LINE
 	SETCOLOR 칼라_선택불가
@@ -131,13 +128,13 @@ ELSEIF 총력전무기스킬 == 1
 	PRINTL
 ENDIF
 CALL SINGLE_DRAWLINE
-PRINTBUTTON "스킬설명 변경",-2
-PRINTL
+PRINTBUTTON "[스킬설명 변경]", 99
+PRINTL 
 
 ; 무기 버튼
 ; 고유 무기/특수 무기? 아이+선생도 쓸수 있어서...
 ; 그냥 WEAPON_NEXT 사용?
-LOCAL:2 = 0 ; 줄당 버튼 확인
+줄당버튼 = 0 ; 줄당 버튼 확인
 CALL SINGLE_DRAWLINE
 PRINTL 고유 무기
 FOR LOCAL, 501, 웨폰_TALENT_MAX
@@ -152,27 +149,26 @@ FOR LOCAL, 501, 웨폰_TALENT_MAX
 		; DEBUGPRINTFORML check ({LOCAL}:{LOCAL:1})
 		; 있으면 버튼 스폰
 		IF GETBIT(TALENT:대상:LOCAL, LOCAL:1)
-			WEAPON_SELECT = (LOCAL-501) * 63 + LOCAL:1 + 100
-			; DEBUGPRINTFORML %CALLNAME:대상% has weapon {WEAPON_SELECT} ({LOCAL}:{LOCAL:1})
+			무기 = (LOCAL-501) * 63 + LOCAL:1 + 100
+			; DEBUGPRINTFORML %CALLNAME:대상% has weapon {무기} ({LOCAL}:{LOCAL:1})
 			; 장착중인 무기 확인
-			IF WEAPON_SELECT == TALENT:대상:웨폰
-				DEBUGPRINTL weapon is equipped
-				GOTO NEXTLINE
-			ENDIF
-			CALL WEAPON_NAME(WEAPON_SELECT, 20)
-			LOCALS = %RESULTS%
-			SIF STRLENS(LOCALS) <= 0
-				CONTINUE
-			PRINTBUTTON @"{WEAPON_SELECT,4,RIGHT}[%ALIGN_TEXT(RESULTS, 20, "LEFT")%]", WEAPON_SELECT
-			; 줄 정리
-			IF LOCAL:2 >= 3
-				PRINTL
-				LOCAL:2 = 0
+			IF 무기 != TALENT:대상:웨폰
+				CALL WEAPON_NAME(무기, 20)
+				LOCALS = %RESULTS%
+				SIF STRLENS(LOCALS) <= 0
+					CONTINUE
+				PRINTBUTTON @"{무기,4,RIGHT}[%ALIGN_TEXT(RESULTS, 20, "LEFT")%]", 무기
+				; 줄 정리
+				IF 줄당버튼 >= 3
+					PRINTL
+					줄당버튼 = 0
+				ELSE
+					PRINTFORM %TOSTR_SPACE(1)%
+					줄당버튼++
+				ENDIF
 			ELSE
-				PRINTFORM %TOSTR_SPACE(1)%
-				LOCAL:2++
+				DEBUGPRINTL weapon is equipped
 			ENDIF
-			$NEXTLINE
 			; 확인후 계속 확인해야 되나 확인
 			; DEBUGPRINTFORML ({TALENT:대상:LOCAL} < {1 << (LOCAL:1 + 1)})
 			IF TALENT:대상:LOCAL < (1 << (LOCAL:1 + 1))
@@ -205,44 +201,41 @@ FOR LOCAL, 0, RESULT
 		LOCAL:1++
 	ENDIF
 NEXT
-PRINTL
-PRINTFORML [-1] 뒤로
-INPUT
-;---------------------------------------스킬설명부분---------------------------------------
+PRINTL 
 
-SELECTCASE RESULT
-	CASE -1 ; 뒤로
-		RETURN
-	CASE -2 ; 스킬 설명 변경
-		총력전무기스킬 = !총력전무기스킬
-		GOTO INPUT_LOOP1
-	CASEELSE
-		; PRINTFORM RESULT = {RESULT}
-		; GOTO INPUT_LOOP1
-		WEAPON_SELECT = RESULT
-		CALL SINGLE_DRAWLINE
-		PRINTL
-		IF FLAG:화상설정
-			CALL WEAPON_IMAGE(WEAPON_SELECT, 7, 0)
-			PRINTL
-			PRINTL
-		ENDIF
-		CALL WEAPON_NAME(WEAPON_SELECT)
-		PRINTFORML [%RESULTS, 30, LEFT%]
-		PRINTL 
-		TRYCALLFORM 무기_설명_{WEAPON_SELECT}
-		CALL SINGLE_DRAWLINE
-		PRINTL 이 무기를 선택합니까?
-		PRINTFORML [0] 네 [1] 아니요
-		INPUT
-		IF RESULT == 1
-			GOTO INPUT_LOOP1
-		ELSE
-			CALL WEAPON_EQUIP(대상, WEAPON_SELECT)
-			GOTO INPUT_LOOP1
-			; RETURN
-		ENDIF
-ENDSELECT
+; 무기 선택 -> 확인 -> 장착
+@WEAPON_MENU_SELECT(대상, 무기)
+#DIM 대상
+#DIM 무기
+
+CALL SINGLE_DRAWLINE
+PRINTL
+IF FLAG:화상설정
+	CALL WEAPON_IMAGE(무기, 7, 0)
+	PRINTL
+	PRINTL
+ENDIF
+CALL WEAPON_NAME(무기)
+PRINTFORML [%RESULTS, 30, LEFT%]
+PRINTL 
+TRYCALLFORM 무기_설명_{무기}
+CALL SINGLE_DRAWLINE
+PRINTL 이 무기를 선택합니까?
+PRINTBUTTON @" 0[ 네 ]", 0
+PRINT  
+PRINTBUTTON @" 1[ 아니오 ]", 1
+PRINTL 
+INPUT
+
+IF RESULT == 0 ; YES
+	CALL WEAPON_EQUIP(대상, 무기)
+	PRINTL SELECTED WEAPON
+	RETURN
+ELSE ; NO
+	PRINTL CANCEL SELECTED WEAPON
+	RETURN
+ENDIF
+PRINTL NO MATCH
 
 ;-------------------------------------------------
 ;캐릭터 무기 장착
