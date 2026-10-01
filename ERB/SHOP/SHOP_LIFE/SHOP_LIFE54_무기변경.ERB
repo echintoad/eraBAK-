@@ -7,20 +7,27 @@ RESULTS:0 '= "무기변경"
 ;「무기변경」의 선택 가부
 ;-------------------------------------------------
 @SHOP_LIFE_CHECK54
-SIF CFLAG:MASTER:포로처
-	RETURN 0
-RETURN 1
+RETURN 0
+; SIF CFLAG:MASTER:포로처
+; 	RETURN 0
+; RETURN 1
 
 ;-------------------------------------------------
 ;「무기변경」의 선택 가능 캐릭터 존재 판정
 ;-------------------------------------------------
+; 아직 사용중 @SHOW_INFO
 @SHOP_LIFE_CHECKCHARA54(ARG:0)
-;동일세력, 포로가 아님,동물이 아님
-SIF CFLAG:(ARG:0):특수상태 == 특수상태_방랑
-RETURN TALENT:(ARG:0):연모 || TALENT:(ARG:0):복종
+; 등장, 사망
 SIF CFLAG:(ARG:0):특수상태 == 특수상태_미등장 || CFLAG:(ARG:0):특수상태 == 특수상태_사망
-RETURN 0
-RETURN CFLAG:(ARG:0):소속 == CFLAG:MASTER:소속 && CFLAG:(ARG:0):포로처 == 0 && !IS_ANIMAL(ARG:0)
+	RETURN 0
+; 방랑일시 함락 확인
+SIF CFLAG:(ARG:0):특수상태 == 특수상태_방랑
+	RETURN TALENT:(ARG:0):연모 || TALENT:(ARG:0):복종
+; 포로 확인, 같은 세력 (징계) 확인, 다른 세력 함락 확인
+SIF CFLAG:(ARG:0):포로처 != 0
+	RETURN CFLAG:(ARG:0):포로처 == CFLAG:MASTER:소속 && (CFLAG:(ARG:0):소속 == CFLAG:MASTER:소속 || (TALENT:(ARG:0):연모 || TALENT:(ARG:0):복종))
+; 같은 세력, 동물 확인
+RETURN CFLAG:(ARG:0):소속 == CFLAG:MASTER:소속 && !IS_ANIMAL(ARG:0)
 
 ;-------------------------------------------------
 ;「무기변경」의 오른쪽 컬럼 표시 처리

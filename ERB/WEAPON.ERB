@@ -80,8 +80,9 @@ ENDSELECT
 RETURNF LOCALS
 
 ;무기 종류 출력과 버튼화
-@WEAPON_MENU(대상)
+@WEAPON_MENU(대상, 버튼활성화)
 #DIM 대상
+#DIM 버튼활성화
 #DIM DYNAMIC 무기
 #DIM DYNAMIC 줄당버튼
 #LOCALSIZE 2
@@ -157,7 +158,11 @@ FOR LOCAL, 501, 웨폰_TALENT_MAX
 				LOCALS = %RESULTS%
 				SIF STRLENS(LOCALS) <= 0
 					CONTINUE
-				PRINTBUTTON @"{무기,4,RIGHT}[%ALIGN_TEXT(RESULTS, 20, "LEFT")%]", 무기
+				IF 버튼활성화
+					PRINTBUTTON @"{무기,4,RIGHT}[%ALIGN_TEXT(RESULTS, 20, "LEFT")%]", 무기
+				ELSE
+					PRINTFORM {무기,4,RIGHT}[%ALIGN_TEXT(RESULTS, 20, "LEFT")%]
+				ENDIF
 				; 줄 정리
 				IF 줄당버튼 >= 3
 					PRINTL
@@ -166,8 +171,8 @@ FOR LOCAL, 501, 웨폰_TALENT_MAX
 					PRINTFORM %TOSTR_SPACE(1)%
 					줄당버튼++
 				ENDIF
-			ELSE
-				DEBUGPRINTL weapon is equipped
+			; ELSE
+				; DEBUGPRINTL weapon is equipped
 			ENDIF
 			; 확인후 계속 확인해야 되나 확인
 			; DEBUGPRINTFORML ({TALENT:대상:LOCAL} < {1 << (LOCAL:1 + 1)})
@@ -192,7 +197,11 @@ FOR LOCAL, 0, RESULT
 	LOCALS = %RESULTS%
 	SIF STRLENS(LOCALS) <= 0
 		CONTINUE
-	PRINTBUTTON @"{웨폰_양산무기:LOCAL,4,RIGHT}[%ALIGN_TEXT(RESULTS, 20, "LEFT")%]", 웨폰_양산무기:LOCAL
+	IF 버튼활성화
+		PRINTBUTTON @"{웨폰_양산무기:LOCAL,4,RIGHT}[%ALIGN_TEXT(RESULTS, 20, "LEFT")%]", 웨폰_양산무기:LOCAL
+	ELSE
+		PRINTFORM {웨폰_양산무기:LOCAL,4,RIGHT}[%ALIGN_TEXT(RESULTS, 20, "LEFT")%]
+	ENDIF
 	IF LOCAL:1 >= 3
 		PRINTL
 		LOCAL:1 = 0
