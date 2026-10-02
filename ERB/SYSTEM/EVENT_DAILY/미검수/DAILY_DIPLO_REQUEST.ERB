@@ -11,8 +11,8 @@ RETURN 30
 ;---------------------
 @EVENT_DAILY_REQUEST_CHARA_DECISION()
 ;미검수 OFF면 스킵
-SIF FLAG:데일리이벤트_미검수 == 0
-	RETURN 0
+; SIF FLAG:데일리이벤트_미검수 == 0
+; 	RETURN 0
 SIF DVAR:사관요구_발생금지카운터 > 0
 	RETURN 0
 SIF FLAG:클리어플래그
@@ -43,16 +43,16 @@ RETURN 데일리_장르_외교
 ;LOCALSIZE에 맞춘다. VARSIZE 사용하고 싶지만 DIM에는 짜넣을 수 없다
 #DIM 후보캐릭터, 3000
 #DIM 결과캐릭터
-#DIM 도둑
+#DIM 카이저
 VARSET 자국경제치
 VARSET 각국경제치
 VARSET 후보국
 VARSET 후보캐릭터
 VARSET 후보수
-VARSET 도둑
+VARSET 카이저
 
-;미리, 도둑의 세력 번호를 보존
-도둑 = GET_COUNTRY_FROM_ID(SP_COUNTRY_ID:(특수세력_카이저_코퍼레이션))
+;미리, 카이저의 세력 번호를 보존
+카이저 = GET_COUNTRY_FROM_ID(SP_COUNTRY_ID:(특수세력_카이저_코퍼레이션))
 
 
 ;------------여기에서 나라의 선출-----------------
@@ -66,9 +66,9 @@ FOR LOCAL, 0, MAX_COUNTRY
 	ENDIF
 NEXT
 
-;도둑 세력에 소속하지 않은 경우, 도둑 세력의 경제치는 자국 경제치의 배라는 일로 해 둔다
-SIF 도둑 > 0 && CFLAG:MASTER:소속 != 도둑
-	각국경제치:도둑 = 자국경제치 * 2
+;카이저 세력에 소속하지 않은 경우, 카이저 세력의 경제치는 자국 경제치의 배라는 일로 해 둔다
+SIF 카이저 > 0 && CFLAG:MASTER:소속 != 카이저
+	각국경제치:카이저 = 자국경제치 * 2
 
 
 ;자국보다 경제치가 큰 국가를 후보로서 기록
@@ -89,10 +89,10 @@ CALL FISHER_YATES_SHAFFLE(후보수)
 결과국 = 후보국:(SHAFFLE_ARRAY:0)
 결과군주 = GET_COUNTRY_BOSS(결과국)
 
-;3비율의 확률로 강제적으로 도둑이 된다
-IF 도둑 > 0 && CFLAG:MASTER:소속 != 도둑 && RAND:100 < 30
-	결과국 = 도둑
-	결과군주 = GET_COUNTRY_BOSS(도둑)
+;3비율의 확률로 강제적으로 카이저가 된다
+IF 카이저 > 0 && CFLAG:MASTER:소속 != 카이저 && RAND:100 < 30
+	결과국 = 카이저
+	결과군주 = GET_COUNTRY_BOSS(카이저)
 ENDIF
 
 ;------------여기로부터 캐릭터의 선출-----------------
@@ -102,8 +102,8 @@ VARSET 후보수
 
 ;캐릭터의 선출
 FOR LOCAL, 0, CHARANUM
-	;MASTER는 아니고, MASTER 소속 세력의 군주도 아니고, 같은 나라에 소속. 만약 결과국이 도둑이라면 여자인 것. 동물은 안 돼.
-	IF LOCAL != MASTER && LOCAL != GET_COUNTRY_BOSS(CFLAG:MASTER:소속) && CFLAG:(LOCAL):소속 == CFLAG:MASTER:소속 && !CFLAG:(LOCAL):포로처 && (결과국 != 도둑 || IS_FEMALE(LOCAL)) && !IS_ANIMAL(LOCAL)
+	;MASTER는 아니고, MASTER 소속 세력의 군주도 아니고, 같은 나라에 소속. 만약 결과국이 카이저라면 여자인 것. 동물은 안 돼.
+	IF LOCAL != MASTER && LOCAL != GET_COUNTRY_BOSS(CFLAG:MASTER:소속) && CFLAG:(LOCAL):소속 == CFLAG:MASTER:소속 && !CFLAG:(LOCAL):포로처 && (결과국 != 카이저 || IS_FEMALE(LOCAL)) && !IS_ANIMAL(LOCAL)
 		;0 ~ 「능력4종의 10배로 호감도·종속도·의존도의 것 1/10의 총화」  의 난수를 보존
 		후보캐릭터:LOCAL = RAND(0, MAX((ABL:LOCAL:무투 + ABL:LOCAL:방위 + ABL:LOCAL:지략 + ABL:LOCAL:정치) * 10 + (CFLAG:LOCAL:호감도 + CFLAG:LOCAL:종속도 + CFLAG:LOCAL:의존도 + CFLAG:(LOCAL):지배도) / 10, 1))
 		후보수 ++
@@ -124,9 +124,9 @@ SIF 결과캐릭터 <= 0
 	RETURN 0
 
 ;여기로부터 메세지와 각종 처리
-;도둑의 경우는 특수 패턴
-IF 결과국 != 도둑
-	PRINTFORML %조사처리(ANAME(MASTER),"가")% 업무를 보고 있을 때, 비서가 손님이 왔다고 알렸다.
+;카이저의 경우는 특수 패턴
+IF 결과국 != 카이저
+	PRINTFORML %조사처리(ANAME(MASTER),"가")% 업무를 보고 있을 때, 당번 학생이 손님이 왔다고 알렸다.
 	CALL COLOR_PRINT(@"%ANAME(결과군주)%", 칼라_주의)
 	PRINTFORMW 가 보낸 것이라고 한다
 	PRINTFORML %ANAME(결과군주)%라고 하면, 이쪽보다 강력한 세력을 인솔하고 있는 군주다
@@ -165,7 +165,7 @@ IF 결과국 != 도둑
 	ENDIF
 	DVAR:사관요구_발생금지카운터 = 10
 ELSE
-	PRINTFORML %조사처리(ANAME(MASTER),"가")% 업무를 보고 있을 때, 비서가 손님이 왔다고 알렸다.
+	PRINTFORML %조사처리(ANAME(MASTER),"가")% 업무를 보고 있을 때, 당번 학생이 손님이 왔다고 알렸다.
 	CALL COLOR_PRINT(@"%ANAME(결과군주)%", 칼라_주의)
 	PRINTFORMW 가 사람을 보낸 것이라고 한다
 	PRINTFORML %ANAME(결과군주)%라고 하면, 각국이 골머리를 썩히고 있는 상대다
@@ -187,7 +187,7 @@ ELSE
 	PRINTFORMW %ANAME(결과캐릭터)%은 정중하게 취급해 주기 때문에, 안심해도 괜찮을 것이다.
 	PRINTFORML
 	PRINTFORML 정중하게 취급한다고 말해고 있지만, 녀석들이 %ANAME(결과캐릭터)%를 성노예와 같은 취급을 하는 것은 틀림없다
-	PRINTFORMW 도적 새끼들이, 이 무슨 무례한 요구인가!
+	PRINTFORMW 도둑 새끼들이, 이 무슨 무례한 요구인가!
 	PRINTFORML 마음 속으로 격노하는 %조사처리(ANAME(MASTER),"이지만")%, 이 녀석들의 세력이 지금 강한 것은 사실.
 	PRINTFORML 거절하면, 상대가 어떠한 괴롭힘―-그것도 피도, 눈물도, 자비도, 없을 것 같은―-에 나오는 것은 확실하다
 	PRINTFORMW 그렇다고 해서 이런 사람을 사람으로도 생각하지 않는 무리에게 %ANAME(결과캐릭터)%를 건네주어도 좋을까……
@@ -199,10 +199,10 @@ ELSE
 		CALL COLOR_PRINT(@"%ANAME(결과군주)%", 칼라_주의)
 		PRINTFORMW 의 사람은 음흉한 미소를 지으며, %ANAME(결과캐릭터)%과 함께 자국으로 돌아갔다.
 		IF !CONFIG:200
-			PRINTFORMW 도둑들의 아지트에 데리고 돌아가진 %ANAME(결과캐릭터)%는, 도둑 전원의 앞에서 새로운 노예로서 소개되었다
+			PRINTFORMW 카이저의 아지트에 데리고 돌아가진 %조사처리(ANAME(결과캐릭터),"는")%, 직원 전원의 앞에서 새로운 노예로서 소개되었다
 			PRINTFORMW 그리고 그대로, 노예로서 처음의 「일」에 종사 당한 것 같다……
 			CALL FORCE_FREE(결과캐릭터)
-			CALL FUCK_GANGBANG(결과캐릭터, GET_SPERM_ID("도둑"), @"도둑의 \@ RAND:2 ? 페니스 # 입술\@", "도둑")
+			CALL FUCK_GANGBANG(결과캐릭터, GET_SPERM_ID("PMC병사"), @"PMC병사의 \@ RAND:2 ? 페니스 # 입술\@", "PMC병사")
 		ENDIF
 			CALL CHANGE_RELATION_C_TO_C(결과국, CFLAG:MASTER:소속, 500, -300)
 			CFLAG:결과캐릭터:호감도 /= 2
@@ -267,34 +267,34 @@ RETURN 데일리_장르_외교
 ;LOCALSIZE에 맞춘다. VARSIZE 사용하고 싶지만 DIM에는 짜넣을 수 없다
 #DIM 후보캐릭터, 3000
 #DIM 결과캐릭터
-#DIM 도둑
+#DIM 카이저
 #DIM 후보액
 VARSET 자국경제치
 VARSET 각국경제치
 VARSET 후보국
 VARSET 후보캐릭터
 VARSET 후보수
-VARSET 도둑
+VARSET 카이저
 
 
-도둑 = GET_COUNTRY_FROM_ID(SP_COUNTRY_ID:(특수세력_카이저_코퍼레이션))
+카이저 = GET_COUNTRY_FROM_ID(SP_COUNTRY_ID:(특수세력_카이저_코퍼레이션))
 ;------------여기에서 나라의 선출-----------------
 
 ;우선 각국의 경제치를 보존
-;다만, 도둑 이외의 특수 세력은 대상이 되지 않는다
+;다만, 카이저 이외의 특수 세력은 대상이 되지 않는다
 FOR LOCAL, 0, MAX_COUNTRY
 	IF CFLAG:MASTER:소속 == LOCAL
 		자국경제치 = GET_SUM_ECONOMY(LOCAL)
-	ELSEIF IS_COUNTRY(LOCAL) && (!IS_SP_COUNTRY(LOCAL) || LOCAL == 도둑)
+	ELSEIF IS_COUNTRY(LOCAL) && (!IS_SP_COUNTRY(LOCAL) || LOCAL == 카이저)
 		각국경제치:LOCAL = GET_SUM_ECONOMY(LOCAL)
 	ELSEIF IS_COUNTRY(LOCAL) && IS_SP_COUNTRY(LOCAL)
 		각국경제치:LOCAL = __INT_MAX__
 	ENDIF
 NEXT
 
-;도둑 세력에 소속하지 않은 경우, 도둑 세력의 경제치는 1이라는 일로 해 둔다
-SIF 도둑 > 0 && CFLAG:MASTER:소속 != 도둑
-	각국경제치:도둑 = 1
+;카이저 세력에 소속하지 않은 경우, 카이저 세력의 경제치는 1이라는 일로 해 둔다
+SIF 카이저 > 0 && CFLAG:MASTER:소속 != 카이저
+	각국경제치:카이저 = 1
 
 
 ;자국보다 경제치가 작은 국가를 후보로서 기록
@@ -318,10 +318,10 @@ CALL FISHER_YATES_SHAFFLE(후보수)
 결과국 = 후보국:(SHAFFLE_ARRAY:0)
 결과군주 = GET_COUNTRY_BOSS(결과국)
 
-;3비율의 확률로 강제적으로 도둑이 된다
-IF 도둑 > 0 && CFLAG:MASTER:소속 != 도둑 && RAND:100 < 30
-	결과국 = 도둑
-	결과군주 = GET_COUNTRY_BOSS(도둑)
+;3비율의 확률로 강제적으로 카이저이 된다
+IF 카이저 > 0 && CFLAG:MASTER:소속 != 카이저 && RAND:100 < 30
+	결과국 = 카이저
+	결과군주 = GET_COUNTRY_BOSS(카이저)
 ENDIF
 
 ;급료 5 턴 만큼, 최저 10000
@@ -329,8 +329,8 @@ ENDIF
 
 
 ;메세지와 각종 처리
-;도둑의 경우는 특수 패턴
-IF 결과국 != 도둑
+;카이저의 경우는 특수 패턴
+IF 결과국 != 카이저
 	;인질로서 보내는 캐릭터 선출을 실시한다
 	;후보수를 제로 클리어
 	VARSET 후보수
@@ -354,7 +354,7 @@ IF 결과국 != 도둑
 	;결과 캐릭터가 발견되지 않으면 끝난다
 	SIF 결과캐릭터 <= 0
 		RETURN 0
-	PRINTFORML %조사처리(ANAME(MASTER),"가")% 일을 하고 있을 때, 비서가 다가왔다
+	PRINTFORML %조사처리(ANAME(MASTER),"가")% 일을 하고 있을 때, 당번 학생이 다가왔다
 	CALL COLOR_PRINT(@"%ANAME(결과군주)%", 칼라_주의)
 	PRINTFORMW 가 사람을 보낸 것이라고 한다
 	PRINTFORML %ANAME(결과군주)%라고 하면, 이쪽보다 약한 세력이지만……
@@ -408,7 +408,7 @@ IF 결과국 != 도둑
 	ENDIF
 	DVAR:자금원조요구_발생금지카운터 = 10
 ELSE
-	PRINTFORML %조사처리(ANAME(MASTER),"가")% 스케쥴로 바삐 일하고 있을 때, 비서가 찾아왔다.
+	PRINTFORML %조사처리(ANAME(MASTER),"가")% 스케쥴로 바삐 일하고 있을 때, 당번 학생이 찾아왔다.
 	CALL COLOR_PRINT(@"%ANAME(결과군주)%", 칼라_주의)
 	PRINTFORMW 가 사람을 보낸 것이라고 한다
 	PRINTFORML %ANAME(결과군주)%라고 하면, 다른 학교도 골머리를 썩히고 있는 상대다
@@ -427,7 +427,7 @@ ELSE
 	PRINTFORML 근래에 우리는 강한 힘을 가지고 있어, 지금은 다른 모든 학교와 대등하게 서로 싸울 수 있을 정도다
 	PRINTFORMW 뭘, 그저 몇 푼 안 되는 돈만 주면 아무 일도 없을 것이다……
 	PRINTFORML
-	PRINTFORMW 도적 새끼들이, 무슨 파렴치한 요구인가!
+	PRINTFORMW 도둑 새끼들이, 무슨 파렴치한 요구인가!
 	PRINTFORML 분노를 느끼는 %조사처리(ANAME(MASTER),"이지만")%, 녀석들이 어떤 해코지를 할지 모르는 상황이다
 	PRINTFORML 거절하면, 상대가 우리에게 해를 끼치는 것은 확실할 것이다
 	PRINTFORMW 그렇다고 해서 저런 무리에게 돈을 건네주어도 좋은 것일까……
@@ -452,8 +452,8 @@ ELSE
 		VARSET 후보수
 		;캐릭터의 선출
 		FOR LOCAL, 0, CHARANUM
-			;MASTER는 아니고, MASTER 소속 세력의 군주도 아니고, 같은 나라에 소속. 만약 결과국이 도둑이라면 여자인 것.
-			IF LOCAL != MASTER && LOCAL != GET_COUNTRY_BOSS(CFLAG:MASTER:소속) && CFLAG:(LOCAL):소속 == CFLAG:MASTER:소속 && !CFLAG:(LOCAL):포로처 && (결과국 != 도둑 || IS_FEMALE(LOCAL)) && !IS_ANIMAL(LOCAL)
+			;MASTER는 아니고, MASTER 소속 세력의 군주도 아니고, 같은 나라에 소속. 만약 결과국이 카이저이라면 여자인 것.
+			IF LOCAL != MASTER && LOCAL != GET_COUNTRY_BOSS(CFLAG:MASTER:소속) && CFLAG:(LOCAL):소속 == CFLAG:MASTER:소속 && !CFLAG:(LOCAL):포로처 && (결과국 != 카이저 || IS_FEMALE(LOCAL)) && !IS_ANIMAL(LOCAL)
 				;0 ~ 「3 능력의 10배로 호감도·종속도·의존도의 것 1/10의 총화」  의 난수를 보존
 				후보캐릭터:LOCAL = RAND(0, MAX((ABL:LOCAL:무투 + ABL:LOCAL:방위 + ABL:LOCAL:지략 + ABL:LOCAL:정치) * 10 + (CFLAG:LOCAL:호감도 + CFLAG:LOCAL:종속도 + CFLAG:LOCAL:의존도 + CFLAG:(LOCAL):지배도) / 10, 1))
 				후보수 ++

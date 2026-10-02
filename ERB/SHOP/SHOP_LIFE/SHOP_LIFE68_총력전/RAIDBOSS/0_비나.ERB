@@ -67,9 +67,9 @@ IF 총력전_보스_활동_쿨다운:0 == -2
 	; 그의 이명은 <다름을 통감하는 숙고의 이해자>라.
 	; 나의 이름은 비나BINAH.
 	; 신성한 열글자의 신을 증명하고 기적을 예언하는 3번째 예언자로다.
-	CALL TYPING_ANIME_KR("통신 수신중", 30)
+	CALL TYPING_ANIME_KR("통신 수신중", 27)
 	CLEARLINE 1
-	CALL TYPING_ANIME_PREFIX_KR("통신 수신중", "...", 460)
+	CALL TYPING_ANIME_PREFIX_KR("통신 수신중", "...", 420)
 	CALL AWAIT_FIX(120)
 	FOR iTmp, 0, 13
 		PRINTSL sDECAGRAMMATON:iTmp
@@ -79,20 +79,22 @@ IF 총력전_보스_활동_쿨다운:0 == -2
 	PRINTL
 	CALL AWAIT_FIX(700)
 	CLEARLINE 1
-	CALL TYPING_ANIME_KR("그의 길은", 40)
+	CALL TYPING_ANIME_KR("그의 길은", 27)
 	CALL AWAIT_FIX(120)
 	CLEARLINE 1
 	PRINTL 그의 길path은
 	CALL AWAIT_FIX(110)
 	CLEARLINE 1
-	CALL TYPING_ANIME_PREFIX_KR("그의 길path은 ", "<이해를 통한 합일>.", 40)
+	CALL TYPING_ANIME_PREFIX_KR("그의 길path은 ", "<이해를 통한 합일>.", 27)
 	CALL AWAIT_FIX(480)
-	CALL TYPING_ANIME_KR("그의 이명은 ", 40)
+	CALL TYPING_ANIME_KR("그의 이명은 ", 27)
 	CALL AWAIT_FIX(170)
 	CLEARLINE 1
-	CALL TYPING_ANIME_PREFIX_KR("그의 이명은 ", "<다름을 통감하는 숙고의 이해자>라.", 40)
+	CALL TYPING_ANIME_PREFIX_KR("그의 이명은 ", "<다름을 통감하는 숙고의 이해자>라.", 27)
 	CALL AWAIT_FIX(480)
-	CALL TYPING_ANIME_KR("그의 이름은-", 80)
+	CALL TYPING_ANIME_KR("그의 ", 40)
+	CLEARLINE 1
+	CALL TYPING_ANIME_PREFIX_KR("그의 ", "이름은-", 60)
 	CLEARLINE 3
 	PRINTL - 의 길-at-은 <이해를 통한 합일>.
 	PRINTL  -의 이명은 <다름을 통감하는 숙고의 이해자>라.
@@ -112,15 +114,15 @@ IF 총력전_보스_활동_쿨다운:0 == -2
 	CLEARLINE 3
 	PRINTL 나의 길path은 <이해를 통한 합일>.
 	PRINTL 나의 이명은 <다름을 통감하는 숙고의 이해자>라.
-	CALL TYPING_ANIME_PREFIX_KR("나의 이름은 ", "비나BINAH", 120)
+	CALL TYPING_ANIME_PREFIX_KR("나의 이름은 ", "비나BINAH", 100)
 	CALL AWAIT_FIX(550)
-	CALL TYPING_ANIME_KR("신성한 열글자의 신을 증명하고", 60)
+	CALL TYPING_ANIME_KR("신성한 열글자의 신을 증명하고", 40)
 	CALL AWAIT_FIX(400)
 	CLEARLINE 1
-	CALL TYPING_ANIME_PREFIX_KR("신성한 열글자의 신을 증명하고 ", "기적을 예언하는 3번째 예언자로다.", 60)
+	CALL TYPING_ANIME_PREFIX_KR("신성한 열글자의 신을 증명하고 ", "기적을 예언하는 3번째 예언자로다.", 40)
 	RESETCOLOR
-	; AWAIT 100
-	; PRINTL 비나가 나타났다
+	AWAIT 100
+	PRINTL 비나가 나타났다
 	WAIT
 ELSE
 	PRINTW 모래 폭풍이 몰아친다.

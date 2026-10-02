@@ -428,9 +428,9 @@ ELSEIF RESULT == -3
 		; 행동 회수 추가
 		IF 총력전클리어플래그 == 1
 			SHOP_TIME ++
-			; 이걸로 총력전 "종료 -> [지도]" 버그 해결... 못함
-			; BEGIN TURNEND
 			FIRST_COLUMN_RIGHT_LINE_SLG = LINECOUNT
+			; needed for remaining action 0 bug?
+			BEGIN TURNEND
 		ENDIF
 		[IF_DEBUG]
 		CALL 총력전_보스활동_제거(99) ; 훈련용 허수아비 제거
