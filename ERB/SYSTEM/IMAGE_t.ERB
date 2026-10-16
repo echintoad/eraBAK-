@@ -477,11 +477,14 @@ FOR iVar, 0, iPadding
 	HTML_PRINT "<br>"
 NEXT
 
-CALL PRINT_HTML_IMAGE(sImageName, iSize, iPadding, iSpace)
-CALL PRINT_HTML_IMAGE(sFrame, iSize, iPadding + 1, iSpace)
-SIF iChk == 0
-	CALL PRINT_HTML_IMAGE(sWeapon, iSize, iPadding + 2, iSpace + 4)
-
+CALL PRINT_HTML_IMAGE(sImageName, iSize, iPadding * 10, iSpace)
+HTML_PRINT RESULTS
+CALL PRINT_HTML_IMAGE(sFrame, iSize, (iPadding + 1) * 10, iSpace)
+HTML_PRINT RESULTS
+IF iChk == 0
+	CALL PRINT_HTML_IMAGE(sWeapon, iSize, (iPadding + 2) * 10, iSpace + 4)
+	HTML_PRINT RESULTS
+ENDIF
 RETURN
 
 @PRINT_HTML_IMAGE(sImageName, iHeight, iPos, iSpace)
@@ -492,11 +495,13 @@ RETURN
 #DIM iSizeFactor
 #DIMS sHtml
 
-iSizeFactor = 100 * GETCONFIG("一行の高さ") / GETCONFIG("フォントサイズ")
-iHeight *= iSizeFactor
-iPos *= iSizeFactor
-iSpace *= iSizeFactor
-HTML_PRINT @"<shape type='space' param='{iSpace+10}'><img src='%sImageName%' height='{iHeight}' ypos='-{iPos}'>"
+; 정화도 높이기 위해 변경
+; iSizeFactor = 100 * GETCONFIG("一行の高さ") / GETCONFIG("フォントサイズ")
+iHeight = GETCONFIG("一行の高さ") * iHeight * 100 / GETCONFIG("フォントサイズ")
+iPos = GETCONFIG("一行の高さ") * iPos * 100 / GETCONFIG("フォントサイズ")
+iSpace = GETCONFIG("一行の高さ") * iSpace * 10 / GETCONFIG("フォントサイズ")
+RESULTS = <shape type='space' param='{iSpace + 10}'><img src='%sImageName%' height='{iHeight}' ypos='-{iPos}'>
+; HTML_PRINT @"<shape type='space' param='{iSpace+10}'><img src='%sImageName%' height='{iHeight}' ypos='-{iPos}'>"
 
 RETURN
 
@@ -774,6 +779,7 @@ iPadding = iSize - 3
 FOR iVar, 0, iPadding
 	HTML_PRINT "<br>"
 NEXT
-CALL PRINT_HTML_IMAGE(sWeapon, iSize, iPadding, iSpace)
+CALL PRINT_HTML_IMAGE(sWeapon, iSize, iPadding * 10, iSpace)
+HTML_PRINT RESULTS
 
 RETURN
