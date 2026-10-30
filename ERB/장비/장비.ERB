@@ -1,166 +1,20 @@
-﻿@장비이름(ARG)
-#FUNCTIONS
-SELECTCASE ARG
-	CASE -1
-		LOCALS = 없음
-	CASE 0
-		LOCALS = 무지 캡모자
-	CASE 1
-		LOCALS = 스포츠용 장갑
-	CASE 2
-		LOCALS = 핑크 스니커즈
-	CASE 3
-		LOCALS = 방수 스포츠백
-	CASE 4
-		LOCALS = 서벌 금속 배지
-	CASE 5
-		LOCALS = 테니스 헤어밴드
-	CASE 6
-		LOCALS = 교통안전 부적
-	CASE 7
-		LOCALS = 방수 디지털 시계
-	CASE 8
-		LOCALS = 블루투스 목걸이
-	CASE 9
-		LOCALS = 니트 털모자
-	CASE 10
-		LOCALS = 니트 벙어리 장갑
-	CASE 11
-		LOCALS = 어그 부츠
-	CASE 12
-		LOCALS = 방한용 크로스백
-	CASE 13
-		LOCALS = 마나슬루 펠트 배지
-	CASE 14
-		LOCALS = 헤어 슈슈
-	CASE 15
-		LOCALS = 발열팩
-	CASE 16
-		LOCALS = 가죽 손목 시계
-	CASE 17
-		LOCALS = 눈꽃 펜던트
-	CASE 18
-		LOCALS = 빅 브라더 페도라
-	CASE 19
-		LOCALS = 페로로 오븐 장갑
-	CASE 20
-		LOCALS = 핑키파카 슬리퍼
-	CASE 21
-		LOCALS = 페로로 백팩
-	CASE 22
-		LOCALS = 앵그리 아델리 원형 배지
-	CASE 23
-		LOCALS = 모모 헤어핀
-	CASE 24
-		LOCALS = 페로로의 깃털
-	CASE 25
-		LOCALS = 웨이브캣 손목시계
-	CASE 26
-		LOCALS = 니콜라이 로켓
-	CASE 27
-		LOCALS = 리본 베레모
-	CASE 28
-		LOCALS = 가죽 글러브
-	CASE 29
-		LOCALS = 엔티크 에나멜 로퍼
-	CASE 30
-		LOCALS = 감색 스쿨백
-	CASE 31
-		LOCALS = 베로니카 자수 배지
-	CASE 32
-		LOCALS = 날개 헤어핀
-	CASE 33
-		LOCALS = 십자가
-	CASE 34
-		LOCALS = 엔티크 회중 시계
-	CASE 35
-		LOCALS = 십자가 초커
-	CASE 36
-		LOCALS = 방탄 헬멧
-	CASE 37
-		LOCALS = 택티컬 글러브
-	CASE 38
-		LOCALS = 전술 부츠
-	CASE 39
-		LOCALS = 전술 란도셀
-	CASE 40
-		LOCALS = 카제야마 벨크로 패치
-	CASE 41
-		LOCALS = 다목적 헤어핀
-	CASE 42
-		LOCALS = 카모 달마
-	CASE 43
-		LOCALS = 방진 손목 시계
-	CASE 44
-		LOCALS = 도그택	
-	CASE 45
-		LOCALS = 프릴 미니 햇
-	CASE 46
-		LOCALS = 레이스 글러브
-	CASE 47
-		LOCALS = 펌프스 힐
-	CASE 48
-		LOCALS = 데빌 윙 토트백
-	CASE 49
-		LOCALS = 코코데빌 실버 배지
-	CASE 50
-		LOCALS = 박쥐 헤어핀
-	CASE 51
-		LOCALS = 저주 인형
-	CASE 52
-		LOCALS = 고딕풍 손목 시계
-	CASE 53
-		LOCALS = 펑크초커
-	CASE 54
-		LOCALS = 버킷 햇
-	CASE 55
-		LOCALS = 팔 토시
-	CASE 56
-		LOCALS = 캐주얼 스니커즈
-	CASE 57
-		LOCALS = 스트릿 백
-	CASE 58
-		LOCALS = 스트릿 배지
-	CASE 59
-		LOCALS = 캘리그라피 헤어핀
-	CASE 60
-		LOCALS = 휴대용 탈취제
-	CASE 61
-		LOCALS = 스트릿 패션 시계
-	CASE 62
-		LOCALS = 체인 목걸이
-	CASE 63
-		LOCALS = 리프 리본 페도라
-	CASE 64
-		LOCALS = 진주 털실 장갑
-	CASE 65
-		LOCALS = 방수 등산 부츠
-	CASE 66
-		LOCALS = 버터플라이 숄더백
-	CASE 67
-		LOCALS = 로렐라이 배지
-	CASE 68
-		LOCALS = 나뭇잎 헤어핀
-	CASE 69
-		LOCALS = 드림캐쳐
-	CASE 70
-		LOCALS = 로렐라이 시계
-	CASE 71
-		LOCALS = 그린리프 목걸이	
-	CASE 72
-		LOCALS = 세일러 햇
-	CASE 73
-		LOCALS = 세일링 글러브
-	CASE 74
-		LOCALS = 아쿠아 샌들
-	CASE 75
-		LOCALS = 슬링 드라이백
-	CASE 76
-		LOCALS = 하르피아 플렉시블 배지
-	CASE 77
-		LOCALS = 앵커 헤어핀
-ENDSELECT
-RETURNF LOCALS
+﻿;------------------------------------------
+; T1 ~ T3, T4 ~ T6, T7 ~ T9
+;------------------------------------------
+
+; trycall 필요, #FUNCTIONS 제거
+@장비이름(ARG, iLen = 0)
+; #FUNCTIONS
+#DIM DYNAMIC iLen
+#LOCALSSIZE 1
+
+TRYCCALLFORM 총력전장비_이름_{ARG}(iLen)
+	RETURN
+CATCH
+	RESULTS = 없음
+	RETURN
+ENDCATCH
+
 
 @장비효과(ARG)
 #FUNCTIONS
@@ -291,31 +145,31 @@ SELECTCASE ARG
 		LOCALS = 최대체력 + 180, 치명대미지 + 105, 치명타확률 + 12
 	CASE 62
 		LOCALS = 무투 + 8, 지략 + 27, 치유력 + 50
-	CASE 63
+	CASE 63 ;; -----
 		LOCALS = 무투 + 50, 치명대미지 + 100
 	CASE 64
 		LOCALS = 무투 + 44, 치명타확률 + 12, 명중률 + 22
 	CASE 65
 		LOCALS = 무투 + 38, 최대체력 + 300
-	CASE 66
+	CASE 66 ;; -----
 		LOCALS = 방위 + 43, 최대체력 + 1900
 	CASE 67
 		LOCALS = 최대체력 + 2880, 회피율 + 20
 	CASE 68
 		LOCALS = 지략 + 28, 최대체력 + 1700
-	CASE 69
+	CASE 69 ;; -----
 		LOCALS = 치명타확률 + 6, 치명저항 + 38, 치명대미지저항 + 50
 	CASE 70
 		LOCALS = 최대체력 + 220, 치명대미지 + 120, 치명타확률 + 13
 	CASE 71
 		LOCALS = 무투 + 11, 지략 + 30, 치유력 + 60
-	CASE 72
+	CASE 72 ;; <<<
 		LOCALS = 무투 + 53, 치명대미지 + 100
 	CASE 73
 		LOCALS = 무투 + 51, 치명타확률 + 15, 명중률 + 22
 	CASE 74
 		LOCALS = 무투 + 46, 최대체력 + 350
-	CASE 75
+	CASE 75 ;; <<<
 		LOCALS = 방위 + 50, 최대체력 + 2500
 	CASE 76
 		LOCALS = 최대체력 + 3300, 회피율 + 20
@@ -463,26 +317,134 @@ RETURNF LOCALS
 LOCAL = ARG % 9
 LOCALS = 
 SELECTCASE LOCAL
-	CASE 0
+	CASE 0 ; 모자
 		LOCALS = 강화시 무투, 치명대미지가 증가한다
-	CASE 1
+	CASE 1 ; 장갑
 		LOCALS = 강화시 무투, 치명타확률, 명중률이 증가한다
-	CASE 2
+	CASE 2 ; 신발
 		LOCALS = 강화시 무투, 최대체력이 증가한다
-	CASE 3
+	CASE 3 ; 가방
 		LOCALS = 강화시 방위, 최대체력이 증가한다
-	CASE 4
+	CASE 4 ; 배지
 		LOCALS = 강화시 최대체력, 회피율이 증가한다
-	CASE 5
+	CASE 5 ; 헤어핀
 		LOCALS = 강화시 지략, 최대체력, 치명타확률이 증가한다
-	CASE 6
+	CASE 6 ; 에뮬렛
 		LOCALS = 강화시 치명타확률, 치명타저항, 치명대미지저항이 증가한다
-	CASE 7
+	CASE 7 ; 손목 시계
 		LOCALS = 강화시 최대체력, 치명대미지, 치명타확률이 증가한다
-	CASE 8
+	CASE 8 ; 목걸이
 		LOCALS = 강화시 무투, 지략, 치유력이 증가한다
 ENDSELECT
 RETURNF LOCALS
+
+; 캐릭터 정보창 장비 변경 창
+@장비변경(대상, 버튼활성화)
+#DIM 대상
+#DIM 버튼활성화
+#DIMS DYNAMIC sHtml
+#DIM CONST 셀너비 = 29
+#DIMS testNames = "test name", "테스트 이름", "앵그리 아델리 원형 배지"
+#LOCALSIZE 3
+#LOCALSSIZE 1
+
+CALL SINGLE_DRAWLINE
+CALL ICPRINT(@"현재 <%ANAME(대상)%>의 장비", "L", 칼라_주의)
+CALL SINGLE_DRAWLINE
+; LOCAL:0 = 29
+; LOCAL:1 = LOCAL:0 * 3 + 2
+PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_REPEAT("-",셀너비)%|%TOSTR_REPEAT("-",셀너비)%|%TOSTR_REPEAT("-",셀너비)%|
+; 화상 설정
+IF FLAG:화상설정
+	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
+	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
+	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
+	; 이미지 추가
+	IF 대상 >= 0
+		sHtml = 
+		FOR LOCAL, 0, 3
+			IF LOCAL == 0
+				LOCALS = %TOSTR_SPACE(11)%
+			ELSE
+				LOCALS = %TOSTR_SPACE(15)%
+			ENDIF
+			; CALL PRINT_HTML_IMAGE("장비_더미", 7, 3, 4)
+			; LOCALS += @"%RESULTS%"
+			CALL 장비이름(착용장비:대상:LOCAL)
+			IF RESULTS == "없음"
+				LOCALS += @"%TOSTR_SPACE(15)%"
+			ELSE
+				CALL PRINT_HTML_IMAGE(RESULTS, 7, 3, 4)
+				LOCALS += @"%RESULTS%"
+			ENDIF
+			sHtml += @"%LOCALS%"
+		NEXT
+		HTML_PRINT sHtml
+	ENDIF
+	; PRINTL
+	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
+	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
+ENDIF
+; PRINTFORML %TOSTR_REPEAT("H", 셀너비 * 3 + 7)%
+; PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_REPEAT("-", 8)%H%TOSTR_SPACE(LOCAL - 18)%H%TOSTR_REPEAT("-", 8)%|%TOSTR_REPEAT("-", 8)%H%TOSTR_SPACE(LOCAL - 18)%H%TOSTR_REPEAT("-", 8)%|%TOSTR_REPEAT("-", 8)%H%TOSTR_SPACE(LOCAL - 18)%H%TOSTR_REPEAT("-", 8)%|
+PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
+; 버튼 줄
+LOCAL:1 = 셀너비 - 4
+PRINTFORM %TOSTR_SPACE(2)%
+LOCALS =
+LOCALS += @" | "
+PRINTFORM %LOCALS%
+; 스롯 버튼, 90, 91, 92
+FOR LOCAL, 0, 3
+	RESULTS = 
+	CALL 장비이름(착용장비:대상:LOCAL)
+	IF 버튼활성화
+		PRINTBUTTON @"[%ALIGN_TEXT(RESULTS, LOCAL:1, "CENTER")%]", LOCAL + 90
+	ELSE
+		PRINTFORM [%ALIGN_TEXT(RESULTS, LOCAL:1, "CENTER")%]
+	ENDIF
+	PRINTFORM %LOCALS%
+NEXT
+PRINTL
+; 화상 설정 추가
+IF !FLAG:화상설정
+	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
+ENDIF
+PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_REPEAT("-",셀너비)%|%TOSTR_REPEAT("-",셀너비)%|%TOSTR_REPEAT("-",셀너비)%|
+PRINTL
+IF 대상 < 0
+	RETURN
+ENDIF
+; 스탯 합계 출력
+CALL 총력전_장비_스탯_출력_캐릭터(대상)
+; 각각 장비 스탯 출력, 칼라_주석 #8090A0 칼라_명회색 #777777 칼라_선택불가 #606060 칼라_회색 #404040
+SETCOLOR 칼라_선택불가
+FOR LOCAL, 0, 3
+	CALL 장비이름(착용장비:대상:LOCAL, 16)
+	SIF RESULTS == "없음"
+		CONTINUE
+	; 장비 이름
+	PRINTFORM %ALIGN_TEXT(RESULTS, 16, "RIGHT")%:
+	; 장비 스탯
+	CALL 총력전_장비_스탯_출력_하나(착용장비:대상:LOCAL, 100)
+	FOR LOCAL:1, 0, RESULT
+		IF LOCAL:1 != 0
+			PRINTFORM %TOSTR_SPACE(17)%
+		ENDIF
+		PRINTFORML %RESULTS:(LOCAL:1)%
+	NEXT
+NEXT
+RESETCOLOR
+
+; 보유중인 장비 + 장착 버튼
+@장비변경_보유(대상, 선택슬롯)
+#DIM 대상
+#DIM 선택슬롯
+
+; 손목시계
+
+; 장착 가능한 장비 버튼, 장비번호 + 100
+; 모자 [버킷햇] x1 스탯
 
 @장비변경슬롯선택(대상)
 #DIM 대상
@@ -566,7 +528,8 @@ FOR COUNT, 0, 81
 		ENDIF
 		CONTINUE
 	ENDIF
-	PRINTBUTTON @"[%장비이름(COUNT), 20, LEFT%]",COUNT
+	CALL 장비이름(COUNT)
+	PRINTBUTTON @"[%RESULTS, 20, LEFT%]",COUNT
 	PRINT    보유수: 
 	PRINTFORML {장비:COUNT}
 NEXT
@@ -599,7 +562,8 @@ FOR COUNT, 0, 81
 		ENDIF
 		CONTINUE
 	ENDIF
-	PRINTBUTTON @"[%장비이름(COUNT), 20, LEFT%]",COUNT
+	CALL 장비이름(COUNT)
+	PRINTBUTTON @"[%RESULTS, 20, LEFT%]",COUNT
 	PRINT    보유수: 
 	PRINTFORML {장비:COUNT}
 NEXT
@@ -632,7 +596,8 @@ FOR COUNT, 0, 81
 		ENDIF
 		CONTINUE
 	ENDIF
-	PRINTBUTTON @"[%장비이름(COUNT), 20, LEFT%]",COUNT
+	CALL 장비이름(COUNT)
+	PRINTBUTTON @"[%RESULTS, 20, LEFT%]",COUNT
 	PRINT    보유수: 
 	PRINTFORML {장비:COUNT}
 NEXT
@@ -699,7 +664,8 @@ LOCALS = "   |                   |                   |                   |"
 IF FLAG:이벤트화상
 	FOR LOCAL, 0, 3
 		iYpos = -(iEnter_Con * 100)
-		sHtml =  <p align='left'>%SUBSTRING(LOCALS, 1, 4 + (20 * LOCAL))% <img src='%장비이름(착용장비:대상:LOCAL)%' height='800' ypos='{iYpos-150}'>  %SUBSTRING(LOCALS, 24 + (20 * LOCAL), STRLENS(LOCALS))%
+		CALL 장비이름(착용장비:대상:LOCAL)
+		sHtml =  <p align='left'>%SUBSTRING(LOCALS, 1, 4 + (20 * LOCAL))% <img src='%RESULTS%' height='800' ypos='{iYpos-150}'>  %SUBSTRING(LOCALS, 24 + (20 * LOCAL), STRLENS(LOCALS))%
 		sHtml = %REPLACE(sHtml, "\"", "")%
 		HTML_PRINT sHtml
 		iEnter_Con++
@@ -711,7 +677,8 @@ NEXT
 PRINTL    |-------------------|-------------------|-------------------|
 PRINTFORM %TOSTR_SPACE(3)%|
 FOR LOCAL, 0, 3
-	LOCALS = %장비이름(착용장비:대상:LOCAL)%
+	CALL 장비이름(착용장비:대상:LOCAL)
+	LOCALS = %RESULTS%
 	SIF 착용장비:대상:LOCAL == -1
 	LOCALS = 없음
 	PRINTBUTTON @"[%SUBSTRING(LOCALS, 0, 16), 17, LEFT%]",LOCAL
@@ -746,8 +713,184 @@ PRINTFORM 치명대미지저항: + {총력전장비스탯상승:대상:8}
 RESETCOLOR
 PRINTFORML 
 
+; 장비 스탯, RESULT 에 줄수 추가, 사용 예시:
+; [장비 이름] x2 무투:10  공격력:10  치명타 대미지:10
+;                총력전 체력:10
+@총력전_장비_스탯_출력_하나(장비종류, 너비 = 100)
+#DIM 장비종류
+#DIM DYNAMIC 너비
+#DIM DYNAMIC 스탯합, 24
+#DIM DYNAMIC Line_Num
 
-@총력전장비착용(대상,장비종류,슬롯,탈착)
+VARSET RESULT, 0
+VARSET RESULTS, ""
+
+TRYCCALLFORM 총력전장비_스탯_{장비종류}
+	스탯합:추가스탯_최대체력 = RESULT:추가스탯_최대체력
+	스탯합:추가스탯_최대기력 = RESULT:추가스탯_최대기력
+	스탯합:추가스탯_최대정신력 = RESULT:추가스탯_최대정신력
+	스탯합:추가스탯_무투 = RESULT:추가스탯_무투
+	스탯합:추가스탯_방위 = RESULT:추가스탯_방위
+	스탯합:추가스탯_지략 = RESULT:추가스탯_지략
+	스탯합:추가스탯_정치 = RESULT:추가스탯_정치
+	스탯합:추가스탯_신비 = RESULT:추가스탯_신비
+	스탯합:추가스탯_가창 = RESULT:추가스탯_가창
+	스탯합:추가스탯_요리 = RESULT:추가스탯_요리
+	; 총력전 스탯
+	스탯합:추가스탯_총력전체력 = RESULT:추가스탯_총력전체력
+	스탯합:추가스탯_공격력 = RESULT:추가스탯_공격력
+	스탯합:추가스탯_방어력 = RESULT:추가스탯_방어력
+	스탯합:추가스탯_명중률 = RESULT:추가스탯_명중률
+	스탯합:추가스탯_회피율 = RESULT:추가스탯_회피율
+	스탯합:추가스탯_치유력 = RESULT:추가스탯_치유력
+	스탯합:추가스탯_치명타 = RESULT:추가스탯_치명타
+	스탯합:추가스탯_치명타저항 = RESULT:추가스탯_치명타저항
+	스탯합:추가스탯_치명대미지 = RESULT:추가스탯_치명대미지
+	스탯합:추가스탯_치명대미지저항 = RESULT:추가스탯_치명대미지저항
+	스탯합:추가스탯_군중제어한계 = RESULT:추가스탯_군중제어한계
+	스탯합:추가스탯_군중제어강화 = RESULT:추가스탯_군중제어강화
+	스탯합:추가스탯_군중제어저항 = RESULT:추가스탯_군중제어저항
+CATCH
+ENDCATCH
+CALL 총력전_장비_스탯_출력_텍스트(스탯합, 너비)
+RETURN RESULT
+
+
+; 캐릭터가 장착중인 장비 스탯 출력 (합)
+@총력전_장비_스탯_출력_캐릭터(대상) ; 너비
+#DIM 대상
+; #DIM 너비
+#DIM DYNAMIC 스탯합, 24
+#DIM DYNAMIC Line_Num
+#LOCALSIZE 1
+
+FOR LOCAL, 0, 3
+	; 착용장비:대상:슬롯
+	IF 착용장비:대상:LOCAL >= 0
+		; RESULT 에 스탯 받기
+		TRYCCALLFORM 총력전장비_스탯_{착용장비:대상:LOCAL}
+			스탯합:추가스탯_최대체력 += RESULT:추가스탯_최대체력
+			스탯합:추가스탯_최대기력 += RESULT:추가스탯_최대기력
+			스탯합:추가스탯_최대정신력 += RESULT:추가스탯_최대정신력
+			스탯합:추가스탯_무투 += RESULT:추가스탯_무투
+			스탯합:추가스탯_방위 += RESULT:추가스탯_방위
+			스탯합:추가스탯_지략 += RESULT:추가스탯_지략
+			스탯합:추가스탯_정치 += RESULT:추가스탯_정치
+			스탯합:추가스탯_신비 += RESULT:추가스탯_신비
+			스탯합:추가스탯_가창 += RESULT:추가스탯_가창
+			스탯합:추가스탯_요리 += RESULT:추가스탯_요리
+			; 총력전 스탯
+			스탯합:추가스탯_총력전체력 += RESULT:추가스탯_총력전체력
+			스탯합:추가스탯_공격력 += RESULT:추가스탯_공격력
+			스탯합:추가스탯_방어력 += RESULT:추가스탯_방어력
+			스탯합:추가스탯_명중률 += RESULT:추가스탯_명중률
+			스탯합:추가스탯_회피율 += RESULT:추가스탯_회피율
+			스탯합:추가스탯_치유력 += RESULT:추가스탯_치유력
+			스탯합:추가스탯_치명타 += RESULT:추가스탯_치명타
+			스탯합:추가스탯_치명타저항 += RESULT:추가스탯_치명타저항
+			스탯합:추가스탯_치명대미지 += RESULT:추가스탯_치명대미지
+			스탯합:추가스탯_치명대미지저항 += RESULT:추가스탯_치명대미지저항
+			스탯합:추가스탯_군중제어한계 += RESULT:추가스탯_군중제어한계
+			스탯합:추가스탯_군중제어강화 += RESULT:추가스탯_군중제어강화
+			스탯합:추가스탯_군중제어저항 += RESULT:추가스탯_군중제어저항
+		CATCH
+		ENDCATCH
+	ENDIF
+NEXT
+CALL 총력전_장비_스탯_출력_텍스트(스탯합, 100)
+FOR LOCAL, 0, RESULT
+	IF LOCAL == 0
+			; 123456789_123456789_1
+			;    베로니카 배지:
+		PRINT        착용 효과:
+	ELSE
+		PRINTFORM %TOSTR_SPACE(17)%
+	ENDIF
+	PRINTFORML %RESULTS:LOCAL%
+NEXT
+
+; "스탯합"으로 받은 스탯 출력, RESULT 에 줄수 출력
+@총력전_장비_스탯_출력_텍스트(스탯합, 너비)
+#DIM REF 스탯합, 0
+#DIM 너비
+#DIM DYNAMIC Line_Num
+; #DIM DYNAMIC 스탯합_수정, 24 ; 오류 방지?
+#LOCALSIZE 1
+#LOCALSSIZE 1
+
+VARSET RESULT, 0
+VARSET RESULTS, ""
+
+; VARSIZE 스탯합
+; PRINTFORM 스탯합 사이즈: {RESULT}
+VARSIZE 스탯합
+IF RESULT < 24
+	; 아님 스탯합_수정 으로 고쳐버리기?
+	THROW 받은 배열 크기가 맞지 않습니다 = {VARSIZE(스탯합)}
+ENDIF
+
+FOR LOCAL, 1, 24 ; 추가스탯_군중제어저항 + 1
+	IF 스탯합:LOCAL > 0
+		SELECTCASE LOCAL
+			CASE 추가스탯_최대체력
+				LOCALS = 체력: 
+			CASE 추가스탯_최대기력
+				LOCALS = 기력: 
+			CASE 추가스탯_최대정신력
+				LOCALS = 정신력: 
+			CASE 추가스탯_무투
+				LOCALS = 무투: 
+			CASE 추가스탯_방위
+				LOCALS = 방위: 
+			CASE 추가스탯_지략
+				LOCALS = 지략: 
+			CASE 추가스탯_정치
+				LOCALS = 정치: 
+			CASE 추가스탯_신비
+				LOCALS = 신비: 
+			CASE 추가스탯_가창
+				LOCALS = 가창: 
+			CASE 추가스탯_요리
+				LOCALS = 요리: 
+			CASE 추가스탯_총력전체력
+				LOCALS = 총력전HP: 
+			CASE 추가스탯_공격력
+				LOCALS = 공격력: 
+			CASE 추가스탯_방어력
+				LOCALS = 방어력: 
+			CASE 추가스탯_명중률
+				LOCALS = 명중률: 
+			CASE 추가스탯_회피율
+				LOCALS = 회피율: 
+			CASE 추가스탯_치유력
+				LOCALS = 치유력: 
+			CASE 추가스탯_치명타
+				LOCALS = 치명: 
+			CASE 추가스탯_치명타저항
+				LOCALS = 치명 저항: 
+			CASE 추가스탯_치명대미지
+				LOCALS = 치댐: 
+			CASE 추가스탯_치명대미지저항
+				LOCALS = 치댐 저항: 
+			CASE 추가스탯_군중제어한계
+				LOCALS = CC: 
+			CASE 추가스탯_군중제어강화
+				LOCALS = CC 강화: 
+			CASE 추가스탯_군중제어저항
+				LOCALS = CC 저항: 
+		ENDSELECT
+		LOCALS += @"{스탯합:LOCAL}"
+		; 다음 줄로 넘어가야될지 확인
+		STRLENFORM %RESULTS:Line_Num% %LOCALS%
+		IF RESULT > 너비
+			Line_Num ++
+		ENDIF
+		RESULTS:Line_Num += @" %LOCALS%"
+	ENDIF
+NEXT
+RETURN Line_Num + 1
+
+@총력전_장비_착용(대상,장비종류,슬롯,탈착)
 #DIM 대상
 #DIM 탈착
 #DIM 슬롯
@@ -755,18 +898,52 @@ PRINTFORML
 
 IF 탈착 == 1
 	IF 착용장비:대상:슬롯 >= 0
+		; 장착중인 장비 탈착
 		장비:(착용장비:대상:슬롯) ++
-		CALLFORM 총력전장비장착_{착용장비:대상:슬롯}(대상,-탈착)
+		CALL _총력전_장비_스탯(대상, 착용장비:대상:슬롯, -1)
 	ENDIF
+	; 장비 장착
 	착용장비:대상:슬롯 = 장비종류
-	CALLFORM 총력전장비장착_{장비종류}(대상,탈착)
+	CALL _총력전_장비_스탯(대상, 장비종류, 1)
 	장비:장비종류 --
 ELSEIF 탈착 == -1
+	; 장비 탈착
 	착용장비:대상:슬롯 = -1
-	CALLFORM 총력전장비장착_{장비종류}(대상,탈착)
+	CALL _총력전_장비_스탯(대상, 착용장비:대상:슬롯, -1)
 	장비:장비종류 ++
+ELSE
+	; 추가 에러 메세지?
+	RETURN
 ENDIF
-RETURN 
+
+; 스탯 증가/감소
+; @총력전_장비_착용 으로만 작동
+@_총력전_장비_스탯(대상, 장비종류, 탈착)
+#DIM 대상
+#DIM 탈착
+#DIM 슬롯
+#DIM 장비종류
+
+; RESULT 에 스탯 받기
+TRYCCALLFORM 총력전장비_스탯_{장비종류}
+CATCH
+	RETURN 0
+ENDCATCH
+
+; 스탯 변경, 체력 등은 나중에?
+; MAXBASE:대상:체력 += RESULT:추가스탯_최대체력 * 탈착
+; MAXBASE:대상:기력 += RESULT:추가스탯_최대기력 * 탈착
+; MAXBASE:대상:정신력 += RESULT:추가스탯_최대정신력 * 탈착
+ABL:대상:무투 += RESULT:추가스탯_무투 * 탈착
+ABL:대상:방위 += RESULT:추가스탯_방위 * 탈착
+ABL:대상:지략 += RESULT:추가스탯_지략 * 탈착
+ABL:대상:정치 += RESULT:추가스탯_정치 * 탈착
+ABL:대상:신비 += RESULT:추가스탯_신비 * 탈착
+ABL:대상:가창 += RESULT:추가스탯_가창 * 탈착
+ABL:대상:요리 += RESULT:추가스탯_요리 * 탈착
+
+RETURN 1
+
 
 @총력전장비이미지(총력전장비)
 #DIMS sHtml
@@ -775,7 +952,8 @@ RETURN
 
 IF FLAG:이벤트화상
 	sHtml =  <p align='left'><nobr>
-	sHtml += @"<shape type='space' param='{iSpace}'><img src='%장비이름(총력전장비)%' height='800' ypos='0'>"
+	CALL 장비이름(총력전장비)
+	sHtml += @"<shape type='space' param='{iSpace}'><img src='%RESULTS%' height='800' ypos='0'>"
 	HTML_PRINT sHtml
 ENDIF
 SELECTCASE 총력전장비
@@ -800,7 +978,8 @@ SELECTCASE 총력전장비
 ENDSELECT
 PRINTFORML %TOSTR_SPACE(18)%[%장비티어(총력전장비)%] [%장비슬롯(총력전장비)%] [%장비타입(총력전장비)%]
 RESETCOLOR
-PRINTFORML %TOSTR_SPACE(18)%[%장비이름(총력전장비)%]
+CALL 장비이름(총력전장비)
+PRINTFORML %TOSTR_SPACE(18)%[%RESULTS%]
 SETCOLOR 칼라_주석
 PRINTFORML %TOSTR_SPACE(18)%%타입설명(총력전장비)%
 RESETCOLOR
