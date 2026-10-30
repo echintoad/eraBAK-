@@ -344,7 +344,6 @@ RETURNF LOCALS
 #DIM 버튼활성화
 #DIMS DYNAMIC sHtml
 #DIM CONST 셀너비 = 29
-#DIMS testNames = "test name", "테스트 이름", "앵그리 아델리 원형 배지"
 #LOCALSIZE 3
 #LOCALSSIZE 1
 
@@ -353,7 +352,9 @@ CALL ICPRINT(@"현재 <%ANAME(대상)%>의 장비", "L", 칼라_주의)
 CALL SINGLE_DRAWLINE
 ; LOCAL:0 = 29
 ; LOCAL:1 = LOCAL:0 * 3 + 2
-PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_REPEAT("-",셀너비)%|%TOSTR_REPEAT("-",셀너비)%|%TOSTR_REPEAT("-",셀너비)%|
+PRINTFORM %TOSTR_SPACE(3)%|%TOSTR_REPEAT("-",셀너비 / 2 - 5)%%ALIGN_TEXT("1 슬롯", 11, "CENTER")%%TOSTR_REPEAT("-",셀너비 / 2 - 5)%|
+PRINTFORM %TOSTR_REPEAT("-",셀너비 / 2 - 5)%%ALIGN_TEXT("2 슬롯", 11, "CENTER")%%TOSTR_REPEAT("-",셀너비 / 2 - 5)%|
+PRINTFORML %TOSTR_REPEAT("-",셀너비 / 2 - 5)%%ALIGN_TEXT("3 슬롯", 11, "CENTER")%%TOSTR_REPEAT("-",셀너비 / 2 - 5)%|
 ; 화상 설정
 IF FLAG:화상설정
 	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
@@ -440,8 +441,62 @@ RESETCOLOR
 @장비변경_보유(대상, 선택슬롯)
 #DIM 대상
 #DIM 선택슬롯
+#DIM DYNAMIC 타입
+#DIM DYNAMIC 장비번호
+#DIM DYNAMIC bFirstOfType
+#LOCALSIZE 2
+#LOCALSSIZE 1
 
-; 손목시계
+; 타입 장비이름 수 스탯
+; %장비타입(10)%%장비이름(20)%%장비수(5)%%스탯(100)%
+타입 = 선택슬롯 * 3
+FOR LOCAL, 0, 3
+	bFirstOfType = 1
+	FOR 장비번호, 타입, 81
+		; 없으면
+		IF 장비:장비번호 <= 0
+			장비번호 += 8 ; 9 - 1
+			CONTINUE
+		ENDIF
+		; 장비 있으면 타입 프린트
+		; 1234567890
+		;  손목시계
+		SETCOLOR 칼라_주석
+		IF bFirstOfType == 1
+			PRINTFORM %ALIGN_TEXT(장비타입(타입), 9, "RIGHT")% 
+			bFirstOfType = 0
+		ELSE
+			PRINTFORM %TOSTR_SPACE(10)%
+		ENDIF
+		RESETCOLOR
+		; 장비 버튼, 장비번호 + 100
+		CALL 장비이름(장비번호, 18)
+		IF 착용장비:대상:선택슬롯 == 장비번호
+			SETCOLOR 칼라_선택불가
+			PRINTFORM [%ALIGN_TEXT(RESULTS, 20, "RIGHT")%]
+			RESETCOLOR
+		ELSE
+			PRINTBUTTON @"[%ALIGN_TEXT(RESULTS, 20, "RIGHT")%]", 장비번호 + 100
+		ENDIF
+		; 장비 수
+		IF 장비:장비번호 > 999
+			PRINT 많음 
+		ELSE
+			LOCALS = x{장비:장비번호}
+			PRINTFORM %ALIGN_TEXT(LOCALS, 4, "RIGHT")% 
+		ENDIF
+		; 스탯
+		CALL 총력전_장비_스탯_출력_하나(장비번호, 100)
+		FOR LOCAL:1, 0, RESULT
+			IF LOCAL:1 != 0
+				PRINTFORM %TOSTR_SPACE(35)%
+			ENDIF
+			PRINTFORML %RESULTS:(LOCAL:1)%
+		NEXT
+		장비번호 += 8 ; 9 - 1
+	NEXT
+	타입 += 1
+NEXT
 
 ; 장착 가능한 장비 버튼, 장비번호 + 100
 ; 모자 [버킷햇] x1 스탯
@@ -646,78 +701,78 @@ ELSEIF RESULT == 999
 ENDIF
 @착용장비이미지(대상)
 #DIM 대상
-#DIMS sHtml
-#DIM iSpace
-#DIM 총력전장비
-#DIM iYpos
-#DIM iEnter_Con
-iEnter_Con = -1
-PRINTL    |-----------------------------------------------------------|
-PRINTFORM %TOSTR_SPACE(3)%|
-FOR LOCAL, 0, 3
-	PRINTBUTTON @"[{LOCAL+1}%" 슬롯", 16, LEFT%]",LOCAL
-	PRINT |
-NEXT
-PRINTL
-PRINTL    |-------------------|-------------------|-------------------|
-LOCALS = "   |                   |                   |                   |"
-IF FLAG:이벤트화상
-	FOR LOCAL, 0, 3
-		iYpos = -(iEnter_Con * 100)
-		CALL 장비이름(착용장비:대상:LOCAL)
-		sHtml =  <p align='left'>%SUBSTRING(LOCALS, 1, 4 + (20 * LOCAL))% <img src='%RESULTS%' height='800' ypos='{iYpos-150}'>  %SUBSTRING(LOCALS, 24 + (20 * LOCAL), STRLENS(LOCALS))%
-		sHtml = %REPLACE(sHtml, "\"", "")%
-		HTML_PRINT sHtml
-		iEnter_Con++
-	NEXT
-ENDIF
-FOR COUNT, 0, 4
-	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(19)%|%TOSTR_SPACE(19)%|%TOSTR_SPACE(19)%|
-NEXT
-PRINTL    |-------------------|-------------------|-------------------|
-PRINTFORM %TOSTR_SPACE(3)%|
-FOR LOCAL, 0, 3
-	CALL 장비이름(착용장비:대상:LOCAL)
-	LOCALS = %RESULTS%
-	SIF 착용장비:대상:LOCAL == -1
-	LOCALS = 없음
-	PRINTBUTTON @"[%SUBSTRING(LOCALS, 0, 16), 17, LEFT%]",LOCAL
-	PRINT |
-NEXT
-PRINTL
-PRINTL    |-----------------------------------------------------------|
-PRINT   착용 효과: 
-SETCOLOR 칼라_파파랑
-SIF 총력전장비스탯상승:대상:0 > 0
-PRINTFORM 무투: + {총력전장비스탯상승:대상:0}  
-SIF 총력전장비스탯상승:대상:4 > 0
-PRINTFORM 방위: + {총력전장비스탯상승:대상:4}  
-SIF (총력전장비스탯상승:대상:9) + (총력전장비스탯상승:대상:10) > 0
-PRINTFORM 지략: + {(총력전장비스탯상승:대상:9) + (총력전장비스탯상승:대상:10)}  
-SIF 총력전장비스탯상승:대상:3 > 0
-PRINTFORM 최대체력: + {총력전장비스탯상승:대상:3}  
-SIF 총력전장비스탯상승:대상:1 > 0
-PRINTFORM 치명대미지: + {총력전장비스탯상승:대상:1}  
-SIF 총력전장비스탯상승:대상:2 > 0
-PRINTFORM 치명타확률: + {총력전장비스탯상승:대상:2}  
-SIF 총력전장비스탯상승:대상:총력전장비명중률 > 0
-	PRINTFORM 명중률: + {총력전장비스탯상승:대상:총력전장비명중률}  
-SIF 총력전장비스탯상승:대상:5 > 0
-PRINTFORM 회피: + {총력전장비스탯상승:대상:5}  
-SIF 총력전장비스탯상승:대상:6 > 0
-PRINTFORM 치유력: + {총력전장비스탯상승:대상:6}  
-SIF 총력전장비스탯상승:대상:7 > 0
-PRINTFORM 치명저항: + {총력전장비스탯상승:대상:7}  
-SIF 총력전장비스탯상승:대상:8 > 0
-PRINTFORM 치명대미지저항: + {총력전장비스탯상승:대상:8}  
-RESETCOLOR
-PRINTFORML 
+; #DIMS sHtml
+; #DIM iSpace
+; #DIM 총력전장비
+; #DIM iYpos
+; #DIM iEnter_Con
+; iEnter_Con = -1
+; PRINTL    |-----------------------------------------------------------|
+; PRINTFORM %TOSTR_SPACE(3)%|
+; FOR LOCAL, 0, 3
+; 	PRINTBUTTON @"[{LOCAL+1}%" 슬롯", 16, LEFT%]",LOCAL
+; 	PRINT |
+; NEXT
+; PRINTL
+; PRINTL    |-------------------|-------------------|-------------------|
+; LOCALS = "   |                   |                   |                   |"
+; IF FLAG:이벤트화상
+; 	FOR LOCAL, 0, 3
+; 		iYpos = -(iEnter_Con * 100)
+; 		CALL 장비이름(착용장비:대상:LOCAL)
+; 		sHtml =  <p align='left'>%SUBSTRING(LOCALS, 1, 4 + (20 * LOCAL))% <img src='%RESULTS%' height='800' ypos='{iYpos-150}'>  %SUBSTRING(LOCALS, 24 + (20 * LOCAL), STRLENS(LOCALS))%
+; 		sHtml = %REPLACE(sHtml, "\"", "")%
+; 		HTML_PRINT sHtml
+; 		iEnter_Con++
+; 	NEXT
+; ENDIF
+; FOR COUNT, 0, 4
+; 	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(19)%|%TOSTR_SPACE(19)%|%TOSTR_SPACE(19)%|
+; NEXT
+; PRINTL    |-------------------|-------------------|-------------------|
+; PRINTFORM %TOSTR_SPACE(3)%|
+; FOR LOCAL, 0, 3
+; 	CALL 장비이름(착용장비:대상:LOCAL)
+; 	LOCALS = %RESULTS%
+; 	SIF 착용장비:대상:LOCAL == -1
+; 	LOCALS = 없음
+; 	PRINTBUTTON @"[%SUBSTRING(LOCALS, 0, 16), 17, LEFT%]",LOCAL
+; 	PRINT |
+; NEXT
+; PRINTL
+; PRINTL    |-----------------------------------------------------------|
+; PRINT   착용 효과: 
+; SETCOLOR 칼라_파파랑
+; SIF 총력전장비스탯상승:대상:0 > 0
+; PRINTFORM 무투: + {총력전장비스탯상승:대상:0}  
+; SIF 총력전장비스탯상승:대상:4 > 0
+; PRINTFORM 방위: + {총력전장비스탯상승:대상:4}  
+; SIF (총력전장비스탯상승:대상:9) + (총력전장비스탯상승:대상:10) > 0
+; PRINTFORM 지략: + {(총력전장비스탯상승:대상:9) + (총력전장비스탯상승:대상:10)}  
+; SIF 총력전장비스탯상승:대상:3 > 0
+; PRINTFORM 최대체력: + {총력전장비스탯상승:대상:3}  
+; SIF 총력전장비스탯상승:대상:1 > 0
+; PRINTFORM 치명대미지: + {총력전장비스탯상승:대상:1}  
+; SIF 총력전장비스탯상승:대상:2 > 0
+; PRINTFORM 치명타확률: + {총력전장비스탯상승:대상:2}  
+; SIF 총력전장비스탯상승:대상:총력전장비명중률 > 0
+; 	PRINTFORM 명중률: + {총력전장비스탯상승:대상:총력전장비명중률}  
+; SIF 총력전장비스탯상승:대상:5 > 0
+; PRINTFORM 회피: + {총력전장비스탯상승:대상:5}  
+; SIF 총력전장비스탯상승:대상:6 > 0
+; PRINTFORM 치유력: + {총력전장비스탯상승:대상:6}  
+; SIF 총력전장비스탯상승:대상:7 > 0
+; PRINTFORM 치명저항: + {총력전장비스탯상승:대상:7}  
+; SIF 총력전장비스탯상승:대상:8 > 0
+; PRINTFORM 치명대미지저항: + {총력전장비스탯상승:대상:8}  
+; RESETCOLOR
+; PRINTFORML 
 
 ; 장비 스탯, RESULT 에 줄수 추가, 사용 예시:
 ; [장비 이름] x2 무투:10  공격력:10  치명타 대미지:10
 ;                총력전 체력:10
-@총력전_장비_스탯_출력_하나(장비종류, 너비 = 100)
-#DIM 장비종류
+@총력전_장비_스탯_출력_하나(장비번호, 너비 = 100)
+#DIM 장비번호
 #DIM DYNAMIC 너비
 #DIM DYNAMIC 스탯합, 24
 #DIM DYNAMIC Line_Num
@@ -725,7 +780,7 @@ PRINTFORML
 VARSET RESULT, 0
 VARSET RESULTS, ""
 
-TRYCCALLFORM 총력전장비_스탯_{장비종류}
+TRYCCALLFORM 총력전장비_스탯_{장비번호}
 	스탯합:추가스탯_최대체력 = RESULT:추가스탯_최대체력
 	스탯합:추가스탯_최대기력 = RESULT:추가스탯_최대기력
 	스탯합:추가스탯_최대정신력 = RESULT:추가스탯_최대정신력
@@ -890,27 +945,27 @@ FOR LOCAL, 1, 24 ; 추가스탯_군중제어저항 + 1
 NEXT
 RETURN Line_Num + 1
 
-@총력전_장비_착용(대상,장비종류,슬롯,탈착)
+@총력전_장비_착용(대상,장비번호,슬롯,탈착)
 #DIM 대상
 #DIM 탈착
 #DIM 슬롯
-#DIM 장비종류
+#DIM 장비번호
 
 IF 탈착 == 1
 	IF 착용장비:대상:슬롯 >= 0
 		; 장착중인 장비 탈착
-		장비:(착용장비:대상:슬롯) ++
 		CALL _총력전_장비_스탯(대상, 착용장비:대상:슬롯, -1)
+		장비:(착용장비:대상:슬롯) ++
 	ENDIF
 	; 장비 장착
-	착용장비:대상:슬롯 = 장비종류
-	CALL _총력전_장비_스탯(대상, 장비종류, 1)
-	장비:장비종류 --
+	CALL _총력전_장비_스탯(대상, 장비번호, 1)
+	착용장비:대상:슬롯 = 장비번호
+	장비:장비번호 --
 ELSEIF 탈착 == -1
 	; 장비 탈착
-	착용장비:대상:슬롯 = -1
 	CALL _총력전_장비_스탯(대상, 착용장비:대상:슬롯, -1)
-	장비:장비종류 ++
+	착용장비:대상:슬롯 = -1
+	장비:장비번호 ++
 ELSE
 	; 추가 에러 메세지?
 	RETURN
@@ -918,14 +973,14 @@ ENDIF
 
 ; 스탯 증가/감소
 ; @총력전_장비_착용 으로만 작동
-@_총력전_장비_스탯(대상, 장비종류, 탈착)
+@_총력전_장비_스탯(대상, 장비번호, 탈착)
 #DIM 대상
 #DIM 탈착
 #DIM 슬롯
-#DIM 장비종류
+#DIM 장비번호
 
 ; RESULT 에 스탯 받기
-TRYCCALLFORM 총력전장비_스탯_{장비종류}
+TRYCCALLFORM 총력전장비_스탯_{장비번호}
 CATCH
 	RETURN 0
 ENDCATCH

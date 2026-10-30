@@ -88,6 +88,43 @@ ELSEIF FLAG:능력표시모드 == 1
 		CLEARLINE LINECOUNT - FIRST_LINE
 		RESTART
 	ENDIF
+ELSEIF FLAG:능력표시모드 == 4
+	;「장비 설정」전용의 입력 처리
+	IF RESULT == 90
+		IF 장비_선택타입 == 0
+			장비_선택타입 = -1
+		ELSE
+			장비_선택타입 = 0
+		ENDIF
+		CLEARLINE LINECOUNT - FIRST_LINE
+		RESTART
+	ELSEIF RESULT == 91
+		IF 장비_선택타입 == 1
+			장비_선택타입 = -1
+		ELSE
+			장비_선택타입 = 1
+		ENDIF
+		CLEARLINE LINECOUNT - FIRST_LINE
+		RESTART
+	ELSEIF RESULT == 92
+		IF 장비_선택타입 == 2
+			장비_선택타입 = -1
+		ELSE
+			장비_선택타입 = 2
+		ENDIF
+		CLEARLINE LINECOUNT - FIRST_LINE
+		RESTART
+	ELSEIF RESULT == 99
+		; 장착 해제
+		CALL 총력전_장비_착용(대상, 착용장비:대상:장비_선택타입, 장비_선택타입, -1)
+		CLEARLINE LINECOUNT - FIRST_LINE
+		RESTART
+	ELSEIF RESULT >= 100 && GROUPMATCH(CFLAG:MASTER:소속, CFLAG:대상:소속, CFLAG:대상:포로처)
+		; 장비 변경 - 100
+		CALL 총력전_장비_착용(대상, RESULT - 100, 장비_선택타입, 1)
+		CLEARLINE LINECOUNT - FIRST_LINE
+		RESTART
+	ENDIF
 ELSEIF FLAG:능력표시모드 == 5
 	;「무기 설정」전용의 입력 처리
 	IF RESULT == 99
@@ -249,6 +286,16 @@ ELSEIF FLAG:능력표시모드 == 3
 	CALL SHOW_PREGNANT_RECORD(ARG:0)
 ELSEIF FLAG:능력표시모드 == 4 ; 장비
 	CALL 장비변경(ARG:0, GROUPMATCH(CFLAG:MASTER:소속, CFLAG:(ARG:0):소속, CFLAG:(ARG:0):포로처))
+	; 장비 변경 버튼
+	IF 장비_선택타입 > -1 && GROUPMATCH(CFLAG:MASTER:소속, CFLAG:(ARG:0):소속, CFLAG:(ARG:0):포로처)
+		CALL SINGLE_DRAWLINE
+		CALL 장비변경_보유(ARG:0, 장비_선택타입)
+		IF 착용장비:(ARG:0):장비_선택타입 >= 0
+			PRINTFORM %TOSTR_SPACE(10)%
+			PRINTBUTTON "[ 장비 해제 ]", 99
+			PRINTL 
+		ENDIF
+	ENDIF
 ELSEIF FLAG:능력표시모드 == 5
 	; 버튼 활성화 확인
 	CALL SHOP_LIFE_CHECKCHARA54(ARG:0)
