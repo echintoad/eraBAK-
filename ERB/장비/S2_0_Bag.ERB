@@ -66,7 +66,11 @@ RESULT:추가스탯_방어력 = 28
 ; T6
 @총력전장비_이름_48(iLen = 0)
 #DIM DYNAMIC iLen
-RESULTS = 데빌 윙 토트백
+IF iLen > 0 && iLen < 14
+	RESULTS = 데빌 백
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 데빌 윙 토트백
+ENDIF
 
 @총력전장비_스탯_48
 ; #DIM 대상

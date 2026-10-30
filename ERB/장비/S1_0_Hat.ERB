@@ -99,7 +99,11 @@ RESULT:추가스탯_치명대미지 = 10
 ; T8
 @총력전장비_이름_63(iLen = 0)
 #DIM DYNAMIC iLen
-RESULTS = 리프 리본 페도라
+IF iLen > 0 && iLen < 16
+	RESULTS = 리본 페도라
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 리프 리본 페도라
+ENDIF
 
 @총력전장비_스탯_63
 ; #DIM 대상

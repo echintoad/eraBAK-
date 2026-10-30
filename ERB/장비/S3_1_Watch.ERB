@@ -4,7 +4,11 @@
 ; T1
 @총력전장비_이름_7(iLen = 0)
 #DIM DYNAMIC iLen
-RESULTS = 방수 디지털 시계
+IF iLen > 0 && iLen < 16
+	RESULTS = 디지털 시계
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 방수 디지털 시계
+ENDIF
 
 @총력전장비_스탯_7
 ; #DIM 대상
@@ -17,7 +21,11 @@ RESULT:추가스탯_치명대미지 = 10
 ; T2
 @총력전장비_이름_16(iLen = 0)
 #DIM DYNAMIC iLen
-RESULTS = 가죽 손목 시계
+IF iLen > 0 && iLen < 14
+	RESULTS = 가죽 시계
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 가죽 손목 시계
+ENDIF
 
 @총력전장비_스탯_16
 ; #DIM 대상
@@ -43,7 +51,11 @@ RESULT:추가스탯_치명대미지 = 21
 ; T4
 @총력전장비_이름_34(iLen = 0)
 #DIM DYNAMIC iLen
-RESULTS = 엔티크 회중 시계
+IF iLen > 0 && iLen < 16
+	RESULTS = 엔티크 시계
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 엔티크 회중 시계
+ENDIF
 
 @총력전장비_스탯_34
 ; #DIM 대상
@@ -57,7 +69,11 @@ RESULT:추가스탯_치명대미지 = 32
 ; T5
 @총력전장비_이름_43(iLen = 0)
 #DIM DYNAMIC iLen
-RESULTS = 방진 손목 시계
+IF iLen > 0 && iLen < 14
+	RESULTS = 방진 시계
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 방진 손목 시계
+ENDIF
 
 @총력전장비_스탯_43
 ; #DIM 대상
@@ -71,7 +87,11 @@ RESULT:추가스탯_치명대미지 = 45
 ; T6
 @총력전장비_이름_52(iLen = 0)
 #DIM DYNAMIC iLen
-RESULTS = 고딕풍 손목 시계
+IF iLen > 0 && iLen < 16
+	RESULTS = 고딕풍 시계
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 고딕풍 손목 시계
+ENDIF
 
 @총력전장비_스탯_52
 ; #DIM 대상
@@ -85,7 +105,11 @@ RESULT:추가스탯_치명대미지 = 65
 ; T7
 @총력전장비_이름_61(iLen = 0)
 #DIM DYNAMIC iLen
-RESULTS = 스트릿 패션 시계
+IF iLen > 0 && iLen < 16
+	RESULTS = 스트릿 시계
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 스트릿 패션 시계
+ENDIF
 
 @총력전장비_스탯_61
 ; #DIM 대상
