@@ -43,7 +43,11 @@ RESULT:추가스탯_총력전체력 = 285
 ; T4
 @총력전장비_이름_29(iLen = 0)
 #DIM DYNAMIC iLen
-RESULTS = 앤티크 에나멜 로퍼
+IF iLen > 0 && iLen < 18
+	RESULTS = 에나멜 로퍼
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 앤티크 에나멜 로퍼
+ENDIF
 
 @총력전장비_스탯_29
 ; #DIM 대상
@@ -104,7 +108,11 @@ RESULT:추가스탯_군중제어강화 = 10
 ; T8
 @총력전장비_이름_65(iLen = 0)
 #DIM DYNAMIC iLen
-RESULTS = 방수 등산 부츠
+IF iLen > 0 && iLen < 14
+	RESULTS = 등산 부츠
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 방수 등산 부츠
+ENDIF
 
 @총력전장비_스탯_65
 ; #DIM 대상
