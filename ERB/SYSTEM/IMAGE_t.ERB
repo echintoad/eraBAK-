@@ -499,8 +499,13 @@ RETURN
 ; iSizeFactor = 100 * GETCONFIG("一行の高さ") / GETCONFIG("フォントサイズ")
 iHeight = GETCONFIG("一行の高さ") * iHeight * 100 / GETCONFIG("フォントサイズ")
 iPos = GETCONFIG("一行の高さ") * iPos * 100 / GETCONFIG("フォントサイズ")
-iSpace = GETCONFIG("一行の高さ") * iSpace * 10 / GETCONFIG("フォントサイズ")
-RESULTS = <shape type='space' param='{iSpace + 10}'><img src='%sImageName%' height='{iHeight}' ypos='-{iPos}'>
+IF iSpace > 0
+	iSpace = GETCONFIG("一行の高さ") * iSpace * 10 / GETCONFIG("フォントサイズ")
+	RESULTS = <shape type='space' param='{iSpace + 10}'>
+ELSE
+	RESULTS = 
+ENDIF
+RESULTS += @"<img src='%sImageName%' height='{iHeight}' ypos='-{iPos}'>"
 ; HTML_PRINT @"<shape type='space' param='{iSpace+10}'><img src='%sImageName%' height='{iHeight}' ypos='-{iPos}'>"
 
 RETURN
