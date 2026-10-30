@@ -477,12 +477,12 @@ FOR iVar, 0, iPadding
 	HTML_PRINT "<br>"
 NEXT
 
-CALL PRINT_HTML_IMAGE(sImageName, iSize, iPadding * 10, iSpace)
+CALL PRINT_HTML_IMAGE(sImageName, iSize, iPadding, iSpace)
 HTML_PRINT RESULTS
-CALL PRINT_HTML_IMAGE(sFrame, iSize, (iPadding + 1) * 10, iSpace)
+CALL PRINT_HTML_IMAGE(sFrame, iSize, (iPadding + 1), iSpace)
 HTML_PRINT RESULTS
 IF iChk == 0
-	CALL PRINT_HTML_IMAGE(sWeapon, iSize, (iPadding + 2) * 10, iSpace + 4)
+	CALL PRINT_HTML_IMAGE(sWeapon, iSize, (iPadding + 2), iSpace + 4)
 	HTML_PRINT RESULTS
 ENDIF
 RETURN
@@ -775,8 +775,8 @@ RETURN
 #DIMS sWeapon
 #DIM iSize
 #DIM iPadding
-#DIM iSpace
-#DIM iVar
+#DIM DYNAMIC iSpace
+#DIM DYNAMIC iVar
 
 sWeapon = 웨폰_{ARG}
 iPadding = iSize - 3
@@ -784,7 +784,7 @@ iPadding = iSize - 3
 FOR iVar, 0, iPadding
 	HTML_PRINT "<br>"
 NEXT
-CALL PRINT_HTML_IMAGE(sWeapon, iSize, iPadding * 10, iSpace)
+CALL PRINT_HTML_IMAGE(sWeapon, iSize, iPadding, iSpace)
 HTML_PRINT RESULTS
 
 RETURN
