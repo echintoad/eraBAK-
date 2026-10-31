@@ -15,166 +15,181 @@ CATCH
 	RETURN
 ENDCATCH
 
-
+; 상점 업데이트 시 제거할 예정
 @장비효과(ARG)
 #FUNCTIONS
+; FUNCTIONS, 총력전_장비_스탯_출력_텍스트 사용 불가
 SELECTCASE ARG
 	CASE 0
-		LOCALS = 무투 + 8
+		LOCALS = 무투 +1, 공격력 +20
 	CASE 1
-		LOCALS = 무투 + 7
+		LOCALS = 무투 +1, 공격력 +20
 	CASE 2
-		LOCALS = 무투 + 4
+		LOCALS = 무투 +1, 공격력 +12, 총력전HP +150
 	CASE 3
-		LOCALS = 최대체력 + 120
+		LOCALS = 방위 +1, 총력전HP +350
 	CASE 4
-		LOCALS = 최대체력 + 160
+		LOCALS = 가창 +2, 총력전HP +350
 	CASE 5
-		LOCALS = 최대체력 + 80
+		LOCALS = 정치 +2, 총력전HP +170, 명중률 +14
 	CASE 6
-		LOCALS = 치명저항 + 8
+		LOCALS = 방위 +2, 치명저항 +19, 치댐저항 +13
 	CASE 7
-		LOCALS = 치명타확률 + 2
+		LOCALS = 지략 +2, 치명타 +16, 치댐 +10
 	CASE 8
-		LOCALS = 지략 + 6, 치유력 + 8
+		LOCALS = 요리 +2, 치유력 +40
+	; ----- T2 -----
 	CASE 9
-		LOCALS = 무투 + 14
+		LOCALS = 무투 +2, 공격력 +27
 	CASE 10
-		LOCALS = 무투 + 11
+		LOCALS = 무투 +2, 공격력 +27
 	CASE 11
-		LOCALS = 무투 + 7
+		LOCALS = 무투 +2, 공격력 +16, 총력전HP +200
 	CASE 12
-		LOCALS = 최대체력 + 195
+		LOCALS = 방위 +2, 총력전HP +470
 	CASE 13
-		LOCALS = 최대체력 + 260
+		LOCALS = 가창 +3, 총력전HP +495
 	CASE 14
-		LOCALS = 최대체력 + 130
+		LOCALS = 정치 +3, 총력전HP +245, 명중률 +20
 	CASE 15
-		LOCALS = 치명저항 + 13
+		LOCALS = 방위 +2, 치명저항 +23, 치댐저항 +19
 	CASE 16
-		LOCALS = 치명타확률 + 4
+		LOCALS = 지략 +3, 치명타 +23, 치댐 +14
 	CASE 17
-		LOCALS = 지략 + 10, 치유력 + 13
+		LOCALS = 요리 +3, 치유력 +57
+	; ----- T3 -----
 	CASE 18
-		LOCALS = 무투 + 20
+		LOCALS = 무투 +3, 공격력 +38
 	CASE 19
-		LOCALS = 무투 + 16
+		LOCALS = 무투 +3, 공격력 +38
 	CASE 20
-		LOCALS = 무투 + 10
+		LOCALS = 무투 +3, 공격력 +22, 총력전HP +285
 	CASE 21
-		LOCALS = 최대체력 + 270
+		LOCALS = 방위 +3, 총력전HP +660
 	CASE 22
-		LOCALS = 최대체력 + 360
+		LOCALS = 가창 +4, 총력전HP +710
 	CASE 23
-		LOCALS = 최대체력 + 180
+		LOCALS = 정치 +4, 총력전HP +340, 명중률 +30
 	CASE 24
-		LOCALS = 치명저항 + 18
+		LOCALS = 방위 +3, 치명저항 +35, 치댐저항 +25
 	CASE 25
-		LOCALS = 치명타확률 + 6
+		LOCALS = 지략 +4, 치명타 +32, 치댐 +21
 	CASE 26
-		LOCALS = 지략 + 14, 치유력 + 18
+		LOCALS = 요리 +5, 치유력 +78
+	; ----- T4 -----
 	CASE 27
-		LOCALS = 무투 + 27, 치명대미지 + 40
+		LOCALS = 무투 +4, 공격력 +56, 명중률 +6
 	CASE 28
-		LOCALS = 무투 + 22, 치명타확률 + 2
+		LOCALS = 무투 +3, 지략 +1, 공격력 +52, 치명타 +15
 	CASE 29
-		LOCALS = 무투 + 13, 최대체력 + 120
+		LOCALS = 무투 +3, 방위 +1, 공격력 +31, 총력전HP +400, 회피율 +9
 	CASE 30
-		LOCALS = 방위 + 32, 최대체력 + 375
+		LOCALS = 방위 +4, 총력전HP +865, 방어력 +10
 	CASE 31
-		LOCALS = 최대체력 + 500
+		LOCALS = 가창 +5, 방위 +1, 총력전HP +915, 회피율 +12
 	CASE 32
-		LOCALS = 지략 + 8, 최대체력 + 250
+		LOCALS = 정치 +5, 무투 +1, 총력전HP +470, 명중률 +43, CC저항 +5
 	CASE 33
-		LOCALS = 치명저항 + 25, 치명대미지저항 + 20
+		LOCALS = 방위 +4, 치명저항 +43, 치댐저항 +32, CC강화 +10, CC저항 +5
 	CASE 34
-		LOCALS = 치명대미지 + 50, 치명타확률 + 8
+		LOCALS = 지략 +5, 가창 +1, 치명타 +49, 치댐 +32
 	CASE 35
-		LOCALS = 지략 + 19, 치유력 + 25
+		LOCALS = 요리 +7, 정치 +1, 치유력 +100, 회피율 +12
+	; ----- T5 -----
 	CASE 36
-		LOCALS = 무투 + 33, 치명대미지 + 60
+		LOCALS = 무투 +6, 공격력 +76, 명중률 +11
 	CASE 37
-		LOCALS = 무투 + 27, 치명타확률 + 6
+		LOCALS = 무투 +4, 지략 +2, 공격력 +59, 치명타 +43
 	CASE 38
-		LOCALS = 무투 + 22, 최대체력 + 180
+		LOCALS = 무투 +4, 방위 +2, 공격력 +38, 총력전HP +480, 회피율 +26
 	CASE 39
-		LOCALS = 방위 + 34, 최대체력 + 700
+		LOCALS = 방위 +6, 총력전HP +950, 방어력 +28
 	CASE 40
-		LOCALS = 최대체력 + 1100
+		LOCALS = 가창 +8, 방위 +2, 총력전HP +1025, 회피율 +33
 	CASE 41
-		LOCALS = 지략 + 17, 최대체력 + 600
+		LOCALS = 정치 +7, 무투 +2, 총력전HP +625, 명중률 +53, CC저항 +15
 	CASE 42
-		LOCALS = 치명타확률 + 4, 치명저항 + 28, 치명대미지저항 + 31
+		LOCALS = 방위 +6, 치명저항 +50, 치댐저항 +37, CC강화 +20, CC저항 +15
 	CASE 43
-		LOCALS = 최대체력 + 100, 치명대미지 + 75, 치명타확률 + 9
+		LOCALS = 지략 +7, 가창 +2, 치명타 +67, 치댐 +45
 	CASE 44
-		LOCALS = 무투 + 4, 지략 + 22, 치유력 + 32
+		LOCALS = 요리 +9, 정치 +1, 치유력 +125, 회피율 +33
+	; ----- T6 -----
 	CASE 45
-		LOCALS = 무투 + 38, 치명대미지 + 80
+		LOCALS = 무투 +8, 공격력 +100, 명중률 +28
 	CASE 46
-		LOCALS = 무투 + 33, 치명타확률 + 10, 명중률 + 3
+		LOCALS = 무투 +5, 지략 +4, 공격력 +65, 치명타 +88
 	CASE 47
-		LOCALS = 무투 + 27, 최대체력 + 240
+		LOCALS = 무투 +5, 방위 +3, 공격력 +48, 총력전HP +605, 회피율 +53
 	CASE 48
-		LOCALS = 방위 + 37, 최대체력 + 1100
+		LOCALS = 방위 +8, 총력전HP +1010, 방어력 +60
 	CASE 49
-		LOCALS = 최대체력 + 1660
+		LOCALS = 가창 +9, 방위 +3, 총력전HP +1225, 회피율 +71
 	CASE 50
-		LOCALS = 지략 + 21, 최대체력 + 900
+		LOCALS = 정치 +8, 무투 +3, 총력전HP +825, 명중률 +72, CC저항 +35
 	CASE 51
-		LOCALS = 치명타확률 + 5, 치명저항 + 32, 치명대미지저항 + 37
+		LOCALS = 방위 +8, 치명저항 +57, 치댐저항 +42, CC강화 +40, CC저항 +30
 	CASE 52
-		LOCALS = 최대체력 + 140, 치명대미지 + 90, 치명타확률 + 10
+		LOCALS = 지략 +8, 가창 +4, 치명타 +95, 치댐 +65
 	CASE 53
-		LOCALS = 무투 + 6, 지략 + 25, 치유력 + 41
+		LOCALS = 요리 +12, 정치 +2, 치유력 +144, 회피율 +70
+	; ----- T7 -----
 	CASE 54
-		LOCALS = 무투 + 44, 치명대미지 + 90
+		LOCALS = 무투 +12, 공격력 +129, 명중률 +59, 치댐 +10
 	CASE 55
-		LOCALS = 무투 + 38, 치명타확률 + 11, 명중률 + 20
+		LOCALS = 무투 +8, 지략 +6, 공격력 +84, 치명타 +119, 치댐 +21
 	CASE 56
-		LOCALS = 무투 + 33, 최대체력 + 270
-	CASE 57
-		LOCALS = 방위 + 40, 최대체력 + 1500
+		LOCALS = 무투 +8, 방위 +4, 공격력 +68, 총력전HP +870, 회피율 +75, CC강화 +10
+	CASE 57 ;; -----
+		LOCALS = 방위 +12, 총력전HP +1450, 방어력 +84, 치댐저항 +13
 	CASE 58
-		LOCALS = 최대체력 + 2340, 회피율 + 20
+		LOCALS = 가창 +14, 방위 +4, 총력전HP +1755, 회피율 +100, 방어력 +10
 	CASE 59
-		LOCALS = 지략 + 24, 최대체력 + 1300
-	CASE 60
-		LOCALS = 치명타확률 + 6, 치명저항 + 36, 치명대미지저항 + 43
+		LOCALS = 정치 +12, 무투 +4, 총력전HP +1165, 명중률 +101, CC저항 +55, 치명저항 +17
+	CASE 60 ;; -----
+		LOCALS = 방위 +11, 정치 +1, 치명저항 +79, 치댐저항 +59, CC강화 +65, CC저항 +50
 	CASE 61
-		LOCALS = 최대체력 + 180, 치명대미지 + 105, 치명타확률 + 12
+		LOCALS = 지략 +12, 가창 +7, 치명타 +126, 치댐 +85, 명중률 +30
 	CASE 62
-		LOCALS = 무투 + 8, 지략 + 27, 치유력 + 50
-	CASE 63 ;; -----
-		LOCALS = 무투 + 50, 치명대미지 + 100
+		LOCALS = 요리 +18, 정치 +3, 치유력 +204, 회피율 +100, CC저항 +15
+	; ----- T8 -----
+	CASE 63
+		LOCALS = 무투 +16, 공격력 +140, 명중률 +95, 치댐 +28
 	CASE 64
-		LOCALS = 무투 + 44, 치명타확률 + 12, 명중률 + 22
+		LOCALS = 무투 +10, 지략 +8, 공격력 +94, 치명타 +139, 치댐 +55
 	CASE 65
-		LOCALS = 무투 + 38, 최대체력 + 300
+		LOCALS = 무투 +10, 방위 +5, 공격력 +85, 총력전HP +1065, 회피율 +95, CC강화 +25
 	CASE 66 ;; -----
-		LOCALS = 방위 + 43, 최대체력 + 1900
+		LOCALS = 방위 +16, 총력전HP +1750, 방어력 +103, 치댐저항 +34
 	CASE 67
-		LOCALS = 최대체력 + 2880, 회피율 + 20
+		LOCALS = 가창 +19, 방위 +5, 총력전HP +2125, 회피율 +123, 방어력 +26
 	CASE 68
-		LOCALS = 지략 + 28, 최대체력 + 1700
+		LOCALS = 정치 +16, 무투 +5, 총력전HP +1425, 명중률 +124, CC저항 +65, 치명저항 +47
 	CASE 69 ;; -----
-		LOCALS = 치명타확률 + 6, 치명저항 + 38, 치명대미지저항 + 50
+		LOCALS = 방위 +13, 정치 +3, 치명저항 +110, 치댐저항 +82, CC강화 +80, CC저항 +60
 	CASE 70
-		LOCALS = 최대체력 + 220, 치명대미지 + 120, 치명타확률 + 13
+		LOCALS = 지략 +16, 가창 +9, 치명타 +145, 치댐 +96, 명중률 +76
 	CASE 71
-		LOCALS = 무투 + 11, 지략 + 30, 치유력 + 60
-	CASE 72 ;; <<<
-		LOCALS = 무투 + 53, 치명대미지 + 100
+		LOCALS = 요리 +24, 정치 +4, 치유력 +246, 회피율 +123, CC저항 +40
+	; ----- T9 -----
+	CASE 72 ;; -----
+		LOCALS = 무투 +20, 공격력 +150, 명중률 +150, 치댐 +55
 	CASE 73
-		LOCALS = 무투 + 51, 치명타확률 + 15, 명중률 + 22
+		LOCALS = 무투 +13, 지략 +10, 공격력 +105, 치명타 +160, 치댐 +105
 	CASE 74
-		LOCALS = 무투 + 46, 최대체력 + 350
-	CASE 75 ;; <<<
-		LOCALS = 방위 + 50, 최대체력 + 2500
+		LOCALS = 무투 +13, 방위 +10, 공격력 +105, 총력전HP +1250, 회피율 +117, CC강화 +50
+	CASE 75 ;; -----
+		LOCALS = 방위 +20, 총력전HP +2000, 방어력 +133, 치댐저항 +71
 	CASE 76
-		LOCALS = 최대체력 + 3300, 회피율 + 20
+		LOCALS = 가창 +24, 방위 +7, 총력전HP +2500, 회피율 +155, 방어력 +52
 	CASE 77
-		LOCALS = 지략 + 30, 최대체력 + 2200, 치명타확률 + 5
+		LOCALS = 정치 +20, 무투 +7, 총력전HP +1750, 명중률 +150, CC저항 +80, 치명저항 +91
+	CASE 78 ;; -----
+		LOCALS = 방위 +17, 정치 +5, 치명저항 +140, 치댐저항 +102, CC강화 +105, CC저항 +80
+	CASE 79
+		LOCALS = 지략 +20, 가창 +12, 치명타 +161, 치댐 +108, 명중률 +150
+	CASE 80
+		LOCALS = 요리 +30, 정치 +5, 치유력 +305, 회피율 +150, CC저항 +80
 ENDSELECT
 RETURNF LOCALS
 
@@ -205,72 +220,72 @@ RETURNF LOCALS
 @강회비용코인(ARG)
 #FUNCTION
 SELECTCASE ARG
-	CASE 0 TO 8
+	CASE 0 TO 8 ; T1 -> T2
 	RETURNF 3
-	CASE 9 TO 17
-	RETURNF 5
-	CASE 18 TO 26
-	RETURNF 5
-	CASE 27 TO 35
-	RETURNF 10
-	CASE 36 TO 44
+	CASE 9 TO 17 ; T2 -> T3
+	RETURNF 6
+	CASE 18 TO 26 ; T3 -> T4
 	RETURNF 12
-	CASE 45 TO 53
-	RETURNF 12
-	CASE 54 TO 62
-	RETURNF 15
-	CASE 63 TO 71
-	RETURNF 15
-	CASE 72 TO 80
-	RETURNF 15
+	CASE 27 TO 35 ; T4 -> T5
+	RETURNF 14
+	CASE 36 TO 44 ; T5 -> T6
+	RETURNF 18
+	CASE 45 TO 53 ; T6 -> T7
+	RETURNF 21
+	CASE 54 TO 62 ; T7 -> T8
+	RETURNF 25
+	CASE 63 TO 71 ; T8 -> T9
+	RETURNF 30
+	CASE 72 TO 80 ; T9 -> 몰루? 사용 안 함
+	RETURNF 99
 ENDSELECT
 RETURNF -1
 
 @강회비용상급코인(ARG)
 #FUNCTION
 SELECTCASE ARG
-	CASE 0 TO 8
+	CASE 0 TO 8 ; T1 -> T2
 	RETURNF 0
-	CASE 9 TO 17
+	CASE 9 TO 17 ; T2 -> T3
 	RETURNF 0
-	CASE 18 TO 26
+	CASE 18 TO 26 ; T3 -> T4
 	RETURNF 0
-	CASE 27 TO 35
-	RETURNF 5
-	CASE 36 TO 44
-	RETURNF 10
-	CASE 45 TO 53
-	RETURNF 10
-	CASE 54 TO 62
-	RETURNF 15
-	CASE 63 TO 71
-	RETURNF 25
-	CASE 72 TO 80
-	RETURNF 30
+	CASE 27 TO 35 ; T4 -> T5
+	RETURNF 2
+	CASE 36 TO 44 ; T5 -> T6
+	RETURNF 4
+	CASE 45 TO 53 ; T6 -> T7
+	RETURNF 7
+	CASE 54 TO 62 ; T7 -> T8
+	RETURNF 13
+	CASE 63 TO 71 ; T8 -> T9
+	RETURNF 20
+	CASE 72 TO 80 ; T9 -> 몰루? 사용 안 함
+	RETURNF 99
 ENDSELECT
 RETURNF -1
 
 @강화비용크레딧(ARG)
 #FUNCTION
 SELECTCASE ARG
-	CASE 0 TO 8
-	RETURNF 7500
-	CASE 9 TO 17
-	RETURNF 7500
-	CASE 18 TO 26
+	CASE 0 TO 8 ; T1 -> T2
+	RETURNF 4000
+	CASE 9 TO 17 ; T2 -> T3
+	RETURNF 6000
+	CASE 18 TO 26 ; T3 -> T4
+	RETURNF 8000
+	CASE 27 TO 35 ; T4 -> T5
+	RETURNF 10000
+	CASE 36 TO 44 ; T5 -> T6
+	RETURNF 12000
+	CASE 45 TO 53 ; T6 -> T7
 	RETURNF 15000
-	CASE 27 TO 35
-	RETURNF 15000
-	CASE 36 TO 44
-	RETURNF 19000
-	CASE 45 TO 53
-	RETURNF 19000
-	CASE 54 TO 62
-	RETURNF 23000
-	CASE 63 TO 71
-	RETURNF 30000
-	CASE 72 TO 80
-	RETURNF 45000
+	CASE 54 TO 62 ; T7 -> T8
+	RETURNF 18000
+	CASE 63 TO 71 ; T8 -> T9
+	RETURNF 24000
+	CASE 72 TO 80 ; T9 -> 몰루? 사용 안 함
+	RETURNF 99999
 ENDSELECT
 RETURNF -1
 
@@ -318,23 +333,23 @@ LOCAL = ARG % 9
 LOCALS = 
 SELECTCASE LOCAL
 	CASE 0 ; 모자
-		LOCALS = 강화시 무투, 치명대미지가 증가한다
+		LOCALS = 강화시 명중률(T4), 치명타 대미지가(T7) 추가된다
 	CASE 1 ; 장갑
-		LOCALS = 강화시 무투, 치명타확률, 명중률이 증가한다
+		LOCALS = 강화시 지략(T4), 치명타(T4), 치명타 대미지가(T7) 추가된다
 	CASE 2 ; 신발
-		LOCALS = 강화시 무투, 최대체력이 증가한다
+		LOCALS = 강화시 방위(T4), 회피율(T4), CC강화가(T7) 추가된다
 	CASE 3 ; 가방
-		LOCALS = 강화시 방위, 최대체력이 증가한다
+		LOCALS = 강화시 방어력(T4), 치명 대미지 저항이(T7) 추가된다
 	CASE 4 ; 배지
-		LOCALS = 강화시 최대체력, 회피율이 증가한다
+		LOCALS = 강화시 방위(T4), 회피율(T4), 방어력이(T7) 추가된다
 	CASE 5 ; 헤어핀
-		LOCALS = 강화시 지략, 최대체력, 치명타확률이 증가한다
+		LOCALS = 강화시 무투(T4), CC저항(T4), 치명타 저항이(T7) 추가된다
 	CASE 6 ; 에뮬렛
-		LOCALS = 강화시 치명타확률, 치명타저항, 치명대미지저항이 증가한다
+		LOCALS = 강화시 CC강화(T4), CC저항(T4), 정치가(T7) 추가된다
 	CASE 7 ; 손목 시계
-		LOCALS = 강화시 최대체력, 치명대미지, 치명타확률이 증가한다
+		LOCALS = 강화시 가창(T4), 명중률이(T7) 추가된다
 	CASE 8 ; 목걸이
-		LOCALS = 강화시 무투, 지략, 치유력이 증가한다
+		LOCALS = 강화시 정치(T4), 회피율(T4), CC저항이(T7) 추가된다
 ENDSELECT
 RETURNF LOCALS
 
@@ -920,27 +935,29 @@ FOR LOCAL, 1, 24 ; 추가스탯_군중제어저항 + 1
 			CASE 추가스탯_치유력
 				LOCALS = 치유력: 
 			CASE 추가스탯_치명타
-				LOCALS = 치명: 
+				LOCALS = 치명타: 
 			CASE 추가스탯_치명타저항
-				LOCALS = 치명 저항: 
+				LOCALS = 치명저항: 
 			CASE 추가스탯_치명대미지
 				LOCALS = 치댐: 
 			CASE 추가스탯_치명대미지저항
-				LOCALS = 치댐 저항: 
+				LOCALS = 치댐저항: 
 			CASE 추가스탯_군중제어한계
 				LOCALS = CC: 
 			CASE 추가스탯_군중제어강화
-				LOCALS = CC 강화: 
+				LOCALS = CC강화: 
 			CASE 추가스탯_군중제어저항
-				LOCALS = CC 저항: 
+				LOCALS = CC저항: 
 		ENDSELECT
 		LOCALS += @"{스탯합:LOCAL}"
 		; 다음 줄로 넘어가야될지 확인
-		STRLENFORM %RESULTS:Line_Num% %LOCALS%
+		STRLENFORM %RESULTS:Line_Num%, %LOCALS%
 		IF RESULT > 너비
 			Line_Num ++
+		ELSE
+			RESULTS:Line_Num += @", "
 		ENDIF
-		RESULTS:Line_Num += @" %LOCALS%"
+		RESULTS:Line_Num += @"%LOCALS%"
 	ENDIF
 NEXT
 RETURN Line_Num + 1
