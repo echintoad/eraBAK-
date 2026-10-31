@@ -338,9 +338,9 @@ ELSEIF RESULT >= 5000 && RESULT < 6000 && 상점단계 == 2 && 캐릭터선택�
 		장비:(캐릭터선택장비+9) ++
 		CALL 총력전장비착용(장비강화캐릭터선택,캐릭터선택장비+9,캐릭터선택장비슬롯,1)
 		CALL 장비이름(캐릭터선택장비)
-		LOCALS:0 = RESULTS
+		LOCALS:0 = %RESULTS%
 		CALL 장비이름(캐릭터선택장비 + 9)
-		LOCALS:1 = RESULTS
+		LOCALS:1 = %RESULTS%
 		PRINTFORMW [%LOCALS:0%]%조사만처리(LOCALS:0,"이")% [%LOCALS:1%]%조사만처리(LOCALS:1,"로")% 강화되었습니다
 	ELSE 
 		캐릭터선택장비선택 = 0
@@ -382,9 +382,9 @@ ELSEIF RESULT >= 6000 && RESULT < 7000 && 상점단계 == 2 && 장비선택 == 1
 		장비:총력전장비 --
 		장비:(총력전장비+9) ++
 		CALL 장비이름(총력전장비)
-		LOCALS:0 = RESULTS
+		LOCALS:0 = %RESULTS%
 		CALL 장비이름(총력전장비 + 9)
-		LOCALS:1 = RESULTS
+		LOCALS:1 = %RESULTS%
 		PRINTFORMW [%LOCALS:0%]%조사만처리(LOCALS:0, "이")% [%LOCALS:1%]%조사만처리(LOCALS:1, "로")% 강화되었습니다
 	ELSE 
 		장비선택 = 0
