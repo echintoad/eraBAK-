@@ -114,6 +114,15 @@ ELSEIF FLAG:능력표시모드 == 4
 		ENDIF
 		CLEARLINE LINECOUNT - FIRST_LINE
 		RESTART
+	ELSEIF RESULT == 98
+		; 장착 일괄 해제
+		FOR LOCAL, 0, 3
+			IF 착용장비:대상:LOCAL >= 0
+				CALL 총력전_장비_착용(대상, 착용장비:대상:LOCAL, LOCAL, -1)
+			ENDIF
+		NEXT
+		CLEARLINE LINECOUNT - FIRST_LINE
+		RESTART
 	ELSEIF RESULT == 99
 		; 장착 해제
 		CALL 총력전_장비_착용(대상, 착용장비:대상:장비_선택타입, 장비_선택타입, -1)
@@ -286,6 +295,13 @@ ELSEIF FLAG:능력표시모드 == 3
 	CALL SHOW_PREGNANT_RECORD(ARG:0)
 ELSEIF FLAG:능력표시모드 == 4 ; 장비
 	CALL 장비변경(ARG:0, GROUPMATCH(CFLAG:MASTER:소속, CFLAG:(ARG:0):소속, CFLAG:(ARG:0):포로처))
+	; 장비 변경 가능한 캐릭터 + 장착된 장비 있음
+	IF GROUPMATCH(CFLAG:MASTER:소속, CFLAG:(ARG:0):소속, CFLAG:(ARG:0):포로처) && (착용장비:(ARG:0):0 >= 0 || 착용장비:(ARG:0):1 >= 0 || 착용장비:(ARG:0):2 >= 0)
+		; 일괄 해제
+		PRINTFORM %TOSTR_SPACE(10)%
+		PRINTBUTTON "[ 장비 일괄 해제 ]", 98
+		PRINTL 
+	ENDIF
 	; 장비 변경 버튼
 	IF 장비_선택타입 > -1 && GROUPMATCH(CFLAG:MASTER:소속, CFLAG:(ARG:0):소속, CFLAG:(ARG:0):포로처)
 		CALL SINGLE_DRAWLINE
