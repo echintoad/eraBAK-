@@ -726,6 +726,7 @@ ENDIF
 
 ; 스탯 증가/감소
 ; @총력전_장비_착용 으로만 작동
+; 임시: _UPDATE_000606_EQUIP_STATCHANGE 에서도 사용
 @_총력전_장비_스탯(대상, 장비번호, 탈착)
 #DIM 대상
 #DIM 탈착
@@ -739,9 +740,12 @@ CATCH
 ENDCATCH
 
 ; 스탯 변경, 체력 등은 나중에?
-; MAXBASE:대상:체력 += RESULT:추가스탯_최대체력 * 탈착
-; MAXBASE:대상:기력 += RESULT:추가스탯_최대기력 * 탈착
-; MAXBASE:대상:정신력 += RESULT:추가스탯_최대정신력 * 탈착
+MAXBASE:대상:체력 += RESULT:추가스탯_최대체력 * 탈착
+BASE:대상:체력 += RESULT:추가스탯_최대체력 * 탈착
+MAXBASE:대상:기력 += RESULT:추가스탯_최대기력 * 탈착
+BASE:대상:기력 += RESULT:추가스탯_최대기력 * 탈착
+MAXBASE:대상:정신력 += RESULT:추가스탯_최대정신력 * 탈착
+BASE:대상:정신력 += RESULT:추가스탯_최대정신력 * 탈착
 ABL:대상:무투 += RESULT:추가스탯_무투 * 탈착
 ABL:대상:방위 += RESULT:추가스탯_방위 * 탈착
 ABL:대상:지략 += RESULT:추가스탯_지략 * 탈착
