@@ -441,12 +441,12 @@ FOR LOCAL, 0, 3
 	SIF RESULTS == "없음"
 		CONTINUE
 	; 장비 이름
-	PRINTFORM %ALIGN_TEXT(RESULTS, 16, "RIGHT")%:
+	PRINTFORM %ALIGN_TEXT(RESULTS, 16, "RIGHT")%: 
 	; 장비 스탯
-	CALL 총력전_장비_스탯_출력_하나(착용장비:대상:LOCAL, 100)
+	CALL 총력전_장비_스탯_출력_하나(착용장비:대상:LOCAL) ; , 100
 	FOR LOCAL:1, 0, RESULT
 		IF LOCAL:1 != 0
-			PRINTFORM %TOSTR_SPACE(17)%
+			PRINTFORM %TOSTR_SPACE(18)%
 		ENDIF
 		PRINTFORML %RESULTS:(LOCAL:1)%
 	NEXT
@@ -603,11 +603,13 @@ FOR LOCAL, 0, RESULT
 	IF LOCAL == 0
 			; 123456789_123456789_1
 			;    베로니카 배지:
-		PRINT        착용 효과:
+		PRINT        착용 효과: 
 	ELSE
-		PRINTFORM %TOSTR_SPACE(17)%
+		PRINTFORM %TOSTR_SPACE(18)%
 	ENDIF
+	SETCOLOR 칼라_파파랑
 	PRINTFORML %RESULTS:LOCAL%
+	RESETCOLOR
 NEXT
 
 ; "스탯합"으로 받은 스탯 출력, RESULT 에 줄수 출력
@@ -687,9 +689,7 @@ FOR LOCAL, 1, 24 ; 추가스탯_군중제어저항 + 1
 			Line_Num ++
 		ELSE
 			STRLENFORM %RESULTS:Line_Num%
-			IF RESULT == 0
-				RESULTS:Line_Num += @" "
-			ELSE
+			IF RESULT != 0 ; && Line_Num != 0
 				RESULTS:Line_Num += @", "
 			ENDIF
 		ENDIF
