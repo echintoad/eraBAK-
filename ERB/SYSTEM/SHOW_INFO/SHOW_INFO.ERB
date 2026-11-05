@@ -117,9 +117,7 @@ ELSEIF FLAG:능력표시모드 == 4
 	ELSEIF RESULT == 98
 		; 장착 일괄 해제
 		FOR LOCAL, 0, 3
-			IF 착용장비:대상:LOCAL >= 0
-				CALL 총력전_장비_착용(대상, 착용장비:대상:LOCAL, LOCAL, -1)
-			ENDIF
+			CALL 총력전_장비_착용(대상, 착용장비:대상:LOCAL, LOCAL, -1)
 		NEXT
 		CLEARLINE LINECOUNT - FIRST_LINE
 		RESTART
