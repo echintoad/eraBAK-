@@ -45,11 +45,11 @@ RETURN 탈착
 #DIM 대상
 VARSET RESULT, 0 ; WEAPON.ERH 참조
 IF 대상 >= 0 && NO:대상 == 48
-	RESULT:총력전_무기_공격력 = 20
-	RESULT:총력전_무기_치유력 = 50
+	RESULT:추가스탯_공격력 = 20
+	RESULT:추가스탯_치유력 = 50
 ELSE
-	RESULT:총력전_무기_공격력 = 10
-	RESULT:총력전_무기_치유력 = 25
+	RESULT:추가스탯_공격력 = 10
+	RESULT:추가스탯_치유력 = 25
 ENDIF
 
 ;------------------------------------------

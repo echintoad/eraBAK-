@@ -23,22 +23,6 @@
 #DIM CONST WN_SMG_NUM = 4
 #DIM CONST WN_SR_NUM = 5
 
-; 임시, 나중에 장비랑 같이 처리?
-; 나중에 장비 업데이트 하면서 추가 작업?
-#DIM CONST 총력전_무기_최대체력 = 1
-#DIM CONST 총력전_무기_공격력 = 2
-#DIM CONST 총력전_무기_방어력 = 3
-#DIM CONST 총력전_무기_명중률 = 4
-#DIM CONST 총력전_무기_회피율 = 5
-#DIM CONST 총력전_무기_치유력 = 6
-#DIM CONST 총력전_무기_치명타 = 7
-#DIM CONST 총력전_무기_치명타저항 = 8
-#DIM CONST 총력전_무기_치명대미지 = 9
-#DIM CONST 총력전_무기_치명대미지저항 = 10
-#DIM CONST 총력전_무기_군중제어한계 = 11
-#DIM CONST 총력전_무기_군중제어강화 = 12
-#DIM CONST 총력전_무기_군중제어저항 = 13
-
 ; 무기/장비 에 스탯 받아올때
 ; 예. RESULT:추가스탯_XX
 ; 스탯 출력과, 장착, 총력전 시작때 동일한 함수 하나만 불러오면 되게(?)
