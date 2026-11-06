@@ -984,6 +984,12 @@ VARSET 의상보존
 ;데일리계는 PASS_CHARA로 취급하지 않는다
 TALENT보존:GETNUM(TALENT, "데일리계") = TALENT:대상:데일리계
 
+; 장비 해제, ABL 보존 전에 실행
+FOR LOCAL, 0, 3
+	CALL 총력전_장비_착용(대상, 착용장비:대상:LOCAL, LOCAL, -1)
+NEXT
+; 무기 기록? 임시로 무기 제거?
+
 ;ABL를 보존
 FOR LOCAL, 0, VARSIZE("ABL인계")
 	SIF ABL인계:대상:LOCAL

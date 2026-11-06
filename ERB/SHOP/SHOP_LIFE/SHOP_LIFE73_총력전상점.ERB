@@ -245,26 +245,27 @@ IF RESULT == 999
 	REDRAW 1
 	RETURN
 ELSEIF RESULT == 1 || RESULT == 2 || RESULT == 3 && 상점단계 == 0
-CLEARLINE LINECOUNT - FIRST_LINE_ITEM_MAIN
-첫번째 = RESULT
-상점단계 = 1
-GOTO 상점루프
+	CLEARLINE LINECOUNT - FIRST_LINE_ITEM_MAIN
+	첫번째 = RESULT
+	상점단계 = 1
+	GOTO 상점루프
 ELSEIF RESULT == 11 || RESULT == 12 || RESULT == 13 || RESULT == 31 || RESULT == 32 && 상점단계 == 1
-CLEARLINE LINECOUNT - FIRST_LINE_ITEM_MAIN
-두번째 = RESULT
-상점단계 = 2
-GOTO 상점루프
+	CLEARLINE LINECOUNT - FIRST_LINE_ITEM_MAIN
+	두번째 = RESULT
+	상점단계 = 2
+	GOTO 상점루프
 ELSEIF RESULT >= 20 && RESULT <= 28 && 상점단계 == 2
-CLEARLINE LINECOUNT - FIRST_LINE_ITEM_MAIN
-총력전장비 = RESULT - 20 
-상점단계 = 3
-GOTO 상점루프
+	CLEARLINE LINECOUNT - FIRST_LINE_ITEM_MAIN
+	총력전장비 = RESULT - 20 
+	상점단계 = 3
+	GOTO 상점루프
 ELSEIF RESULT == 총력전장비 + 1000 && 상점단계 == 3
 	CLEARLINE 1
 	SETCOLOR 칼라_선택불가
 	CALL SINGLE_DRAWLINE
 	RESETCOLOR
-	PRINTFORML [%장비이름(총력전장비)%] 구매 하시겠습니까?
+	CALL 장비이름(총력전장비)
+	PRINTFORML [%RESULTS%] 구매 하시겠습니까?
 	CALL ASK_YN
 	IF RESULT == 0
 		ITEM:155 -= 5
@@ -272,7 +273,7 @@ ELSEIF RESULT == 총력전장비 + 1000 && 상점단계 == 3
 	ELSE 
 		GOTO 상점루프
 	ENDIF
-ELSEIF RESULT >= 2000 && RESULT <= 2069 && 상점단계 == 2
+ELSEIF RESULT >= 2000 && RESULT <= 2072 && 상점단계 == 2
 	CLEARLINE 1
 	IF 장비:(RESULT - 2000) > 0
 		CLEARLINE LINECOUNT - FIRST_LINE_ITEM_MAIN
@@ -305,7 +306,8 @@ ELSEIF RESULT >= 5000 && RESULT < 6000 && 상점단계 == 2 && 캐릭터선택�
 	SETCOLOR 칼라_선택불가
 	CALL SINGLE_DRAWLINE
 	RESETCOLOR
-	PRINTFORML [%장비이름(캐릭터선택장비)%]%조사만처리(장비이름(캐릭터선택장비),"을")% 강화 하시겠습니까?
+	CALL 장비이름(캐릭터선택장비)
+	PRINTFORML [%RESULTS%]%조사만처리(RESULTS, "을")% 강화 하시겠습니까?
 	PRINT 강화 비용: 
 	IF 강회비용코인(캐릭터선택장비) > 0
 		SETCOLOR 칼라_주의
@@ -331,11 +333,15 @@ ELSEIF RESULT >= 5000 && RESULT < 6000 && 상점단계 == 2 && 캐릭터선택�
 		ITEM:155 -= 강회비용코인(캐릭터선택장비)
 		ITEM:156 -= 강회비용상급코인(캐릭터선택장비)
 		MONEY -= 강화비용크레딧(캐릭터선택장비)
-		CALL 총력전장비착용(장비강화캐릭터선택,캐릭터선택장비,캐릭터선택장비슬롯,-1)
+		CALL 총력전_장비_착용(장비강화캐릭터선택,캐릭터선택장비,캐릭터선택장비슬롯,-1)
 		장비:캐릭터선택장비 --
 		장비:(캐릭터선택장비+9) ++
-		CALL 총력전장비착용(장비강화캐릭터선택,캐릭터선택장비+9,캐릭터선택장비슬롯,1)
-		PRINTFORMW [%장비이름(캐릭터선택장비)%]%조사만처리(장비이름(캐릭터선택장비),"이")% [%장비이름(캐릭터선택장비+9)%]%조사만처리(장비이름(캐릭터선택장비+9),"로")% 강화되었습니다
+		CALL 총력전_장비_착용(장비강화캐릭터선택,캐릭터선택장비+9,캐릭터선택장비슬롯,1)
+		CALL 장비이름(캐릭터선택장비)
+		LOCALS:0 = %RESULTS%
+		CALL 장비이름(캐릭터선택장비 + 9)
+		LOCALS:1 = %RESULTS%
+		PRINTFORMW [%LOCALS:0%]%조사만처리(LOCALS:0,"이")% [%LOCALS:1%]%조사만처리(LOCALS:1,"로")% 강화되었습니다
 	ELSE 
 		캐릭터선택장비선택 = 0
 		CLEARLINE LINECOUNT - FIRST_LINE_ITEM_MAIN
@@ -346,7 +352,8 @@ ELSEIF RESULT >= 6000 && RESULT < 7000 && 상점단계 == 2 && 장비선택 == 1
 	SETCOLOR 칼라_선택불가
 	CALL SINGLE_DRAWLINE
 	RESETCOLOR
-	PRINTFORML [%장비이름(총력전장비)%]%조사만처리(장비이름(총력전장비),"을")% 강화 하시겠습니까?
+	CALL 장비이름(총력전장비)
+	PRINTFORML [%RESULTS%]%조사만처리(RESULTS, "을")% 강화 하시겠습니까?
 	PRINT 강화 비용: 
 	IF 강회비용코인(총력전장비) > 0
 		SETCOLOR 칼라_주의
@@ -374,7 +381,11 @@ ELSEIF RESULT >= 6000 && RESULT < 7000 && 상점단계 == 2 && 장비선택 == 1
 		MONEY -= 강화비용크레딧(총력전장비)
 		장비:총력전장비 --
 		장비:(총력전장비+9) ++
-		PRINTFORMW [%장비이름(총력전장비)%]%조사만처리(장비이름(총력전장비),"이")% [%장비이름(총력전장비+9)%]%조사만처리(장비이름(총력전장비+9),"로")% 강화되었습니다
+		CALL 장비이름(총력전장비)
+		LOCALS:0 = %RESULTS%
+		CALL 장비이름(총력전장비 + 9)
+		LOCALS:1 = %RESULTS%
+		PRINTFORMW [%LOCALS:0%]%조사만처리(LOCALS:0, "이")% [%LOCALS:1%]%조사만처리(LOCALS:1, "로")% 강화되었습니다
 	ELSE 
 		장비선택 = 0
 		CLEARLINE LINECOUNT - FIRST_LINE_ITEM_MAIN
@@ -415,7 +426,8 @@ FOR COUNT, 0, 69
 	SIF 장비:COUNT <= 0
 	CONTINUE
 	IF LOCAL == 0
-		PRINTBUTTON @"[%장비이름(COUNT), 20, LEFT%]",COUNT + 2000
+		CALL 장비이름(COUNT)
+		PRINTBUTTON @"[%RESULTS, 20, LEFT%]",COUNT + 2000
 		PRINT 　
 		PRINTFORM ×{장비:COUNT}
 		LOCAL:1 ++
@@ -429,12 +441,13 @@ PRINTL
 LOCAL:1 = 0
 CALL COLOR_LINE
 CALL COLOR_PRINTL("장갑",칼라_주석)
-FOR COUNT, 0, 69
+FOR COUNT, 0, 72
 	LOCAL = COUNT % 9
 	SIF 장비:COUNT <= 0
 	CONTINUE
 	IF LOCAL == 1
-		PRINTBUTTON @"[%장비이름(COUNT), 20, LEFT%]",COUNT + 2000
+		CALL 장비이름(COUNT)
+		PRINTBUTTON @"[%RESULTS, 20, LEFT%]",COUNT + 2000
 		PRINT 　
 		PRINTFORM ×{장비:COUNT}
 		LOCAL:1 ++
@@ -448,12 +461,13 @@ PRINTL
 LOCAL:1 = 0
 CALL COLOR_LINE
 CALL COLOR_PRINTL("신발",칼라_주석)
-FOR COUNT, 0, 69
+FOR COUNT, 0, 72
 	LOCAL = COUNT % 9
 	SIF 장비:COUNT <= 0
 	CONTINUE
 	IF LOCAL == 2
-		PRINTBUTTON @"[%장비이름(COUNT), 20, LEFT%]",COUNT + 2000
+		CALL 장비이름(COUNT)
+		PRINTBUTTON @"[%RESULTS, 20, LEFT%]",COUNT + 2000
 		PRINT 　
 		PRINTFORM ×{장비:COUNT}
 		LOCAL:1 ++
@@ -467,12 +481,13 @@ PRINTL
 LOCAL:1 = 0
 CALL COLOR_LINE
 CALL COLOR_PRINTL("가방",칼라_주석)
-FOR COUNT, 0, 69
+FOR COUNT, 0, 72
 	LOCAL = COUNT % 9
 	SIF 장비:COUNT <= 0
 	CONTINUE
 	IF LOCAL == 3
-		PRINTBUTTON @"[%장비이름(COUNT), 20, LEFT%]",COUNT + 2000
+		CALL 장비이름(COUNT)
+		PRINTBUTTON @"[%RESULTS, 20, LEFT%]",COUNT + 2000
 		PRINT 　
 		PRINTFORM ×{장비:COUNT}
 		LOCAL:1 ++
@@ -486,12 +501,13 @@ PRINTL
 LOCAL:1 = 0
 CALL COLOR_LINE
 CALL COLOR_PRINTL("배지",칼라_주석)
-FOR COUNT, 0, 69
+FOR COUNT, 0, 72
 	LOCAL = COUNT % 9
 	SIF 장비:COUNT <= 0
 	CONTINUE
 	IF LOCAL == 4
-		PRINTBUTTON @"[%장비이름(COUNT), 20, LEFT%]",COUNT + 2000
+		CALL 장비이름(COUNT)
+		PRINTBUTTON @"[%RESULTS, 20, LEFT%]",COUNT + 2000
 		PRINT 　
 		PRINTFORM ×{장비:COUNT}
 		LOCAL:1 ++
@@ -505,12 +521,13 @@ PRINTL
 LOCAL:1 = 0
 CALL COLOR_LINE
 CALL COLOR_PRINTL("헤어핀",칼라_주석)
-FOR COUNT, 0, 69
+FOR COUNT, 0, 72
 	LOCAL = COUNT % 9
 	SIF 장비:COUNT <= 0
 		CONTINUE
 	IF LOCAL == 5
-		PRINTBUTTON @"[%장비이름(COUNT), 20, LEFT%]",COUNT + 2000
+		CALL 장비이름(COUNT)
+		PRINTBUTTON @"[%RESULTS, 20, LEFT%]",COUNT + 2000
 		PRINT 　
 		PRINTFORM ×{장비:COUNT}
 		LOCAL:1 ++
@@ -524,12 +541,13 @@ PRINTL
 LOCAL:1 = 0
 CALL COLOR_LINE
 CALL COLOR_PRINTL("부적",칼라_주석)
-FOR COUNT, 0, 69
+FOR COUNT, 0, 72
 	LOCAL = COUNT % 9
 	SIF 장비:COUNT <= 0
 		CONTINUE
 	IF LOCAL == 6
-		PRINTBUTTON @"[%장비이름(COUNT), 20, LEFT%]",COUNT + 2000
+		CALL 장비이름(COUNT)
+		PRINTBUTTON @"[%RESULTS, 20, LEFT%]",COUNT + 2000
 		PRINT 　
 		PRINTFORM ×{장비:COUNT}
 		LOCAL:1 ++
@@ -543,12 +561,13 @@ PRINTL
 LOCAL:1 = 0
 CALL COLOR_LINE
 CALL COLOR_PRINTL("손목시계",칼라_주석)
-FOR COUNT, 0, 69
+FOR COUNT, 0, 72
 	LOCAL = COUNT % 9
 	SIF 장비:COUNT <= 0
 		CONTINUE
 	IF LOCAL == 7
-		PRINTBUTTON @"[%장비이름(COUNT), 20, LEFT%]",COUNT + 2000
+		CALL 장비이름(COUNT)
+		PRINTBUTTON @"[%RESULTS, 20, LEFT%]",COUNT + 2000
 		PRINT 　
 		PRINTFORM ×{장비:COUNT}
 		LOCAL:1 ++
@@ -562,12 +581,13 @@ PRINTL
 LOCAL:1 = 0
 CALL COLOR_LINE
 CALL COLOR_PRINTL("목걸이",칼라_주석)
-FOR COUNT, 0, 69
+FOR COUNT, 0, 72
 	LOCAL = COUNT % 9
 	SIF 장비:COUNT <= 0
 		CONTINUE
 	IF LOCAL == 8
-		PRINTBUTTON @"[%장비이름(COUNT), 20, LEFT%]",COUNT + 2000
+		CALL 장비이름(COUNT)
+		PRINTBUTTON @"[%RESULTS, 20, LEFT%]",COUNT + 2000
 		PRINT 　
 		PRINTFORM ×{장비:COUNT}
 		LOCAL:1 ++
@@ -632,7 +652,8 @@ PRINTL    |-------------------|-------------------|-------------------|
 LOCALS = "   |                   |                   |                   |"
 FOR LOCAL, 0, 3
 	iYpos = -(iEnter_Con * 100)
-	sHtml =  <p align='left'>%SUBSTRING(LOCALS, 1, 4 + (20 * LOCAL))% <img src='%장비이름(착용장비:대상:LOCAL)%' height='800' ypos='{iYpos-150}'>  %SUBSTRING(LOCALS, 24 + (20 * LOCAL), STRLENS(LOCALS))%
+	CALL 장비이름(착용장비:대상:LOCAL)
+	sHtml =  <p align='left'>%SUBSTRING(LOCALS, 1, 4 + (20 * LOCAL))% <img src='%RESULTS%' height='800' ypos='{iYpos-150}'>  %SUBSTRING(LOCALS, 24 + (20 * LOCAL), STRLENS(LOCALS))%
 	sHtml = %REPLACE(sHtml, "\"", "")%
 	HTML_PRINT sHtml
 	iEnter_Con++
@@ -643,7 +664,8 @@ NEXT
 PRINTL    |-------------------|-------------------|-------------------|
 PRINTFORM %TOSTR_SPACE(3)%|
 FOR LOCAL, 0, 3
-	LOCALS = %장비이름(착용장비:대상:LOCAL)%
+	CALL 장비이름(착용장비:대상:LOCAL)
+	LOCALS = %RESULTS%
 	SIF 착용장비:대상:LOCAL == -1
 	LOCALS = 없음
 	PRINTBUTTON @"[%SUBSTRING(LOCALS, 0, 16), 17, LEFT%]",LOCAL+4000
@@ -666,7 +688,8 @@ SETCOLOR 칼라_회색
 CALL SINGLE_DRAWLINE
 RESETCOLOR
 sHtml =  <p align='left'><nobr>
-sHtml += @"<shape type='space' param='{iSpace}'><img src='%장비이름(총력전장비)%' height='800' ypos='0'>"
+CALL 장비이름(총력전장비)
+sHtml += @"<shape type='space' param='{iSpace}'><img src='%RESULTS%' height='800' ypos='0'>"
 HTML_PRINT sHtml
 SELECTCASE 총력전장비
 	CASE 0 TO 8
@@ -691,7 +714,8 @@ ENDSELECT
 PRINTL 
 PRINTFORML %TOSTR_SPACE(18)%[%장비티어(총력전장비)%] [%장비슬롯(총력전장비)%] [%장비타입(총력전장비)%]
 RESETCOLOR
-PRINTFORML %TOSTR_SPACE(18)%[%장비이름(총력전장비)%]
+CALL 장비이름(총력전장비)
+PRINTFORML %TOSTR_SPACE(18)%[%RESULTS%]
 SETCOLOR 칼라_주석
 PRINTFORML %TOSTR_SPACE(18)%%타입설명(총력전장비)%
 RESETCOLOR
@@ -734,7 +758,8 @@ CALL SINGLE_DRAWLINE
 RESETCOLOR
 PRINTL
 sHtml =  <p align='left'><nobr>
-sHtml += @"<shape type='space' param='{iSpace}'><img src='%장비이름(총력전장비+9)%' height='800' ypos='0'>"
+CALL 장비이름(총력전장비 + 9)
+sHtml += @"<shape type='space' param='{iSpace}'><img src='%RESULTS%' height='800' ypos='0'>"
 HTML_PRINT sHtml
 SELECTCASE (총력전장비+9)
 	CASE 0 TO 8
@@ -758,7 +783,8 @@ SELECTCASE (총력전장비+9)
 ENDSELECT
 PRINTFORML %TOSTR_SPACE(18)%[%장비티어(총력전장비+9)%] [%장비슬롯(총력전장비+9)%] [%장비타입(총력전장비+9)%]
 RESETCOLOR
-PRINTFORML %TOSTR_SPACE(18)%[%장비이름(총력전장비+9)%]
+CALL 장비이름(총력전장비 + 9)
+PRINTFORML %TOSTR_SPACE(18)%[%RESULTS%]
 SETCOLOR 칼라_주석
 PRINTFORML %TOSTR_SPACE(18)%%타입설명(총력전장비+9)%
 RESETCOLOR

@@ -42,15 +42,15 @@ RETURN 탈착
 #DIM 대상
 VARSET RESULT, 0 ; WEAPON.ERH 참조
 IF 대상 >= 0 && NO:대상 == 57
-	RESULT:총력전_무기_공격력 = 15
-	RESULT:총력전_무기_명중률 = 15
-	RESULT:총력전_무기_회피율 = 5
-	RESULT:총력전_무기_군중제어강화 = 20
+	RESULT:추가스탯_공격력 = 15
+	RESULT:추가스탯_명중률 = 15
+	RESULT:추가스탯_회피율 = 5
+	RESULT:추가스탯_군중제어강화 = 20
 ELSE
-	RESULT:총력전_무기_공격력 = 7
-	RESULT:총력전_무기_명중률 = 7
-	RESULT:총력전_무기_회피율 = 2
-	RESULT:총력전_무기_군중제어강화 = 10
+	RESULT:추가스탯_공격력 = 7
+	RESULT:추가스탯_명중률 = 7
+	RESULT:추가스탯_회피율 = 2
+	RESULT:추가스탯_군중제어강화 = 10
 ENDIF
 
 ;------------------------------------------

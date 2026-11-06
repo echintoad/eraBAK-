@@ -14,7 +14,7 @@ FIRST_LINE = LINECOUNT
 SIF 대상 == MASTER && FLAG:능력표시모드 == 1
 	FLAG:능력표시모드 = 0
 ;고정 캐릭터 이외는 구상 데일리의 표시를 금지
-SIF !IS_FIXED_CHARA(대상) && FLAG:능력표시모드 == 7
+SIF !IS_FIXED_CHARA(대상) && FLAG:능력표시모드 == 9
 	FLAG:능력표시모드 = 0
 
 ;대상 캐릭터의 정보를 표시
@@ -24,22 +24,24 @@ CALL SINGLE_DRAWLINE
 
 REDRAW 0
 
-PRINTBUTTON "10[돌아온다]", 10
+PRINTBUTTON "12[돌아온다]", 12
 PRINT   
 CALL PRINTBUTTON_EX(" 0[기본]", 0, 1, FLAG:능력표시모드 == 0)
 CALL PRINTBUTTON_EX(" 1[성벽]", 1,대상 != MASTER, FLAG:능력표시모드 == 1)
 CALL PRINTBUTTON_EX(" 2[능력]", 2, 1, FLAG:능력표시모드 == 2)
 CALL PRINTBUTTON_EX(" 3[가계]", 3, 1, FLAG:능력표시모드 == 3)
-CALL PRINTBUTTON_EX(" 4[스킬]", 4, 1, FLAG:능력표시모드 == 4)
-CALL PRINTBUTTON_EX(" 5[의상]", 5, 1, FLAG:능력표시모드 == 5)
-CALL PRINTBUTTON_EX(" 6[설명]", 6, 1, FLAG:능력표시모드 == 6)
-CALL PRINTBUTTON_EX(" 7[데일리]", 7, IS_FIXED_CHARA(대상), FLAG:능력표시모드 == 7)
+CALL PRINTBUTTON_EX(" 4[장비]", 4, 1, FLAG:능력표시모드 == 4)
+CALL PRINTBUTTON_EX(" 5[무기]", 5, 1, FLAG:능력표시모드 == 5)
+CALL PRINTBUTTON_EX(" 6[스킬]", 6, 1, FLAG:능력표시모드 == 6)
+CALL PRINTBUTTON_EX(" 7[의상]", 7, 1, FLAG:능력표시모드 == 7)
+CALL PRINTBUTTON_EX(" 8[설명]", 8, 1, FLAG:능력표시모드 == 8)
+CALL PRINTBUTTON_EX(" 9[데일리]", 9, IS_FIXED_CHARA(대상), FLAG:능력표시모드 == 9)
 
 
 IF 페이지이동
 	PRINTL
-	PRINTBUTTON " 8[이전캐릭터]", 8
-	PRINTBUTTON " 9[다음캐릭터]", 9
+	PRINTBUTTON "10[이전캐릭터]", 10
+	PRINTBUTTON " 11[다음캐릭터]", 11
 ENDIF
 PRINTL 
 
@@ -86,7 +88,70 @@ ELSEIF FLAG:능력표시모드 == 1
 		CLEARLINE LINECOUNT - FIRST_LINE
 		RESTART
 	ENDIF
-ELSEIF FLAG:능력표시모드 == 7 && RESULT >= 100
+ELSEIF FLAG:능력표시모드 == 4
+	;「장비 설정」전용의 입력 처리
+	IF RESULT == 90
+		IF 장비_선택타입 == 0
+			장비_선택타입 = -1
+		ELSE
+			장비_선택타입 = 0
+		ENDIF
+		CLEARLINE LINECOUNT - FIRST_LINE
+		RESTART
+	ELSEIF RESULT == 91
+		IF 장비_선택타입 == 1
+			장비_선택타입 = -1
+		ELSE
+			장비_선택타입 = 1
+		ENDIF
+		CLEARLINE LINECOUNT - FIRST_LINE
+		RESTART
+	ELSEIF RESULT == 92
+		IF 장비_선택타입 == 2
+			장비_선택타입 = -1
+		ELSE
+			장비_선택타입 = 2
+		ENDIF
+		CLEARLINE LINECOUNT - FIRST_LINE
+		RESTART
+	ELSEIF RESULT == 98
+		; 장착 일괄 해제
+		FOR LOCAL, 0, 3
+			CALL 총력전_장비_착용(대상, 착용장비:대상:LOCAL, LOCAL, -1)
+		NEXT
+		CLEARLINE LINECOUNT - FIRST_LINE
+		RESTART
+	ELSEIF RESULT == 99
+		; 장착 해제
+		CALL 총력전_장비_착용(대상, 착용장비:대상:장비_선택타입, 장비_선택타입, -1)
+		CLEARLINE LINECOUNT - FIRST_LINE
+		RESTART
+	ELSEIF RESULT >= 100 && GROUPMATCH(CFLAG:MASTER:소속, CFLAG:대상:소속, CFLAG:대상:포로처)
+		; 장비 변경 - 100
+		CALL 총력전_장비_착용(대상, RESULT - 100, 장비_선택타입, 1)
+		CLEARLINE LINECOUNT - FIRST_LINE
+		RESTART
+	ENDIF
+ELSEIF FLAG:능력표시모드 == 5
+	;「무기 설정」전용의 입력 처리
+	IF RESULT == 99
+		총력전무기스킬 = !총력전무기스킬
+		CLEARLINE LINECOUNT - FIRST_LINE
+		RESTART
+	ELSEIF RESULT >= 100
+		; 무기변경
+		LOCAL = RESULT
+		; 변경 가능한지 화인?
+		CALL SHOP_LIFE_CHECKCHARA54(대상)
+		; 무기 소지하고 있는지 확인?
+		IF RESULT && WEAPON_OWNED(대상, LOCAL)
+			; 확인 + 무기설명
+			CALL WEAPON_MENU_SELECT(대상, LOCAL)
+		ENDIF
+		CLEARLINE LINECOUNT - FIRST_LINE
+		RESTART
+	ENDIF
+ELSEIF FLAG:능력표시모드 == 9 && RESULT >= 100
 	LOCAL = RESULT - 100
 	IF LOCAL == 98
 		CALL SET_ALL_KOJO_DAILY_EACH(대상, 0)
@@ -103,7 +168,7 @@ ELSEIF FLAG:능력표시모드 == 7 && RESULT >= 100
 		CLEARLINE LINECOUNT - FIRST_LINE
 		RESTART
 	ENDIF
-ELSEIF FLAG:능력표시모드 == 5 && GROUPMATCH(CFLAG:MASTER:소속, CFLAG:대상:소속, CFLAG:대상:포로처)
+ELSEIF FLAG:능력표시모드 == 7 && GROUPMATCH(CFLAG:MASTER:소속, CFLAG:대상:소속, CFLAG:대상:포로처)
 	IF INRANGE(RESULT, 100, 100 + CLOTH_PART_NUM - 1)
 		 CALL CLOTH_CHANGE_MENU(대상, RESULT - 100)
 		 CLEARLINE LINECOUNT - FIRST_LINE
@@ -111,19 +176,19 @@ ELSEIF FLAG:능력표시모드 == 5 && GROUPMATCH(CFLAG:MASTER:소속, CFLAG:대
 	ENDIF
 ENDIF
 
-IF RESULT == 10
+IF RESULT == 12
 	REDRAW 1
 	RETURN
-ELSEIF RESULT >= 0 && RESULT <= 6 && FLAG:능력표시모드 != RESULT && !(RESULT == 1 && 대상 == MASTER)
+ELSEIF RESULT >= 0 && RESULT <= 8 && FLAG:능력표시모드 != RESULT && !(RESULT == 1 && 대상 == MASTER)
 	FLAG:능력표시모드 = RESULT
 	CLEARLINE LINECOUNT - FIRST_LINE
 	RESTART
-ELSEIF RESULT == 7 && IS_FIXED_CHARA(대상)
+ELSEIF RESULT == 9 && IS_FIXED_CHARA(대상)
 	FLAG:능력표시모드 = RESULT
 	CLEARLINE LINECOUNT - FIRST_LINE
 	RESTART
 ;다음캐릭터
-ELSEIF RESULT == 8 && 페이지이동
+ELSEIF RESULT == 10 && 페이지이동
 	LOCAL:0 = 0
 	LOCAL:1 = 0
 	WHILE 1
@@ -143,7 +208,7 @@ ELSEIF RESULT == 8 && 페이지이동
 	CLEARLINE LINECOUNT - FIRST_LINE
 	RESTART
 ;뒤의 캐릭터
-ELSEIF RESULT == 9 && 페이지이동
+ELSEIF RESULT == 11 && 페이지이동
 	LOCAL:0 = 0
 	LOCAL:1 = 0
 	WHILE 1
@@ -226,15 +291,38 @@ ELSEIF FLAG:능력표시모드 == 2
 	CALL SHOW_ABL_DETAIL(ARG:0)
 ELSEIF FLAG:능력표시모드 == 3
 	CALL SHOW_PREGNANT_RECORD(ARG:0)
-ELSEIF FLAG:능력표시모드 == 4
-	CALL SHOW_SKILLS(ARG:0)
+ELSEIF FLAG:능력표시모드 == 4 ; 장비
+	CALL 장비변경(ARG:0, GROUPMATCH(CFLAG:MASTER:소속, CFLAG:(ARG:0):소속, CFLAG:(ARG:0):포로처))
+	; 장비 변경 가능한 캐릭터 + 장착된 장비 있음
+	IF GROUPMATCH(CFLAG:MASTER:소속, CFLAG:(ARG:0):소속, CFLAG:(ARG:0):포로처) && (착용장비:(ARG:0):0 >= 0 || 착용장비:(ARG:0):1 >= 0 || 착용장비:(ARG:0):2 >= 0)
+		; 일괄 해제
+		PRINTFORM %TOSTR_SPACE(10)%
+		PRINTBUTTON "[ 장비 일괄 해제 ]", 98
+		PRINTL 
+	ENDIF
+	; 장비 변경 버튼
+	IF 장비_선택타입 > -1 && GROUPMATCH(CFLAG:MASTER:소속, CFLAG:(ARG:0):소속, CFLAG:(ARG:0):포로처)
+		CALL SINGLE_DRAWLINE
+		CALL 장비변경_보유(ARG:0, 장비_선택타입)
+		IF 착용장비:(ARG:0):장비_선택타입 >= 0
+			PRINTFORM %TOSTR_SPACE(10)%
+			PRINTBUTTON "[ 장비 해제 ]", 99
+			PRINTL 
+		ENDIF
+	ENDIF
 ELSEIF FLAG:능력표시모드 == 5
-	CALL SHOW_CLOTH_SETTING(ARG:0, GROUPMATCH(CFLAG:MASTER:소속, CFLAG:(ARG:0):소속, CFLAG:(ARG:0):포로처))
+	; 버튼 활성화 확인
+	CALL SHOP_LIFE_CHECKCHARA54(ARG:0)
+	CALL WEAPON_MENU(ARG:0, RESULT)
 ELSEIF FLAG:능력표시모드 == 6
+	CALL SHOW_SKILLS(ARG:0)
+ELSEIF FLAG:능력표시모드 == 7
+	CALL SHOW_CLOTH_SETTING(ARG:0, GROUPMATCH(CFLAG:MASTER:소속, CFLAG:(ARG:0):소속, CFLAG:(ARG:0):포로처))
+ELSEIF FLAG:능력표시모드 == 8
 	PRINTFORML %NAME_FORMAL(ARG:0)%
 	CALL SINGLE_DRAWLINE
 	CALL SHOW_INFO_ERO_DESCRIPTION(ARG:0)
-ELSEIF FLAG:능력표시모드 == 7
+ELSEIF FLAG:능력표시모드 == 9
 	PRINTFORML %NAME_FORMAL(ARG:0)%의 구상 데일리
 	CALL SINGLE_DRAWLINE
 	CALL LISTUP_KOJO_DAILY_EACH(ARG:0, 100)
@@ -547,10 +635,16 @@ IF FLAG:화상설정
 		sHtml += @"<shape type='space' param='{iSpace * 13}'><img src='웨폰_{TALENT:iID:웨폰}' height='{iFont_Hei_mag - 50}' ypos='-{iEnter_Con * 125}'>"
 	ELSEIF 인포장비이미지 == 1
 		iEnter_Con = 0
-		sHtml +=  @"%TOSTR_SPACE(18)%"
+		sHtml +=  @"%TOSTR_SPACE(20)%"
 		FOR LOCAL, 0, 3
 			iYpos = -(iEnter_Con * 10)
-			sHtml +=  @"%TOSTR_SPACE(9)%<img src='%장비이름(착용장비:iID:LOCAL)%' height='800' ypos='{iYpos-250}'>"
+			CALL 장비이름(착용장비:iID:LOCAL)
+			IF RESULTS == "없음"
+				; <shape type='space' param='{iYpos-250}'>
+				sHtml +=  @"%TOSTR_SPACE(24)%"
+			ELSE
+				sHtml +=  @"%TOSTR_SPACE(8)%<img src='%RESULTS%' height='800' ypos='{iYpos-250}'>"
+			ENDIF
 			iEnter_Con++
 		NEXT
 	ENDIF
@@ -672,9 +766,12 @@ IF FLAG:화상설정
 		PRINTBUTTON @"【 %RESULTS% 】", 4000
 	ELSEIF 인포장비이미지 == 1
 		PRINT 　
-		PRINTBUTTON @"【 %장비이름(착용장비:iID:0), 18, LEFT% 】", 4000
-		PRINTBUTTON @"【 %장비이름(착용장비:iID:1), 18, LEFT% 】", 4000
-		PRINTBUTTON @"【 %장비이름(착용장비:iID:2), 18, LEFT% 】", 4000
+		CALL 장비이름(착용장비:iID:0)
+		PRINTBUTTON @"【 %RESULTS, 18, LEFT% 】", 4000
+		CALL 장비이름(착용장비:iID:1)
+		PRINTBUTTON @"【 %RESULTS, 18, LEFT% 】", 4000
+		CALL 장비이름(착용장비:iID:2)
+		PRINTBUTTON @"【 %RESULTS, 18, LEFT% 】", 4000
 	ELSE
 		PRINTFORM %TOSTR_SPACE(28)%
 		; PRINT 　　　　　　　　　　　　　

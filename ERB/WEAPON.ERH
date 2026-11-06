@@ -23,20 +23,35 @@
 #DIM CONST WN_SMG_NUM = 4
 #DIM CONST WN_SR_NUM = 5
 
-; 임시, 나중에 장비랑 같이 처리?
-; 나중에 장비 업데이트 하면서 추가 작업?
-#DIM CONST 총력전_무기_최대체력 = 1
-#DIM CONST 총력전_무기_공격력 = 2
-#DIM CONST 총력전_무기_방어력 = 3
-#DIM CONST 총력전_무기_명중률 = 4
-#DIM CONST 총력전_무기_회피율 = 5
-#DIM CONST 총력전_무기_치유력 = 6
-#DIM CONST 총력전_무기_치명타 = 7
-#DIM CONST 총력전_무기_치명타저항 = 8
-#DIM CONST 총력전_무기_치명대미지 = 9
-#DIM CONST 총력전_무기_치명대미지저항 = 10
-#DIM CONST 총력전_무기_군중제어한계 = 11
-#DIM CONST 총력전_무기_군중제어강화 = 12
-#DIM CONST 총력전_무기_군중제어저항 = 13
+; 무기/장비 에 스탯 받아올때
+; 예. RESULT:추가스탯_XX
+; 스탯 출력과, 장착, 총력전 시작때 동일한 함수 하나만 불러오면 되게(?)
+; -> 같은곳에서 스탯 조절 + 여러군데 바꿀필요 없게
+#DIM CONST 추가스탯_최대체력 = 1 ; 안쓰지만 미리 만들어 놓음
+#DIM CONST 추가스탯_최대기력 = 2
+#DIM CONST 추가스탯_최대정신력 = 3
+#DIM CONST 추가스탯_무투 = 4
+#DIM CONST 추가스탯_방위 = 5
+#DIM CONST 추가스탯_지략 = 6
+#DIM CONST 추가스탯_정치 = 7
+#DIM CONST 추가스탯_신비 = 8
+#DIM CONST 추가스탯_가창 = 9
+#DIM CONST 추가스탯_요리 = 10
+
+#DIM CONST 추가스탯_총력전체력 = 11
+#DIM CONST 추가스탯_공격력 = 12
+#DIM CONST 추가스탯_방어력 = 13
+#DIM CONST 추가스탯_명중률 = 14
+#DIM CONST 추가스탯_회피율 = 15
+#DIM CONST 추가스탯_치유력 = 16
+
+#DIM CONST 추가스탯_치명타 = 17
+#DIM CONST 추가스탯_치명타저항 = 18
+#DIM CONST 추가스탯_치명대미지 = 19
+#DIM CONST 추가스탯_치명대미지저항 = 20
+
+#DIM CONST 추가스탯_군중제어한계 = 21
+#DIM CONST 추가스탯_군중제어강화 = 22
+#DIM CONST 추가스탯_군중제어저항 = 23
 
 #DIM 총력전무기스킬 ; 무기 장착 창에 총력전 스킬 보여줄지

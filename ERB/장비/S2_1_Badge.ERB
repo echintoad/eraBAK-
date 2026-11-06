@@ -1,0 +1,154 @@
+﻿;------------------------------------------
+; 2 슬롯: 배지
+;------------------------------------------
+; T1
+@총력전장비_이름_4(iLen = 0)
+#DIM DYNAMIC iLen
+IF iLen > 0 && iLen < 14
+	RESULTS = 서벌 배지
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 서벌 금속 배지
+ENDIF
+
+@총력전장비_스탯_4
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_가창 = 2
+RESULT:추가스탯_총력전체력 = 350
+
+
+; T2
+@총력전장비_이름_13(iLen = 0)
+#DIM DYNAMIC iLen
+IF iLen > 0 && iLen < 18
+	RESULTS = 마나슬루 배지
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 마나슬루 펠트 배지
+ENDIF
+
+@총력전장비_스탯_13
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_가창 = 3
+RESULT:추가스탯_총력전체력 = 495
+
+
+; T3
+@총력전장비_이름_22(iLen = 0)
+#DIM DYNAMIC iLen
+IF iLen > 0 && iLen < 18
+	RESULTS = 아델리 배지
+ELSEIF iLen < 23
+	RESULTS = 앵그리 아델리 배지
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 앵그리 아델리 원형 배지
+ENDIF
+
+@총력전장비_스탯_22
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_가창 = 4
+RESULT:추가스탯_총력전체력 = 710
+
+
+; T4
+@총력전장비_이름_31(iLen = 0)
+#DIM DYNAMIC iLen
+IF iLen > 0 && iLen < 18
+	RESULTS = 베로니카 배지
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 베로니카 자수 배지
+ENDIF
+
+@총력전장비_스탯_31
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_가창 = 5
+RESULT:추가스탯_방위 = 1
+RESULT:추가스탯_총력전체력 = 915
+RESULT:추가스탯_회피율 = 12
+
+
+; T5
+@총력전장비_이름_40(iLen = 0)
+#DIM DYNAMIC iLen
+IF iLen > 0 && iLen < 20
+	RESULTS = 카제야마 패치
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 카제야마 벨크로 패치
+ENDIF
+
+@총력전장비_스탯_40
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_가창 = 8
+RESULT:추가스탯_방위 = 2
+RESULT:추가스탯_총력전체력 = 1025
+RESULT:추가스탯_회피율 = 33
+
+
+; T6
+@총력전장비_이름_49(iLen = 0)
+#DIM DYNAMIC iLen
+IF iLen > 0 && iLen < 18
+	RESULTS = 코코데빌 배지
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 코코데빌 실버 배지
+ENDIF
+
+@총력전장비_스탯_49
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_가창 = 9
+RESULT:추가스탯_방위 = 3
+RESULT:추가스탯_총력전체력 = 1225
+RESULT:추가스탯_회피율 = 71
+
+
+; T7
+@총력전장비_이름_58(iLen = 0)
+#DIM DYNAMIC iLen
+RESULTS = 스트릿 배지
+
+@총력전장비_스탯_58
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_가창 = 14
+RESULT:추가스탯_방위 = 4
+RESULT:추가스탯_총력전체력 = 1755
+RESULT:추가스탯_회피율 = 100
+RESULT:추가스탯_방어력 = 10
+
+
+; T8
+@총력전장비_이름_67(iLen = 0)
+#DIM DYNAMIC iLen
+RESULTS = 로렐라이 배지
+
+@총력전장비_스탯_67
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_가창 = 19
+RESULT:추가스탯_방위 = 5
+RESULT:추가스탯_총력전체력 = 2125
+RESULT:추가스탯_회피율 = 123
+RESULT:추가스탯_방어력 = 26
+
+
+; T9
+@총력전장비_이름_76(iLen = 0)
+#DIM DYNAMIC iLen
+IF iLen > 0 && iLen < 22
+	RESULTS = 하르피아 배지
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 하르피아 플렉시블 배지
+ENDIF
+
+@총력전장비_스탯_76
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_가창 = 24
+RESULT:추가스탯_방위 = 7
+RESULT:추가스탯_총력전체력 = 2500
+RESULT:추가스탯_회피율 = 155
+RESULT:추가스탯_방어력 = 52

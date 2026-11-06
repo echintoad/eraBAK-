@@ -1,0 +1,141 @@
+﻿;------------------------------------------
+; 1 슬롯: 신발
+;------------------------------------------
+; T1
+@총력전장비_이름_2(iLen = 0)
+#DIM DYNAMIC iLen
+RESULTS = 핑크 스니커즈
+
+@총력전장비_스탯_2
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_무투 = 1
+RESULT:추가스탯_공격력 = 12
+RESULT:추가스탯_총력전체력 = 150
+
+
+; T2
+@총력전장비_이름_11(iLen = 0)
+#DIM DYNAMIC iLen
+RESULTS = 어그 부츠
+
+@총력전장비_스탯_11
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_무투 = 2
+RESULT:추가스탯_공격력 = 16
+RESULT:추가스탯_총력전체력 = 200
+
+
+; T3
+@총력전장비_이름_20(iLen = 0)
+#DIM DYNAMIC iLen
+RESULTS = 핑키파카 슬리퍼
+
+@총력전장비_스탯_20
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_무투 = 3
+RESULT:추가스탯_공격력 = 22
+RESULT:추가스탯_총력전체력 = 285
+
+
+; T4
+@총력전장비_이름_29(iLen = 0)
+#DIM DYNAMIC iLen
+IF iLen > 0 && iLen < 18
+	RESULTS = 에나멜 로퍼
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 엔티크 에나멜 로퍼
+ENDIF
+
+@총력전장비_스탯_29
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_무투 = 3
+RESULT:추가스탯_방위 = 1
+RESULT:추가스탯_공격력 = 31
+RESULT:추가스탯_총력전체력 = 400
+RESULT:추가스탯_회피율 = 9
+
+
+; T5
+@총력전장비_이름_38(iLen = 0)
+#DIM DYNAMIC iLen
+RESULTS = 전술 부츠
+
+@총력전장비_스탯_38
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_무투 = 4
+RESULT:추가스탯_방위 = 2
+RESULT:추가스탯_공격력 = 38
+RESULT:추가스탯_총력전체력 = 480
+RESULT:추가스탯_회피율 = 26
+
+
+; T6
+@총력전장비_이름_47(iLen = 0)
+#DIM DYNAMIC iLen
+RESULTS = 펌프스 힐
+
+@총력전장비_스탯_47
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_무투 = 5
+RESULT:추가스탯_방위 = 3
+RESULT:추가스탯_공격력 = 48
+RESULT:추가스탯_총력전체력 = 605
+RESULT:추가스탯_회피율 = 53
+
+
+; T7
+@총력전장비_이름_56(iLen = 0)
+#DIM DYNAMIC iLen
+RESULTS = 캐주얼 스니커즈
+
+@총력전장비_스탯_56
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_무투 = 8
+RESULT:추가스탯_방위 = 4
+RESULT:추가스탯_공격력 = 68
+RESULT:추가스탯_총력전체력 = 870
+RESULT:추가스탯_회피율 = 75
+RESULT:추가스탯_군중제어강화 = 10
+
+
+; T8
+@총력전장비_이름_65(iLen = 0)
+#DIM DYNAMIC iLen
+IF iLen > 0 && iLen < 14
+	RESULTS = 등산 부츠
+ELSE		 ;123456789_123456789_123456789_
+	RESULTS = 방수 등산 부츠
+ENDIF
+
+@총력전장비_스탯_65
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_무투 = 10
+RESULT:추가스탯_방위 = 5
+RESULT:추가스탯_공격력 = 85
+RESULT:추가스탯_총력전체력 = 1065
+RESULT:추가스탯_회피율 = 95
+RESULT:추가스탯_군중제어강화 = 25
+
+
+; T9
+@총력전장비_이름_74(iLen = 0)
+#DIM DYNAMIC iLen
+RESULTS = 아쿠아 샌들
+
+@총력전장비_스탯_74
+; #DIM 대상
+VARSET RESULT, 0 ; WEAPON.ERH 참조
+RESULT:추가스탯_무투 = 13
+RESULT:추가스탯_방위 = 7
+RESULT:추가스탯_공격력 = 105
+RESULT:추가스탯_총력전체력 = 1250
+RESULT:추가스탯_회피율 = 117
+RESULT:추가스탯_군중제어강화 = 50
