@@ -27,6 +27,159 @@ RETURN 1
 ;-------------------------------------------------
 ;「아이템」의 처리
 ;-------------------------------------------------
+@SHOP_RAID
+#DIM shop_status ; _0 상점 상태/단계
+#DIM shop_status_1 ; 상점 추가 상태/단계
+#DIM chara ; 선택 중인 캐릭터
+#DIM FIRST_LINE_ITEM_MAIN
+#LOCALSIZE 2
+FIRST_LINE_ITEM_MAIN = LINECOUNT
+
+; 1 장비 구매 메뉴
+; 2 보유 장비 강화 메뉴
+; 3 장착 장비 강화 메뉴
+; 4 기타 재료 메뉴 (코인)
+; RESULT reserve
+; -INF ~ -21 = 고정 버튼, 예. [ 돌아온다 ]
+; -20 ~ -1 = 메뉴당 특별 버튼, 예. [ 다음 캐릭터 ]
+
+;타이틀
+CALL SINGLE_DRAWLINE
+PRINTL 엔젤 24
+CALL SINGLE_DRAWLINE
+
+;상점 상태 선택
+SELECTCASE shop_status
+	CASE 0 ; 상점 상태 선택
+		; 서브 타이틀
+		; PRINTL 
+		PRINTBUTTON @"[%ALIGN_TEXT("장비 구매", 20, "CENTER")%]", 1
+		PRINTL
+		PRINTBUTTON @"[%ALIGN_TEXT("보유 장비 강화", 20, "CENTER")%]", 2
+		PRINTL
+		PRINTBUTTON @"[%ALIGN_TEXT("장착 장비 강화", 20, "CENTER")%]", 3
+		PRINTL
+		PRINTBUTTON @"[%ALIGN_TEXT("기타 재료", 20, "CENTER")%]", 4
+		PRINTL
+	CASE 1 ; 장비 구매 메뉴
+		; 서브 타이틀
+		PRINTL 장비 구매
+	CASE 2 ; 보유 장비 강화 메뉴
+		; 서브 타이틀
+		PRINTL 보유 장비 강화
+	CASE 3 ; 장착 장비 강화 메뉴
+		; 서브 타이틀
+		PRINTL 장착 장비 강화
+	CASE 4 ; 기타 재료 메뉴 / 코인 교환
+		; 서브 타이틀
+		CALL SHOP_RAID_COIN_SHOW
+	CASEELSE ; 오류 방지
+		RETURN
+ENDSELECT
+; 고정 버튼
+PRINTBUTTON @"[%ALIGN_TEXT("상점 나가기", 15, "CENTER")%]", -21
+IF shop_status != 0
+	PRINTFORM %TOSTR_SPACE(5)%
+	PRINTBUTTON @"[%ALIGN_TEXT("이전 메뉴", 15, "CENTER")%]", -22
+ENDIF
+PRINTL
+
+$INPUT_LOOP
+INPUT
+; CLEARLINE LINECOUNT - FIRST_LINE_ITEM_MAIN
+; CLEARLINE 1
+
+; 고정 버튼
+SELECTCASE RESULT
+	CASE -21 ; 나가기
+		shop_status = 0
+		RETURN
+	CASE -22 ; 이전 메뉴
+		shop_status = 0
+		CLEARLINE LINECOUNT - FIRST_LINE_ITEM_MAIN
+		RESTART
+ENDSELECT
+
+SELECTCASE shop_status
+	CASE 0 ; 상점 상태 선택
+		IF RESULT > 0 && RESULT <= 4
+			shop_status = RESULT
+		ENDIF
+		CLEARLINE LINECOUNT - FIRST_LINE_ITEM_MAIN
+		RESTART
+	CASE 1 ; 장비 구매 메뉴
+	CASE 2 ; 보유 장비 강화 메뉴
+	CASE 3 ; 장착 장비 강화 메뉴
+	CASE 4 ; 기타 재료 메뉴 / 코인 교환
+		; 교환 가능한 양 계산, LOCAL:1 교환 가능 양 기록
+		CALL SHOP_RAID_COIN_INPUT(RESULT)
+		CLEARLINE LINECOUNT - FIRST_LINE_ITEM_MAIN
+		RESTART
+	CASEELSE
+ENDSELECT
+
+
+; 추가 인풋
+INPUT
+
+; 장비 구매 메뉴
+@SHOP_RAID_EQUIP_BUY_SHOW
+
+@SHOP_RAID_EQUIP_BUY_INPUT(Num)
+#DIM Num
+
+
+; 기타 재료, 코인 교환
+@SHOP_RAID_COIN_SHOW
+PRINTL 기타 재료 / 코인 교환
+PRINTL
+PRINTBUTTON @"[%ALIGN_TEXT("총력전 코인", 20, "CENTER")%]", 0
+PRINTL
+PRINTBUTTON @"[%ALIGN_TEXT("상급 총력전 코인", 20, "CENTER")%]", 1
+PRINTL
+
+@SHOP_RAID_COIN_INPUT(코인타입)
+#DIM 코인타입 ; 0=기본 코인, 1=상급 코인
+#DIM 교환최대
+#LOCALSIZE 2
+; item.csv 155,총력전 코인 | 156,상급 총력전 코인
+IF 코인타입 == 0 ; 상급 -> 코인
+	교환최대 = ITEM:156
+	PRINTL 교환비:「총력전 코인×5」->「상급 총력전 코인」
+ELSEIF 코인타입 == 1 ; 코인 -> 상급
+	교환최대 = ITEM:155 / 5
+	PRINTL 교환비:「상급 총력전 코인」->「총력전 코인×4」
+ELSE ; 오류방지
+	GOTO END_COINTRADE
+ENDIF
+PRINTFORML 얼마나 교환합니까? (0, 음수 입력으로 캔슬)
+; 프리셋 버튼
+FOR LOCAL, 0, MIN(5, 교환최대) ; 1 ~ 5
+	PRINTBUTTON @"[%LOCAL + 1, 4, RIGHT%]", LOCAL + 1
+	PRINTL
+NEXT
+FOR LOCAL, 1, 10 ; 10 ~ 100
+	IF LOCAL * 10 <= 교환최대
+		PRINTBUTTON @"[%LOCAL * 10, 4, RIGHT%]", LOCAL * 10
+		PRINTL
+	ELSE
+		BREAK
+	ENDIF
+ENDIF
+; 모두 교환
+PRINTBUTTON @"[%교환최대, 4, RIGHT%]", 교환최대
+INPUT
+; 코인 교환
+IF RESULT > 0 && 코인타입 == 0 ; 상급 -> 코인
+	ITEM:155 += RESULT * 4
+	ITEM:156 -= RESULT
+ELSEIF RESULT > 0 && 코인타입 == 1 ; 코인 -> 상급
+	ITEM:155 -= RESULT * 5
+	ITEM:156 += RESULT
+ENDIF
+RETURN 0
+
+; 구 코드
 @총력전상점
 #DIM 상점단계
 #DIM 첫번째
