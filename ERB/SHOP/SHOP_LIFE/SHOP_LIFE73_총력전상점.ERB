@@ -17,6 +17,7 @@ RETURN 1
 ;-------------------------------------------------
 @SHOP_LIFE_EVENTBUY73
 CALL 총력전상점
+; CALL SHOP_RAID
 RETURN 1
 
 ;-------------------------------------------------
@@ -31,9 +32,9 @@ RETURN 1
 #DIM shop_status ; _0 상점 상태/단계
 #DIM shop_status_1 ; 상점 추가 상태/단계
 #DIM chara ; 선택 중인 캐릭터
-#DIM FIRST_LINE_ITEM_MAIN
+#DIM FIRST_LINE
 #LOCALSIZE 2
-FIRST_LINE_ITEM_MAIN = LINECOUNT
+FIRST_LINE = LINECOUNT
 
 ; 1 장비 구매 메뉴
 ; 2 보유 장비 강화 메뉴
@@ -43,27 +44,51 @@ FIRST_LINE_ITEM_MAIN = LINECOUNT
 ; -INF ~ -21 = 고정 버튼, 예. [ 돌아온다 ]
 ; -20 ~ -1 = 메뉴당 특별 버튼, 예. [ 다음 캐릭터 ]
 
+$SETCHARALIST
+; 캐릭터 리스트 계산
+
+$SHOPLOOP
 ;타이틀
 CALL SINGLE_DRAWLINE
-PRINTL 엔젤 24
+; PRINTL 엔젤 24
+; 나중에 코인 보여주는건 각 메뉴에? 필요할때 마다?
+; PRINT  엔젤 24 
+CALL COLUMN_RIGHT_TITLE("구입/강화하는 아이템을 선택")
+PRINTL
 CALL SINGLE_DRAWLINE
+SETCOLOR 칼라_주석
+PRINT  보유중인 코인: 
+SETCOLOR 칼라_주의
+PRINTFORM %ITEMNAME:(155)%x{ITEM:155}
+SETCOLOR 0Xc14fc9
+PRINTFORML %TOSTR_SPACE(5)%%ITEMNAME:(156)%x{ITEM:156}
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
 
 ;상점 상태 선택
 SELECTCASE shop_status
 	CASE 0 ; 상점 상태 선택
 		; 서브 타이틀
 		; PRINTL 
-		PRINTBUTTON @"[%ALIGN_TEXT("장비 구매", 20, "CENTER")%]", 1
+		PRINTBUTTON @"[%ALIGN_TEXT("장비 구매", 18, "CENTER")%]", 1
 		PRINTL
-		PRINTBUTTON @"[%ALIGN_TEXT("보유 장비 강화", 20, "CENTER")%]", 2
+		PRINTBUTTON @"[%ALIGN_TEXT("보유 장비 강화", 18, "CENTER")%]", 2
 		PRINTL
-		PRINTBUTTON @"[%ALIGN_TEXT("장착 장비 강화", 20, "CENTER")%]", 3
+		PRINTBUTTON @"[%ALIGN_TEXT("장착 장비 강화", 18, "CENTER")%]", 3
 		PRINTL
-		PRINTBUTTON @"[%ALIGN_TEXT("기타 재료", 20, "CENTER")%]", 4
+		PRINTBUTTON @"[%ALIGN_TEXT("기타 재료", 18, "CENTER")%]", 4
 		PRINTL
 	CASE 1 ; 장비 구매 메뉴
-		; 서브 타이틀
-		PRINTL 장비 구매
+		; 구입 가능한지 확인, 부족하면 뒤로
+		IF ITEM:155 < 5
+			PRINTW 총력전 코인이 부족합니다 (최소 5개 필요)
+			shop_status = 0
+			CLEARLINE LINECOUNT - FIRST_LINE
+			GOTO SHOPLOOP
+		ENDIF
+		; 구매 메뉴
+		CALL SHOP_RAID_EQUIP_BUY_SHOW
 	CASE 2 ; 보유 장비 강화 메뉴
 		; 서브 타이틀
 		PRINTL 보유 장비 강화
@@ -71,11 +96,13 @@ SELECTCASE shop_status
 		; 서브 타이틀
 		PRINTL 장착 장비 강화
 	CASE 4 ; 기타 재료 메뉴 / 코인 교환
-		; 서브 타이틀
 		CALL SHOP_RAID_COIN_SHOW
 	CASEELSE ; 오류 방지
 		RETURN
 ENDSELECT
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
 ; 고정 버튼
 PRINTBUTTON @"[%ALIGN_TEXT("상점 나가기", 15, "CENTER")%]", -21
 IF shop_status != 0
@@ -86,7 +113,7 @@ PRINTL
 
 $INPUT_LOOP
 INPUT
-; CLEARLINE LINECOUNT - FIRST_LINE_ITEM_MAIN
+; CLEARLINE LINECOUNT - FIRST_LINE
 ; CLEARLINE 1
 
 ; 고정 버튼
@@ -96,8 +123,8 @@ SELECTCASE RESULT
 		RETURN
 	CASE -22 ; 이전 메뉴
 		shop_status = 0
-		CLEARLINE LINECOUNT - FIRST_LINE_ITEM_MAIN
-		RESTART
+		CLEARLINE LINECOUNT - FIRST_LINE
+		GOTO SHOPLOOP
 ENDSELECT
 
 SELECTCASE shop_status
@@ -105,77 +132,189 @@ SELECTCASE shop_status
 		IF RESULT > 0 && RESULT <= 4
 			shop_status = RESULT
 		ENDIF
-		CLEARLINE LINECOUNT - FIRST_LINE_ITEM_MAIN
-		RESTART
+		; CLEARLINE LINECOUNT - FIRST_LINE
+		; GOTO SHOPLOOP
 	CASE 1 ; 장비 구매 메뉴
+		CALL SHOP_RAID_EQUIP_BUY_INPUT(RESULT)
 	CASE 2 ; 보유 장비 강화 메뉴
 	CASE 3 ; 장착 장비 강화 메뉴
 	CASE 4 ; 기타 재료 메뉴 / 코인 교환
 		; 교환 가능한 양 계산, LOCAL:1 교환 가능 양 기록
 		CALL SHOP_RAID_COIN_INPUT(RESULT)
-		CLEARLINE LINECOUNT - FIRST_LINE_ITEM_MAIN
-		RESTART
 	CASEELSE
 ENDSELECT
+; 이렇게 하는 건 위험한가?
+CLEARLINE LINECOUNT - FIRST_LINE
+GOTO SHOPLOOP
 
 
 ; 추가 인풋
 INPUT
 
 ; 장비 구매 메뉴
+; [0]모자  [3]가방    [6]부적
+; [1]장갑  [4]배지    [7]손목시계
+; [2]신발  [5]헤어핀  [8]목걸이
 @SHOP_RAID_EQUIP_BUY_SHOW
+#DIM CONST btnGap = 5
 
-@SHOP_RAID_EQUIP_BUY_INPUT(Num)
-#DIM Num
+PRINTL 장비 구매
+CALL ICPRINT(@"가격 : <5> Coin", "L", 칼라_주의)
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
+PRINTBUTTON  @"[%ALIGN_TEXT("모자", 10, "CENTER")%]",0
+PRINTFORM %TOSTR_SPACE(btnGap)%
+PRINTBUTTON  @"[%ALIGN_TEXT("가방", 10, "CENTER")%]",3
+PRINTFORM %TOSTR_SPACE(btnGap)%
+PRINTBUTTON  @"[%ALIGN_TEXT("부적", 10, "CENTER")%]",6
+PRINTL
+PRINTBUTTON  @"[%ALIGN_TEXT("장갑", 10, "CENTER")%]",1
+PRINTFORM %TOSTR_SPACE(btnGap)%
+PRINTBUTTON  @"[%ALIGN_TEXT("배지", 10, "CENTER")%]",4
+PRINTFORM %TOSTR_SPACE(btnGap)%
+PRINTBUTTON  @"[%ALIGN_TEXT("손목시계", 10, "CENTER")%]",7
+PRINTL
+PRINTBUTTON  @"[%ALIGN_TEXT("신발", 10, "CENTER")%]",2
+PRINTFORM %TOSTR_SPACE(btnGap)%
+PRINTBUTTON  @"[%ALIGN_TEXT("헤어핀", 10, "CENTER")%]",5
+PRINTFORM %TOSTR_SPACE(btnGap)%
+PRINTBUTTON  @"[%ALIGN_TEXT("목걸이", 10, "CENTER")%]",8
+PRINTL
 
+@SHOP_RAID_EQUIP_BUY_INPUT(구입장비)
+#DIM 구입장비
+; validate
+구입장비 = LIMIT(구입장비, 0, 8)
+; 확인
+CALL 총력전장비이미지(구입장비)
+CALL 장비이름(구입장비)
+PRINTFORML [%RESULTS%] 구매 하시겠습니까?
+CALL ASK_YN
+IF RESULT == 0
+	ITEM:155 -= 5
+	장비:구입장비 ++
+ENDIF
 
 ; 기타 재료, 코인 교환
 @SHOP_RAID_COIN_SHOW
 PRINTL 기타 재료 / 코인 교환
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
+PRINTBUTTON @"[%ALIGN_TEXT("총력전 코인 구입", 24, "CENTER")%]", 0
 PRINTL
-PRINTBUTTON @"[%ALIGN_TEXT("총력전 코인", 20, "CENTER")%]", 0
-PRINTL
-PRINTBUTTON @"[%ALIGN_TEXT("상급 총력전 코인", 20, "CENTER")%]", 1
+PRINTBUTTON @"[%ALIGN_TEXT("상급 총력전 코인 구입", 24, "CENTER")%]", 1
 PRINTL
 
 @SHOP_RAID_COIN_INPUT(코인타입)
 #DIM 코인타입 ; 0=기본 코인, 1=상급 코인
-#DIM 교환최대
-#LOCALSIZE 2
+#DIM DYNAMIC 코인소비
+#DIM DYNAMIC 코인소비칼라
+#DIM DYNAMIC 코인소비양
+#DIM DYNAMIC 코인획득
+#DIM DYNAMIC 코인획득칼라
+#DIM DYNAMIC 코인획득양
+#DIM DYNAMIC 교환최대
+#DIM DYNAMIC FIRST_LINE
+#LOCALSIZE 1
+; #LOCALSSIZE 1
+FIRST_LINE = LINECOUNT
+; validate
+코인타입 = LIMIT(코인타입, 0, 1)
+CALL SINGLE_DRAWLINE
 ; item.csv 155,총력전 코인 | 156,상급 총력전 코인
+SETCOLOR 칼라_주의
 IF 코인타입 == 0 ; 상급 -> 코인
 	교환최대 = ITEM:156
-	PRINTL 교환비:「총력전 코인×5」->「상급 총력전 코인」
-ELSEIF 코인타입 == 1 ; 코인 -> 상급
+	PRINTL 교환:「총력전 코인×5」->「상급 총력전 코인」
+ELSE ; ELSEIF 코인타입 == 1 ; 코인 -> 상급
 	교환최대 = ITEM:155 / 5
-	PRINTL 교환비:「상급 총력전 코인」->「총력전 코인×4」
-ELSE ; 오류방지
-	GOTO END_COINTRADE
+	PRINTL 교환:「상급 총력전 코인」->「총력전 코인×4」
 ENDIF
-PRINTFORML 얼마나 교환합니까? (0, 음수 입력으로 캔슬)
+RESETCOLOR
+PRINTFORML 교환 횟수 입력
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
 ; 프리셋 버튼
+IF 코인타입 == 0
+	코인소비 = 156
+	코인소비칼라 = 0xC14FC9
+	코인소비양 = 1
+	코인획득 = 155
+	코인획득칼라 = 칼라_주의
+	코인획득양 = 4
+ELSE ; 코인타입 == 1
+	코인소비 = 155
+	코인소비칼라 = 칼라_주의
+	코인소비양 = 5
+	코인획득 = 156
+	코인획득칼라 = 0xC14FC9
+	코인획득양 = 1
+ENDIF
 FOR LOCAL, 0, MIN(5, 교환최대) ; 1 ~ 5
-	PRINTBUTTON @"[%LOCAL + 1, 4, RIGHT%]", LOCAL + 1
-	PRINTL
+	; %ITEMNAME:(155)%x{LOCAL + 1} 소비
+	PRINTBUTTON @"[%@"{LOCAL + 1}", 3, RIGHT%]", LOCAL + 1
+	SETCOLOR 코인소비칼라
+	PRINTFORM %TOSTR_SPACE(1)%%ITEMNAME:(코인소비)%%@"x{(LOCAL + 1) * 코인소비양}", 5, RIGHT% 소비
+	SETCOLOR 코인획득칼라
+	PRINTFORML %TOSTR_SPACE(3)%%ITEMNAME:(코인획득)%%@"x{(LOCAL + 1) * 코인획득양}", 5, RIGHT% 획득
+	RESETCOLOR
 NEXT
 FOR LOCAL, 1, 10 ; 10 ~ 100
 	IF LOCAL * 10 <= 교환최대
-		PRINTBUTTON @"[%LOCAL * 10, 4, RIGHT%]", LOCAL * 10
-		PRINTL
+		PRINTBUTTON @"[%@"{LOCAL * 10}", 3, RIGHT%]", LOCAL * 10
+		SETCOLOR 코인소비칼라
+		PRINTFORM %TOSTR_SPACE(1)%%ITEMNAME:(코인소비)%%@"x{(LOCAL * 10) * 코인소비양}", 5, RIGHT% 소비
+		SETCOLOR 코인획득칼라
+		PRINTFORML %TOSTR_SPACE(3)%%ITEMNAME:(코인획득)%%@"x{(LOCAL * 10) * 코인획득양}", 5, RIGHT% 획득
+		RESETCOLOR
 	ELSE
 		BREAK
 	ENDIF
+NEXT
+; 모두 교환, 최대 999
+IF 교환최대 > 5 && 교환최대 % 10 > 0
+	LOCAL = MIN(교환최대, 999)
+	PRINTBUTTON @"[%@"{LOCAL}", 3, RIGHT%]", LOCAL
+	SETCOLOR 코인소비칼라
+	PRINTFORM %TOSTR_SPACE(1)%%ITEMNAME:(코인소비)%%@"x{LOCAL * 코인소비양}", 5, RIGHT% 소비
+	SETCOLOR 코인획득칼라
+	PRINTFORML %TOSTR_SPACE(3)%%ITEMNAME:(코인획득)%%@"x{LOCAL * 코인획득양}", 5, RIGHT% 획득
+	RESETCOLOR
 ENDIF
-; 모두 교환
-PRINTBUTTON @"[%교환최대, 4, RIGHT%]", 교환최대
+; 취소 버튼
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
+PRINTBUTTON @"[%"취소", 6, RIGHT%]", 0
 INPUT
 ; 코인 교환
-IF RESULT > 0 && 코인타입 == 0 ; 상급 -> 코인
-	ITEM:155 += RESULT * 4
-	ITEM:156 -= RESULT
-ELSEIF RESULT > 0 && 코인타입 == 1 ; 코인 -> 상급
-	ITEM:155 -= RESULT * 5
-	ITEM:156 += RESULT
+IF RESULT > 0 && 코인타입 == 0 && RESULT <= 교환최대 ; 상급 -> 코인
+	LOCAL = RESULT
+	PRINTFORML %ITEMNAME:(코인소비)% {LOCAL}을 소비해, %ITEMNAME:(코인획득)% {LOCAL * 4}을 얻습니다
+	PRINTFORML 좋습니까?
+	CALL ASK_YN()
+	IF RESULT == 1
+		CLEARLINE LINECOUNT - FIRST_LINE
+		RESTART
+	ELSE
+		ITEM:155 += LOCAL * 4
+		ITEM:156 -= LOCAL
+	ENDIF
+ELSEIF RESULT > 0 && 코인타입 == 1 && RESULT <= 교환최대 ; 코인 -> 상급
+	LOCAL = RESULT
+	PRINTFORML %ITEMNAME:(코인소비)% {LOCAL * 5} 소비해, %ITEMNAME:(코인획득)% {LOCAL} 얻습니다
+	PRINTFORML 좋습니까?
+	CALL ASK_YN()
+	IF RESULT == 1
+		CLEARLINE LINECOUNT - FIRST_LINE
+		RESTART
+	ELSE
+		ITEM:155 -= LOCAL * 5
+		ITEM:156 += LOCAL
+	ENDIF
 ENDIF
 RETURN 0
 
