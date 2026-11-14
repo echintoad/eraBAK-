@@ -365,69 +365,9 @@ RETURNF LOCALS
 CALL SINGLE_DRAWLINE
 CALL ICPRINT(@"현재 <%ANAME(대상)%>의 장비", "L", 칼라_주의)
 CALL SINGLE_DRAWLINE
-; LOCAL:0 = 29
-; LOCAL:1 = LOCAL:0 * 3 + 2
-PRINTFORM %TOSTR_SPACE(3)%|%TOSTR_REPEAT("-",셀너비 / 2 - 5)%%ALIGN_TEXT("1 슬롯", 11, "CENTER")%%TOSTR_REPEAT("-",셀너비 / 2 - 5)%|
-PRINTFORM %TOSTR_REPEAT("-",셀너비 / 2 - 5)%%ALIGN_TEXT("2 슬롯", 11, "CENTER")%%TOSTR_REPEAT("-",셀너비 / 2 - 5)%|
-PRINTFORML %TOSTR_REPEAT("-",셀너비 / 2 - 5)%%ALIGN_TEXT("3 슬롯", 11, "CENTER")%%TOSTR_REPEAT("-",셀너비 / 2 - 5)%|
-; 화상 설정
-IF FLAG:화상설정
-	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
-	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
-	; PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
-	PRINTL
-	; 이미지 추가
-	IF 대상 >= 0
-		sHtml = 
-		FOR LOCAL, 0, 3
-			IF LOCAL == 0
-				LOCALS = %TOSTR_SPACE(11)%
-			ELSE
-				LOCALS = %TOSTR_SPACE(15)%
-			ENDIF
-			; CALL PRINT_HTML_IMAGE("장비_더미", 7, 3, 4)
-			; LOCALS += @"%RESULTS%"
-			CALL 장비이름(착용장비:대상:LOCAL)
-			IF RESULTS == "없음"
-				LOCALS += @"%TOSTR_SPACE(15)%"
-			ELSE
-				CALL PRINT_HTML_IMAGE(RESULTS, 7, 3, 4)
-				LOCALS += @"%RESULTS%"
-			ENDIF
-			sHtml += @"%LOCALS%"
-		NEXT
-		HTML_PRINT sHtml
-	ENDIF
-	PRINTL
-	; PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
-	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
-ENDIF
-; PRINTFORML %TOSTR_REPEAT("H", 셀너비 * 3 + 7)%
-; PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_REPEAT("-", 8)%H%TOSTR_SPACE(LOCAL - 18)%H%TOSTR_REPEAT("-", 8)%|%TOSTR_REPEAT("-", 8)%H%TOSTR_SPACE(LOCAL - 18)%H%TOSTR_REPEAT("-", 8)%|%TOSTR_REPEAT("-", 8)%H%TOSTR_SPACE(LOCAL - 18)%H%TOSTR_REPEAT("-", 8)%|
-PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
-; 버튼 줄
-LOCAL:1 = 셀너비 - 4
-PRINTFORM %TOSTR_SPACE(2)%
-LOCALS =
-LOCALS += @" | "
-PRINTFORM %LOCALS%
+; 장비 render
 ; 스롯 버튼, 90, 91, 92
-FOR LOCAL, 0, 3
-	RESULTS = 
-	CALL 장비이름(착용장비:대상:LOCAL)
-	IF 버튼활성화
-		PRINTBUTTON @"[%ALIGN_TEXT(RESULTS, LOCAL:1, "CENTER")%]", LOCAL + 90
-	ELSE
-		PRINTFORM [%ALIGN_TEXT(RESULTS, LOCAL:1, "CENTER")%]
-	ENDIF
-	PRINTFORM %LOCALS%
-NEXT
-PRINTL
-; 화상 설정 추가
-IF !FLAG:화상설정
-	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
-ENDIF
-PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_REPEAT("-",셀너비)%|%TOSTR_REPEAT("-",셀너비)%|%TOSTR_REPEAT("-",셀너비)%|
+CALL 장비변경_이미지(착용장비:대상:0, 착용장비:대상:1, 착용장비:대상:2, 90, 91, 92)
 PRINTL
 IF 대상 < 0
 	RETURN
@@ -452,6 +392,86 @@ FOR LOCAL, 0, 3
 	NEXT
 NEXT
 RESETCOLOR
+
+@장비변경_이미지(슬롯1, 슬롯2, 슬롯3, 슬롯1_버튼 = -1, 슬롯2_버튼 = -1, 슬롯3_버튼 = -1)
+#DIM 슬롯1 ; 1 슬롯 장비 번호
+#DIM 슬롯2 ; 2 슬롯 장비 번호
+#DIM 슬롯3 ; 3 슬롯 장비 번호
+#DIM 장비번호, 3
+#DIM DYNAMIC 슬롯1_버튼 ; 버튼 갑, -1 이면 비 활성화
+#DIM DYNAMIC 슬롯2_버튼
+#DIM DYNAMIC 슬롯3_버튼
+#DIM 장비번호_버튼, 3
+#DIMS DYNAMIC sHtml
+#DIM CONST 셀너비 = 29
+#LOCALSIZE 2
+#LOCALSSIZE 1
+
+장비번호:0 = 슬롯1
+장비번호:1 = 슬롯2
+장비번호:2 = 슬롯3
+; 버튼
+장비번호_버튼:0 = 슬롯1_버튼
+장비번호_버튼:1 = 슬롯2_버튼
+장비번호_버튼:2 = 슬롯3_버튼
+
+PRINTFORM %TOSTR_SPACE(3)%|%TOSTR_REPEAT("-",셀너비 / 2 - 5)%%ALIGN_TEXT("1 슬롯", 11, "CENTER")%%TOSTR_REPEAT("-",셀너비 / 2 - 5)%|
+PRINTFORM %TOSTR_REPEAT("-",셀너비 / 2 - 5)%%ALIGN_TEXT("2 슬롯", 11, "CENTER")%%TOSTR_REPEAT("-",셀너비 / 2 - 5)%|
+PRINTFORML %TOSTR_REPEAT("-",셀너비 / 2 - 5)%%ALIGN_TEXT("3 슬롯", 11, "CENTER")%%TOSTR_REPEAT("-",셀너비 / 2 - 5)%|
+; 화상 설정
+IF FLAG:화상설정
+	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
+	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
+	PRINTL
+	; 이미지 추가
+	sHtml = 
+	FOR LOCAL, 0, 3
+		IF LOCAL == 0
+			LOCALS = %TOSTR_SPACE(11)%
+		ELSE
+			LOCALS = %TOSTR_SPACE(15)%
+		ENDIF
+		CALL 장비이름(장비번호:LOCAL)
+		IF RESULTS == "없음"
+			LOCALS += @"%TOSTR_SPACE(15)%"
+		ELSE
+			CALL PRINT_HTML_IMAGE(RESULTS, 7, 3, 4)
+			LOCALS += @"%RESULTS%"
+		ENDIF
+		sHtml += @"%LOCALS%"
+	NEXT
+	HTML_PRINT sHtml
+	PRINTL
+	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
+ENDIF
+; PRINTFORML %TOSTR_REPEAT("H", 셀너비 * 3 + 7)%
+PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
+; 버튼 줄
+LOCAL:1 = 셀너비 - 4
+PRINTFORM %TOSTR_SPACE(2)%
+LOCALS =
+LOCALS += @" | "
+PRINTFORM %LOCALS%
+; 스롯 버튼, 90, 91, 92
+FOR LOCAL, 0, 3
+	RESULTS = 
+	CALL 장비이름(장비번호:LOCAL)
+	IF 장비번호_버튼:LOCAL >= 0
+		PRINTBUTTON @"[%ALIGN_TEXT(RESULTS, LOCAL:1, "CENTER")%]", 장비번호_버튼:LOCAL
+	ELSE
+		SETCOLOR 칼라_선택불가
+		PRINTFORM [%ALIGN_TEXT(RESULTS, LOCAL:1, "CENTER")%]
+		RESETCOLOR
+	ENDIF
+	PRINTFORM %LOCALS%
+NEXT
+PRINTL
+; 화상 설정 추가
+IF !FLAG:화상설정
+	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
+ENDIF
+PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_REPEAT("-",셀너비)%|%TOSTR_REPEAT("-",셀너비)%|%TOSTR_REPEAT("-",셀너비)%|
+PRINTL
 
 ; 보유중인 장비 + 장착 버튼
 @장비변경_보유(대상, 선택슬롯)
@@ -759,17 +779,20 @@ ABL:대상:요리 += RESULT:추가스탯_요리 * 탈착
 RETURN 1
 
 
-@총력전장비이미지(총력전장비)
-#DIMS sHtml
-#DIM iSpace
+@총력전장비이미지(총력전장비, 보유양표시 = 1)
 #DIM 총력전장비
+#DIM 보유양표시
+#DIMS sHtml
+; #DIM iSpace
 
 IF FLAG:이벤트화상
 	sHtml =  <p align='left'><nobr>
 	CALL 장비이름(총력전장비)
-	sHtml += @"<shape type='space' param='{iSpace}'><img src='%RESULTS%' height='800' ypos='0'>"
+	; <shape type='space' param='{iSpace}'>
+	sHtml += @"<img src='%RESULTS%' height='800' ypos='0'>"
 	HTML_PRINT sHtml
 ENDIF
+; should be const or func?
 SELECTCASE 총력전장비
 	CASE 0 TO 8
 	SETCOLOR 0Xbce9a9
@@ -801,13 +824,16 @@ PRINTFORM %TOSTR_SPACE(18)%
 CALL COLOR_LINE
 PRINTFORM %TOSTR_SPACE(18)%
 SETCOLOR 칼라_주석
-PRINTFORM %장비효과(총력전장비)%
+PRINTFORML %장비효과(총력전장비)%
 RESETCOLOR
-PRINTFORML %TOSTR_SPACE(18)%
-PRINTFORM %TOSTR_SPACE(18)%
-SETCOLOR 칼라_회색
-PRINTFORML {장비:총력전장비} 개 보유중
-RESETCOLOR
+; PRINTFORML %TOSTR_SPACE(18)%
+IF 보유양표시
+	PRINTFORM %TOSTR_SPACE(18)%
+	SETCOLOR 칼라_회색
+	PRINTFORM {장비:총력전장비} 개 보유중
+	RESETCOLOR
+ENDIF
+PRINTL
 SETCOLOR 칼라_회색
 CALL SINGLE_DRAWLINE
 RESETCOLOR

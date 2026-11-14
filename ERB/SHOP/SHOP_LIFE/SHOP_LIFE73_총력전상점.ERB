@@ -16,8 +16,8 @@ RETURN 1
 ;「아이템의 왼쪽 컬럼 메뉴의 입력 처리
 ;-------------------------------------------------
 @SHOP_LIFE_EVENTBUY73
-CALL 총력전상점
-; CALL SHOP_RAID
+; CALL 총력전상점
+CALL SHOP_RAID
 RETURN 1
 
 ;-------------------------------------------------
@@ -31,9 +31,12 @@ RETURN 1
 @SHOP_RAID
 #DIM shop_status ; _0 상점 상태/단계
 #DIM shop_status_1 ; 상점 추가 상태/단계
-#DIM chara ; 선택 중인 캐릭터
+#DIM iChara_list, 2000 ; 장비 장착 캐릭터
+#DIM iChara_list_num ; 캐릭터 리스트 시작 번호
+#DIM CONST iChara_list_perPage = 10 ; 페이지 당 캐릭터 수
+#DIM iChara ; 선택 중인 캐릭터
 #DIM FIRST_LINE
-#LOCALSIZE 2
+#LOCALSIZE 3
 FIRST_LINE = LINECOUNT
 
 ; 1 장비 구매 메뉴
@@ -46,6 +49,22 @@ FIRST_LINE = LINECOUNT
 
 $SETCHARALIST
 ; 캐릭터 리스트 계산
+VARSET iChara_list, -1
+; iChara_list:0 = 2 ; 호시노 장비 있음
+iChara_list_num = 0
+FOR LOCAL, 0, CHARANUM ; LOCAL = 캐릭터 번호
+	; 같은 세력, 장비 변경 가능한지 확인
+	SIF !GROUPMATCH(CFLAG:MASTER:소속, CFLAG:LOCAL:소속, CFLAG:LOCAL:포로처)
+		CONTINUE
+	FOR LOCAL:1, 0, 3 ; 장비 있는지 확인
+		IF 착용장비:LOCAL:(LOCAL:1) >= 0
+			iChara_list:iChara_list_num = LOCAL
+			iChara_list_num ++
+			BREAK
+		ENDIF
+	NEXT
+NEXT
+iChara_list_num = 0
 
 $SHOPLOOP
 ;타이틀
@@ -60,7 +79,7 @@ SETCOLOR 칼라_주석
 PRINT  보유중인 코인: 
 SETCOLOR 칼라_주의
 PRINTFORM %ITEMNAME:(155)%x{ITEM:155}
-SETCOLOR 0Xc14fc9
+SETCOLOR 0Xc14fc9 ; #C14FC9 #FA58F4
 PRINTFORML %TOSTR_SPACE(5)%%ITEMNAME:(156)%x{ITEM:156}
 SETCOLOR 칼라_회색
 CALL SINGLE_DRAWLINE
@@ -77,7 +96,7 @@ SELECTCASE shop_status
 		PRINTL
 		PRINTBUTTON @"[%ALIGN_TEXT("장착 장비 강화", 18, "CENTER")%]", 3
 		PRINTL
-		PRINTBUTTON @"[%ALIGN_TEXT("기타 재료", 18, "CENTER")%]", 4
+		PRINTBUTTON @"[%ALIGN_TEXT("기타 재료", 18, "CENTER")%]", 5
 		PRINTL
 	CASE 1 ; 장비 구매 메뉴
 		; 구입 가능한지 확인, 부족하면 뒤로
@@ -90,12 +109,52 @@ SELECTCASE shop_status
 		; 구매 메뉴
 		CALL SHOP_RAID_EQUIP_BUY_SHOW
 	CASE 2 ; 보유 장비 강화 메뉴
-		; 서브 타이틀
-		PRINTL 보유 장비 강화
-	CASE 3 ; 장착 장비 강화 메뉴
+		CALL SHOP_RAID_UPGRADE_OWNED_SHOW
+	CASE 3 ; 장착 장비 강화 메뉴: 캐릭터 선택
+		PRINTL 장착 장비 강화
+		; 캐릭터 리스트
+		CALL SHOP_RAID_UPGRADE_CHARA_SHOW(iChara_list, iChara_list_num, iChara_list_perPage)
+		; 다음 페이지, 이전 페이지
+		IF iChara_list_num >= iChara_list_perPage
+			PRINTBUTTON @"[ 이전 페이지 ]", -1
+		ELSE
+			SETCOLOR 칼라_선택불가
+			PRINT [ 이전 페이지 ]
+			RESETCOLOR
+		ENDIF
+		LOCAL = iChara_list_num + iChara_list_perPage
+		VARSIZE iChara_list
+		IF LOCAL < RESULT && iChara_list:LOCAL >= 0
+			PRINTBUTTON @"[ 다음 페이지 ]", -2
+		ELSE
+			SETCOLOR 칼라_선택불가
+			PRINT [ 다음 페이지 ]
+			RESETCOLOR
+		ENDIF
+		PRINTL
+	CASE 4 ; 장착 장비 강화 메뉴: 장비 선택 + 결정
 		; 서브 타이틀
 		PRINTL 장착 장비 강화
-	CASE 4 ; 기타 재료 메뉴 / 코인 교환
+		CALL SHOP_RAID_UPGRADE_EQUIPED_SHOW(iChara_list:iChara)
+		IF iChara > 0 ; 이전 캐릭터
+			PRINTBUTTON @"[ 이전 캐릭터 ]", -1
+		ELSE
+			SETCOLOR 칼라_선택불가
+			PRINT [ 이전 캐릭터 ]
+			RESETCOLOR
+		ENDIF
+		PRINT    
+		LOCAL = iChara + 1
+		VARSIZE iChara_list
+		IF LOCAL < RESULT && iChara_list:LOCAL >= 0 ; 다음 캐릭터
+			PRINTBUTTON @"[ 다음 캐릭터 ]", -2
+		ELSE
+			SETCOLOR 칼라_선택불가
+			PRINT [ 다음 캐릭터 ]
+			RESETCOLOR
+		ENDIF
+		PRINTL 
+	CASE 5 ; 기타 재료 메뉴 / 코인 교환
 		CALL SHOP_RAID_COIN_SHOW
 	CASEELSE ; 오류 방지
 		RETURN
@@ -114,7 +173,7 @@ PRINTL
 $INPUT_LOOP
 INPUT
 ; CLEARLINE LINECOUNT - FIRST_LINE
-; CLEARLINE 1
+CLEARLINE 1
 
 ; 고정 버튼
 SELECTCASE RESULT
@@ -122,14 +181,20 @@ SELECTCASE RESULT
 		shop_status = 0
 		RETURN
 	CASE -22 ; 이전 메뉴
-		shop_status = 0
+		IF shop_status == 4 ; 장착 장비: 캐릭터 선택시 전 상태
+			shop_status = 3
+		ELSE
+			iChara_list_num = 0
+			; iChara = -1
+			shop_status = 0
+		ENDIF
 		CLEARLINE LINECOUNT - FIRST_LINE
 		GOTO SHOPLOOP
 ENDSELECT
 
 SELECTCASE shop_status
 	CASE 0 ; 상점 상태 선택
-		IF RESULT > 0 && RESULT <= 4
+		IF RESULT > 0 && RESULT <= 5
 			shop_status = RESULT
 		ENDIF
 		; CLEARLINE LINECOUNT - FIRST_LINE
@@ -137,8 +202,28 @@ SELECTCASE shop_status
 	CASE 1 ; 장비 구매 메뉴
 		CALL SHOP_RAID_EQUIP_BUY_INPUT(RESULT)
 	CASE 2 ; 보유 장비 강화 메뉴
-	CASE 3 ; 장착 장비 강화 메뉴
-	CASE 4 ; 기타 재료 메뉴 / 코인 교환
+		CALL SHOP_RAID_UPGRADE_OWNED_INPUT(RESULT)
+	CASE 3 ; 장착 장비 강화 메뉴: 캐릭터 선택
+		; 이전 + 다음 페이지, 페이지 당 40?
+		IF RESULT == -1 ; 이전 페이지
+			iChara_list_num -= iChara_list_perPage
+		ELSEIF RESULT == -2 ; 다음 페이지
+			iChara_list_num += iChara_list_perPage
+		ELSEIF RESULT > 0
+			iChara = RESULT
+			shop_status = 4
+		ENDIF
+	CASE 4 ; 장착 장비 강화 메뉴: 장비 선택 + 결정
+		IF RESULT == -1 ; 이전 캐릭터
+			iChara --
+		ELSEIF RESULT == -2 ; 다음 캐릭터
+			iChara ++
+		ELSEIF RESULT >= 0 && RESULT < 3
+			; 장비 업확인
+			CALL SHOP_RAID_UPGRADE_EQUIPED_INPUT(iChara_list:iChara, RESULT)
+		ENDIF
+		; 0, 1, 2
+	CASE 5 ; 기타 재료 메뉴 / 코인 교환
 		; 교환 가능한 양 계산, LOCAL:1 교환 가능 양 기록
 		CALL SHOP_RAID_COIN_INPUT(RESULT)
 	CASEELSE
@@ -148,16 +233,12 @@ CLEARLINE LINECOUNT - FIRST_LINE
 GOTO SHOPLOOP
 
 
-; 추가 인풋
-INPUT
-
-; 장비 구매 메뉴
+;region 장비 구매 메뉴
 ; [0]모자  [3]가방    [6]부적
 ; [1]장갑  [4]배지    [7]손목시계
 ; [2]신발  [5]헤어핀  [8]목걸이
 @SHOP_RAID_EQUIP_BUY_SHOW
 #DIM CONST btnGap = 5
-
 PRINTL 장비 구매
 CALL ICPRINT(@"가격 : <5> Coin", "L", 칼라_주의)
 SETCOLOR 칼라_회색
@@ -182,12 +263,19 @@ PRINTFORM %TOSTR_SPACE(btnGap)%
 PRINTBUTTON  @"[%ALIGN_TEXT("목걸이", 10, "CENTER")%]",8
 PRINTL
 
+; 장비 구매 메뉴
 @SHOP_RAID_EQUIP_BUY_INPUT(구입장비)
 #DIM 구입장비
 ; validate
 구입장비 = LIMIT(구입장비, 0, 8)
 ; 확인
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
 CALL 총력전장비이미지(구입장비)
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
 CALL 장비이름(구입장비)
 PRINTFORML [%RESULTS%] 구매 하시겠습니까?
 CALL ASK_YN
@@ -195,6 +283,218 @@ IF RESULT == 0
 	ITEM:155 -= 5
 	장비:구입장비 ++
 ENDIF
+
+
+;region 보유 장비 강화 메뉴
+@SHOP_RAID_UPGRADE_OWNED_SHOW
+#DIM DYNAMIC 타입번호
+#DIM DYNAMIC 장비번호
+#DIMS CONST 장비타입이름 = "모자", "장갑", "신발", "가방", "배지", "헤어핀", "부적", "손목시계", "목걸이"
+#LOCALSIZE 3
+#LOCALSSIZE 2
+PRINTL 보유 장비 강화
+FOR 타입번호, 0, 9
+	LOCAL:1 = 0 ; 다음 줄
+	LOCAL:2 = 0 ; 장비타입이름 썻는지
+	FOR LOCAL, 0, 8
+		장비번호 = LOCAL * 9 + 타입번호
+		IF 장비:장비번호 > 0
+			IF LOCAL:2 == 0 ; 장비 타입 이름 + 줄
+				CALL COLOR_LINE
+				CALL COLOR_PRINTL(장비타입이름:타입번호, 칼라_주석)
+				LOCAL:2 = 1
+			ENDIF
+			IF LOCAL:1 >= 3 ; 다음줄
+				LOCAL:1 = 0
+				PRINTL
+			ENDIF
+			CALL 장비이름(장비번호, 20)
+			PRINTBUTTON @"[%ALIGN_TEXT(RESULTS, 22, "CENTER")%]", LOCAL * 9 + 타입번호
+			IF 장비:장비번호 > 999
+				PRINTFORM x많음%TOSTR_SPACE(6)%
+			ELSE
+				PRINTFORM %ALIGN_TEXT(@"x{장비:장비번호}", 5, "RIGHT")%%TOSTR_SPACE(6)%
+			ENDIF
+			LOCAL:1 ++
+		ENDIF
+	NEXT
+	IF LOCAL:2 == 1
+		PRINTL
+	ENDIF
+NEXT
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
+
+; 보유 장비 강화 메뉴
+@SHOP_RAID_UPGRADE_OWNED_INPUT(강화장비)
+#DIM 강화장비
+; validate, T9 모자 = 72
+SIF 강화장비 < 0 || 강화장비 >= 72
+	RETURN
+
+CALL _SHOP_RAID_UPGRADE(강화장비)
+CALL 장비이름(장비)
+PRINTFORML [%RESULTS%]%조사만처리(RESULTS, "을")% 강화 하시겠습니까?
+IF ITEM:155 >= 강회비용코인(장비) && ITEM:156 >= 강회비용상급코인(장비) && MONEY >= 강화비용크레딧(장비)
+	PRINTBUTTON @"[ 강화한다 ]", 1
+ELSE
+	SETCOLOR 칼라_선택불가
+	PRINT [ 강화한다 ]
+	RESETCOLOR
+ENDIF
+PRINT    
+PRINTBUTTON @"[ 돌아온다 ]", 0
+INPUT
+CLEARLINE 1
+
+IF RESULT == 1 ; 장비 강화, validation?
+	ITEM:155 -= 강회비용코인(강화장비)
+	ITEM:156 -= 강회비용상급코인(강화장비)
+	MONEY -= 강화비용크레딧(강화장비)
+	장비:강화장비 --
+	장비:(강화장비 + 9) ++
+	; 텍스트
+	CALL 장비이름(강화장비)
+	LOCALS:0 = %RESULTS%
+	CALL 장비이름(강화장비 + 9)
+	LOCALS:1 = %RESULTS%
+	PRINTFORMW [%LOCALS:0%]%조사만처리(LOCALS:0,"이")% [%LOCALS:1%]%조사만처리(LOCALS:1,"로")% 강화되었습니다
+ENDIF
+
+;region 장착 장비 강화
+; 장착 장비 강화 메뉴: 캐릭터 선택
+@SHOP_RAID_UPGRADE_CHARA_SHOW(iChara_list, iStart, iShow)
+#DIM REF iChara_list, 0
+#DIM iStart ; 시작 번호
+#DIM iShow ; 페이지 당 보여줄 캐릭터 수
+#LOCALSIZE 1
+
+VARSIZE iChara_list
+FOR LOCAL, iStart, iStart + iShow
+	IF iChara_list:LOCAL < 0
+		BREAK
+	ENDIF
+	PRINTBUTTON @"[%ALIGN_TEXT(ANAME(iChara_list:LOCAL), 14, "CENTER")%]", LOCAL
+	PRINTFORM ({LOCAL})
+	PRINTL
+NEXT
+
+; 장착 장비 강화 메뉴: 장비 선택 + 결정
+@SHOP_RAID_UPGRADE_EQUIPED_SHOW(iChara)
+#DIM iChara ; 캐릭터 번호
+#LOCALSIZE 3
+; 캐릭터
+PRINTFORML %조사처리(ANAME(iChara),"의")% 장비 강화
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
+; 장착 장비 창
+; 버튼 계산
+VARSET LOCAL, -1
+SIF 착용장비:iChara:0 >= 0
+	LOCAL:0 = 0
+SIF 착용장비:iChara:1 >= 0
+	LOCAL:1 = 1
+SIF 착용장비:iChara:2 >= 0
+	LOCAL:2 = 2
+PRINTL
+CALL 장비변경_이미지(착용장비:iChara:0, 착용장비:iChara:1, 착용장비:iChara:2, LOCAL:0, LOCAL:1, LOCAL:2)
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
+
+; 장착 장비 강화 메뉴: 장비 선택 + 결정
+@SHOP_RAID_UPGRADE_EQUIPED_INPUT(iChara, 선택슬롯)
+#DIM iChara
+#DIM 선택슬롯
+#DIM DYNAMIC 강화장비
+; #LOCALSIZE 1
+#LOCALSSIZE 2
+
+; validate if equip exist?
+강화장비 = 착용장비:iChara:선택슬롯
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
+CALL _SHOP_RAID_UPGRADE(강화장비)
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
+CALL 장비이름(강화장비)
+PRINTFORML %조사처리(ANAME(iChara),"의")% [%RESULTS%]%조사만처리(RESULTS, "을")% 강화 하시겠습니까?
+IF ITEM:155 >= 강회비용코인(강화장비) && ITEM:156 >= 강회비용상급코인(강화장비) && MONEY >= 강화비용크레딧(강화장비)
+	PRINTBUTTON @"[ 강화한다 ]", 1
+ELSE
+	SETCOLOR 칼라_선택불가
+	PRINT [ 강화한다 ]
+	RESETCOLOR
+ENDIF
+PRINT    
+PRINTBUTTON @"[ 돌아온다 ]", 0
+INPUT
+CLEARLINE 1
+
+IF RESULT == 1 ; 탈착, 장비 강화, 장착
+	ITEM:155 -= 강회비용코인(강화장비)
+	ITEM:156 -= 강회비용상급코인(강화장비)
+	MONEY -= 강화비용크레딧(강화장비)
+	CALL 총력전_장비_착용(iChara, 강화장비, 선택슬롯,-1)
+	장비:강화장비 --
+	장비:(강화장비+9) ++
+	CALL 총력전_장비_착용(iChara, 강화장비+9, 선택슬롯,1)
+	; 텍스트
+	CALL 장비이름(강화장비)
+	LOCALS:0 = %RESULTS%
+	CALL 장비이름(강화장비 + 9)
+	LOCALS:1 = %RESULTS%
+	PRINTFORMW [%LOCALS:0%]%조사만처리(LOCALS:0,"이")% [%LOCALS:1%]%조사만처리(LOCALS:1,"로")% 강화되었습니다
+ENDIF
+
+;region 장비 강화 정보 창
+; 보유 장비, 장착 장비 강화 정보 창
+@_SHOP_RAID_UPGRADE(강화장비)
+#DIM 강화장비
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
+CALL COLOR_PRINTL("현재 장비",칼라_주석)
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
+CALL 총력전장비이미지(강화장비, 0)
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
+
+CALL COLOR_PRINT("강화 후 장비",칼라_주석)
+PRINT  / 
+; 강화 비용
+CALL COLOR_PRINT(" 강화비용:  ",칼라_주석)
+IF 강회비용코인(강화장비) > 0
+	SETCOLOR 칼라_주의
+	PRINTFORM {강회비용코인(강화장비)} 
+	PRINT Coin   
+	RESETCOLOR
+ENDIF
+IF 강회비용상급코인(강화장비) > 0
+	SETCOLOR 0Xc14fc9
+	PRINTFORM {강회비용상급코인(강화장비)} 
+	PRINT Coin   
+	RESETCOLOR
+ENDIF
+IF 강화비용크레딧(강화장비) > 0
+	PRINTFORM {강화비용크레딧(강화장비)} 
+	PRINT 크레딧
+ENDIF
+PRINTL
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
+CALL 총력전장비이미지(강화장비 + 9, 0)
+SETCOLOR 칼라_회색
+CALL SINGLE_DRAWLINE
+RESETCOLOR
 
 ; 기타 재료, 코인 교환
 @SHOP_RAID_COIN_SHOW
@@ -207,6 +507,8 @@ PRINTL
 PRINTBUTTON @"[%ALIGN_TEXT("상급 총력전 코인 구입", 24, "CENTER")%]", 1
 PRINTL
 
+;region 기타 재료
+; 기타 재료, 코인 교환
 @SHOP_RAID_COIN_INPUT(코인타입)
 #DIM 코인타입 ; 0=기본 코인, 1=상급 코인
 #DIM DYNAMIC 코인소비
@@ -504,6 +806,9 @@ ELSEIF 상점단계 == 2
 	ENDIF
 ELSEIF 상점단계 == 3
 	CALL 총력전장비이미지(총력전장비)
+	SETCOLOR 칼라_회색
+	CALL SINGLE_DRAWLINE
+	RESETCOLOR
 	CALL ICPRINT(@"가격 : <5> Coin", "L", 칼라_주의)
 	SETCOLOR 칼라_회색
 	CALL SINGLE_DRAWLINE
