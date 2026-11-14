@@ -334,9 +334,9 @@ SIF 강화장비 < 0 || 강화장비 >= 72
 	RETURN
 
 CALL _SHOP_RAID_UPGRADE(강화장비)
-CALL 장비이름(장비)
+CALL 장비이름(강화장비)
 PRINTFORML [%RESULTS%]%조사만처리(RESULTS, "을")% 강화 하시겠습니까?
-IF ITEM:155 >= 강회비용코인(장비) && ITEM:156 >= 강회비용상급코인(장비) && MONEY >= 강화비용크레딧(장비)
+IF ITEM:155 >= 강회비용코인(강화장비) && ITEM:156 >= 강회비용상급코인(강화장비) && MONEY >= 강화비용크레딧(강화장비)
 	PRINTBUTTON @"[ 강화한다 ]", 1
 ELSE
 	SETCOLOR 칼라_선택불가
