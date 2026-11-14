@@ -33,7 +33,7 @@ RETURN 1
 #DIM shop_status_1 ; 상점 추가 상태/단계
 #DIM iChara_list, 2000 ; 장비 장착 캐릭터
 #DIM iChara_list_num ; 캐릭터 리스트 시작 번호
-#DIM CONST iChara_list_perPage = 10 ; 페이지 당 캐릭터 수
+#DIM CONST iChara_list_perPage = 80 ; 페이지 당 캐릭터 수
 #DIM iChara ; 선택 중인 캐릭터
 #DIM FIRST_LINE
 #LOCALSIZE 3
@@ -56,8 +56,8 @@ FOR LOCAL, 0, CHARANUM ; LOCAL = 캐릭터 번호
 	; 같은 세력, 장비 변경 가능한지 확인
 	SIF !GROUPMATCH(CFLAG:MASTER:소속, CFLAG:LOCAL:소속, CFLAG:LOCAL:포로처)
 		CONTINUE
-	FOR LOCAL:1, 0, 3 ; 장비 있는지 확인
-		IF 착용장비:LOCAL:(LOCAL:1) >= 0
+	FOR LOCAL:1, 0, 3 ; 장비 있는지 확인 && T8 까지만 확인
+		IF 착용장비:LOCAL:(LOCAL:1) >= 0 && 착용장비:LOCAL:(LOCAL:1) < 72
 			iChara_list:iChara_list_num = LOCAL
 			iChara_list_num ++
 			BREAK
@@ -209,7 +209,7 @@ SELECTCASE shop_status
 			iChara_list_num -= iChara_list_perPage
 		ELSEIF RESULT == -2 ; 다음 페이지
 			iChara_list_num += iChara_list_perPage
-		ELSEIF RESULT > 0
+		ELSEIF RESULT >= 0
 			iChara = RESULT
 			shop_status = 4
 		ENDIF
@@ -368,6 +368,7 @@ ENDIF
 #DIM REF iChara_list, 0
 #DIM iStart ; 시작 번호
 #DIM iShow ; 페이지 당 보여줄 캐릭터 수
+#DIM DYNAMIC iLine ; 라인당 캐릭터 기록용
 #LOCALSIZE 1
 
 VARSIZE iChara_list
@@ -375,10 +376,15 @@ FOR LOCAL, iStart, iStart + iShow
 	IF iChara_list:LOCAL < 0
 		BREAK
 	ENDIF
+	IF iLine >= 5 ; 라인당 캐릭터
+		iLine = 0
+		PRINTL
+	ENDIF
 	PRINTBUTTON @"[%ALIGN_TEXT(ANAME(iChara_list:LOCAL), 14, "CENTER")%]", LOCAL
-	PRINTFORM ({LOCAL})
-	PRINTL
+	PRINT     
+	iLine ++
 NEXT
+PRINTL
 
 ; 장착 장비 강화 메뉴: 장비 선택 + 결정
 @SHOP_RAID_UPGRADE_EQUIPED_SHOW(iChara)
@@ -392,11 +398,11 @@ RESETCOLOR
 ; 장착 장비 창
 ; 버튼 계산
 VARSET LOCAL, -1
-SIF 착용장비:iChara:0 >= 0
+SIF 착용장비:iChara:0 >= 0 && 착용장비:iChara:0 < 72
 	LOCAL:0 = 0
-SIF 착용장비:iChara:1 >= 0
+SIF 착용장비:iChara:1 >= 0 && 착용장비:iChara:1 < 72
 	LOCAL:1 = 1
-SIF 착용장비:iChara:2 >= 0
+SIF 착용장비:iChara:2 >= 0 && 착용장비:iChara:2 < 72
 	LOCAL:2 = 2
 PRINTL
 CALL 장비변경_이미지(착용장비:iChara:0, 착용장비:iChara:1, 착용장비:iChara:2, LOCAL:0, LOCAL:1, LOCAL:2)
