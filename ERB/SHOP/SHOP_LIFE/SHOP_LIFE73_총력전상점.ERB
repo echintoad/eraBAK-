@@ -540,10 +540,10 @@ CALL SINGLE_DRAWLINE
 SETCOLOR 칼라_주의
 IF 코인타입 == 0 ; 상급 -> 코인
 	교환최대 = ITEM:156
-	PRINTL 교환:「총력전 코인×5」->「상급 총력전 코인」
+	PRINTL 교환:「상급 총력전 코인」->「총력전 코인×4」
 ELSE ; ELSEIF 코인타입 == 1 ; 코인 -> 상급
 	교환최대 = ITEM:155 / 5
-	PRINTL 교환:「상급 총력전 코인」->「총력전 코인×4」
+	PRINTL 교환:「총력전 코인×5」->「상급 총력전 코인」
 ENDIF
 RESETCOLOR
 PRINTFORML 교환 횟수 입력
