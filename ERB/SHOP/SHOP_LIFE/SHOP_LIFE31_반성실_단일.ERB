@@ -329,7 +329,13 @@ IF TALENT:(ARG:0):임신 && !TALENT:(ARG:0):아이인질
 	RETURN RESULT
 ENDIF
 
-PRINTFORML 정말로 %조사처리(ANAME(ARG:0),"를")% 처형합니까?
+; 고정 캐릭터 추가 텍스트
+IF IS_FIXED_CHARA(ARG:0)
+	PRINTFORML %조사처리(ANAME(ARG:0),"은")% 고정 캐릭터입니다
+	PRINTL 정말로 처형합니까?
+ELSE
+	PRINTFORML 정말로 %조사처리(ANAME(ARG:0),"를")% 처형합니까?
+ENDIF
 SIF CFLAG:(ARG:0):소속 == CFLAG:MASTER:소속 && CALC_SHOP_TIME(!IS_ANIMAL(ARG:0)) == SHOP_TIME
 	CALL COLOR_PRINTL("처형할 경우, 최대 행동횟수가 감소되어 즉시 이번 거점 페이즈가 종료됩니다!", 칼라_경고)
 
@@ -387,7 +393,13 @@ IF TALENT:(ARG:0):임신 && !TALENT:(ARG:0):아이인질
 ENDIF
 
 PRINTFORMW 촉수의 방의 관리자인 %ANAME(관리인)%가 처형을 실행합니다
-PRINTFORML 정말로 %조사처리(ANAME(ARG:0),"를")% 처형합니까?
+; 고정 캐릭터 추가 텍스트
+IF IS_FIXED_CHARA(ARG:0)
+	PRINTFORML %조사처리(ANAME(ARG:0),"은")% 고정 캐릭터입니다
+	PRINTL 정말로 처형합니까?
+ELSE
+	PRINTFORML 정말로 %조사처리(ANAME(ARG:0),"를")% 처형합니까?
+ENDIF
 
 SIF CFLAG:(ARG:0):소속 == CFLAG:MASTER:소속 && CALC_SHOP_TIME(!IS_ANIMAL(ARG:0)) == SHOP_TIME
 	CALL COLOR_PRINTL("처형할 경우, 최대 행동횟수가 감소되어 즉시 이번 거점 페이즈가 종료됩니다!", 칼라_경고)
@@ -431,7 +443,13 @@ RETURN 1
 PRINTFORML 처형장에 끌려온 %조사처리(ANAME(ARG:0),"는")%, 울면서 목숨구걸을 시작했다
 PRINTFORML 『두 번 다시 거역하지 않을게, 무슨 일이든 할테니, 배 속의 아이만은 살려줘』라고, 필사적인 모습으로 애원하고 있다.
 PRINTL 
-PRINTFORML 정말로 %조사처리(ANAME(ARG:0),"를")% 처형합니까?
+; 고정 캐릭터 추가 텍스트
+IF IS_FIXED_CHARA(ARG:0)
+	PRINTFORML %조사처리(ANAME(ARG:0),"은")% 고정 캐릭터입니다
+	PRINTL 정말로 처형합니까?
+ELSE
+	PRINTFORML 정말로 %조사처리(ANAME(ARG:0),"를")% 처형합니까?
+ENDIF
 
 SIF CFLAG:(ARG:0):소속 == CFLAG:MASTER:소속 && CALC_SHOP_TIME(!IS_ANIMAL(ARG:0)) == SHOP_TIME
 	CALL COLOR_PRINTL("처형할 경우, 최대 행동횟수가 감소되어 즉시 이번 거점 페이즈가 종료됩니다!", 칼라_경고)
@@ -496,7 +514,13 @@ PRINTL
 PRINTFORML 촉수가 형성해진 처형실에 끌려온 %조사처리(ANAME(ARG:0),"는")%, 울면서 목숨구걸을 시작했다
 PRINTFORMW 『두 번 다시 거역하지 않을게, 무슨 일이든 할테니, 배 속의 아이만은 살려줘』라고, 필사적인 모습으로 애원하고 있다.
 PRINTL 
-PRINTFORML 정말로 %조사처리(ANAME(ARG:0),"를")% 처형합니까?
+; 고정 캐릭터 추가 텍스트
+IF IS_FIXED_CHARA(ARG:0)
+	PRINTFORML %조사처리(ANAME(ARG:0),"은")% 고정 캐릭터입니다
+	PRINTL 정말로 처형합니까?
+ELSE
+	PRINTFORML 정말로 %조사처리(ANAME(ARG:0),"를")% 처형합니까?
+ENDIF
 
 SIF CFLAG:(ARG:0):소속 == CFLAG:MASTER:소속 && CALC_SHOP_TIME(!IS_ANIMAL(ARG:0)) == SHOP_TIME
 	CALL COLOR_PRINTL("처형할 경우, 최대 행동횟수가 감소되어 즉시 이번 거점 페이즈가 종료됩니다!", 칼라_경고)
