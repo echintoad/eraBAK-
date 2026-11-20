@@ -458,6 +458,16 @@ ELSEIF RESULT == 4
 	RETURN 4
 
 ELSEIF RESULT == 3
+	; 고정 캐릭터 확인, YN 확인 후 진행
+	IF IS_FIXED_CHARA(대상)
+		PRINTFORML %조사처리(ANAME(대상),"은")% 고정 캐릭터입니다
+		PRINTL 정말로 처형합니까?
+		CALL ASK_YN
+		IF RESULT == 1 ; NO
+			CLEARLINE 2
+			GOTO INPUT_LOOP
+		ENDIF
+	ENDIF
 	CALL KOJO_EVENT(대상, 336)
 	PRINTFORMW ……………………
 	PRINTFORMW ……
