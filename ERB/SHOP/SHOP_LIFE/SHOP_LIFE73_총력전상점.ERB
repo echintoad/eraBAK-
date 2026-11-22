@@ -96,7 +96,7 @@ SELECTCASE shop_status
 		PRINTL
 		PRINTBUTTON @"[%ALIGN_TEXT("장착 장비 강화", 18, "CENTER")%]", 3
 		PRINTL
-		PRINTBUTTON @"[%ALIGN_TEXT("기타 재료", 18, "CENTER")%]", 5
+		PRINTBUTTON @"[%ALIGN_TEXT("코인 교환", 18, "CENTER")%]", 5
 		PRINTL
 	CASE 1 ; 장비 구매 메뉴
 		; 구입 가능한지 확인, 부족하면 뒤로
@@ -509,7 +509,7 @@ RESETCOLOR
 
 ; 기타 재료, 코인 교환
 @SHOP_RAID_COIN_SHOW
-PRINTL 기타 재료 / 코인 교환
+PRINTL 코인 교환
 SETCOLOR 칼라_회색
 CALL SINGLE_DRAWLINE
 RESETCOLOR
