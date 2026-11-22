@@ -211,7 +211,7 @@ PRINTFORML     [비전투계능력] :【가창】【요리】
 PRINTFORML     [ 기타아이템 ] : 이상한회중시계, 대역인형, 벌꿀수,
 PRINTFORML                     배란유발제, 미약, 도원향, 증류주
 [SKIPEND]
-CALL COLOR_PRINTL("     【",,"SSS",칼라_크림,"급】 스텟재분배티켓       or 전능력UP++",)
+CALL COLOR_PRINTL("     【",,"SSS",칼라_크림,"급】 스탯재분배티켓       or 전능력UP++",)
 CALL COLOR_PRINTL("     【",," SS",칼라_골드,"급】 태평신비서 or 최면술 or 음기술대전 or 전능력UP+",)
 CALL COLOR_PRINTL("     【",,"  S",칼라_연분홍,"급】 [ 전투계능력 ] UP++  or 전능력UP",)
 CALL COLOR_PRINTL("     【",,"  A",칼라_흰색,"급】 [ 전투계능력 ] UP+   or [비전투계능력] UP++",)
@@ -512,11 +512,11 @@ FOR COUNT:0, 0, 36
 	IF ITEMNUM:(COUNT:0) > 0
 		IF COUNT:0 == 0
 			IF ITEMNUM:0 > 1
-				CALL COLOR_PRINTL("엄청난 행운! SSS급 아이템 상자에서 ",,"스텟재분배티켓",칼라_크림,@"을 {ITEMNUM:0}개 획득했습니다!",)
+				CALL COLOR_PRINTL("엄청난 행운! SSS급 아이템 상자에서 ",,"스탯재분배티켓",칼라_크림,@"을 {ITEMNUM:0}개 획득했습니다!",)
 			ELSE
-				CALL COLOR_PRINTL("극악의 확률을 뚫고 SSS급 아이템 상자에서 ",,"스텟재분배티켓",칼라_크림,"을 획득했습니다!",)
+				CALL COLOR_PRINTL("극악의 확률을 뚫고 SSS급 아이템 상자에서 ",,"스탯재분배티켓",칼라_크림,"을 획득했습니다!",)
 			ENDIF
-			PRINTFORMW 획득한 스텟재분배티켓은 [능력상승]메뉴에서 사용할 수 있습니다.
+			PRINTFORMW 획득한 스탯재분배티켓은 [능력상승]메뉴에서 사용할 수 있습니다.
 		ELSE
 			PRINTFORML  %@"%ITEMNAME:(ITEMID:(COUNT:0))%", 15, LEFT%x{ITEMNUM:(COUNT:0), 2, LEFT}개를 획득했다!
 		ENDIF

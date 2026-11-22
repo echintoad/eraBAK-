@@ -15,187 +15,11 @@ CATCH
 	RETURN
 ENDCATCH
 
-; 상점 업데이트 시 제거할 예정
-@장비효과(ARG)
-#FUNCTIONS
-; FUNCTIONS, 총력전_장비_스탯_출력_텍스트 사용 불가
-SELECTCASE ARG
-	CASE 0
-		LOCALS = 무투 +1, 공격력 +20
-	CASE 1
-		LOCALS = 무투 +1, 공격력 +20
-	CASE 2
-		LOCALS = 무투 +1, 공격력 +12, 총력전HP +150
-	CASE 3
-		LOCALS = 방위 +1, 총력전HP +350
-	CASE 4
-		LOCALS = 가창 +2, 총력전HP +350
-	CASE 5
-		LOCALS = 정치 +2, 총력전HP +170, 명중률 +14
-	CASE 6
-		LOCALS = 방위 +2, 치명저항 +19, 치댐저항 +13
-	CASE 7
-		LOCALS = 지략 +2, 치명타 +16, 치댐 +10
-	CASE 8
-		LOCALS = 요리 +2, 치유력 +40
-	; ----- T2 -----
-	CASE 9
-		LOCALS = 무투 +2, 공격력 +27
-	CASE 10
-		LOCALS = 무투 +2, 공격력 +27
-	CASE 11
-		LOCALS = 무투 +2, 공격력 +16, 총력전HP +200
-	CASE 12
-		LOCALS = 방위 +2, 총력전HP +470
-	CASE 13
-		LOCALS = 가창 +3, 총력전HP +495
-	CASE 14
-		LOCALS = 정치 +3, 총력전HP +245, 명중률 +20
-	CASE 15
-		LOCALS = 방위 +2, 치명저항 +23, 치댐저항 +19
-	CASE 16
-		LOCALS = 지략 +3, 치명타 +23, 치댐 +14
-	CASE 17
-		LOCALS = 요리 +3, 치유력 +57
-	; ----- T3 -----
-	CASE 18
-		LOCALS = 무투 +3, 공격력 +38
-	CASE 19
-		LOCALS = 무투 +3, 공격력 +38
-	CASE 20
-		LOCALS = 무투 +3, 공격력 +22, 총력전HP +285
-	CASE 21
-		LOCALS = 방위 +3, 총력전HP +660
-	CASE 22
-		LOCALS = 가창 +4, 총력전HP +710
-	CASE 23
-		LOCALS = 정치 +4, 총력전HP +340, 명중률 +30
-	CASE 24
-		LOCALS = 방위 +3, 치명저항 +35, 치댐저항 +25
-	CASE 25
-		LOCALS = 지략 +4, 치명타 +32, 치댐 +21
-	CASE 26
-		LOCALS = 요리 +5, 치유력 +78
-	; ----- T4 -----
-	CASE 27
-		LOCALS = 무투 +4, 공격력 +56, 명중률 +6
-	CASE 28
-		LOCALS = 무투 +3, 지략 +1, 공격력 +52, 치명타 +15
-	CASE 29
-		LOCALS = 무투 +3, 방위 +1, 공격력 +31, 총력전HP +400, 회피율 +9
-	CASE 30
-		LOCALS = 방위 +4, 총력전HP +865, 방어력 +10
-	CASE 31
-		LOCALS = 가창 +5, 방위 +1, 총력전HP +915, 회피율 +12
-	CASE 32
-		LOCALS = 정치 +5, 무투 +1, 총력전HP +470, 명중률 +43, CC저항 +5
-	CASE 33
-		LOCALS = 방위 +4, 치명저항 +43, 치댐저항 +32, CC강화 +10, CC저항 +5
-	CASE 34
-		LOCALS = 지략 +5, 가창 +1, 치명타 +49, 치댐 +32
-	CASE 35
-		LOCALS = 요리 +7, 정치 +1, 치유력 +100, 회피율 +12
-	; ----- T5 -----
-	CASE 36
-		LOCALS = 무투 +6, 공격력 +76, 명중률 +11
-	CASE 37
-		LOCALS = 무투 +4, 지략 +2, 공격력 +59, 치명타 +43
-	CASE 38
-		LOCALS = 무투 +4, 방위 +2, 공격력 +38, 총력전HP +480, 회피율 +26
-	CASE 39
-		LOCALS = 방위 +6, 총력전HP +950, 방어력 +28
-	CASE 40
-		LOCALS = 가창 +8, 방위 +2, 총력전HP +1025, 회피율 +33
-	CASE 41
-		LOCALS = 정치 +7, 무투 +2, 총력전HP +625, 명중률 +53, CC저항 +15
-	CASE 42
-		LOCALS = 방위 +6, 치명저항 +50, 치댐저항 +37, CC강화 +20, CC저항 +15
-	CASE 43
-		LOCALS = 지략 +7, 가창 +2, 치명타 +67, 치댐 +45
-	CASE 44
-		LOCALS = 요리 +9, 정치 +1, 치유력 +125, 회피율 +33
-	; ----- T6 -----
-	CASE 45
-		LOCALS = 무투 +8, 공격력 +100, 명중률 +28
-	CASE 46
-		LOCALS = 무투 +5, 지략 +4, 공격력 +65, 치명타 +88
-	CASE 47
-		LOCALS = 무투 +5, 방위 +3, 공격력 +48, 총력전HP +605, 회피율 +53
-	CASE 48
-		LOCALS = 방위 +8, 총력전HP +1010, 방어력 +60
-	CASE 49
-		LOCALS = 가창 +9, 방위 +3, 총력전HP +1225, 회피율 +71
-	CASE 50
-		LOCALS = 정치 +8, 무투 +3, 총력전HP +825, 명중률 +72, CC저항 +35
-	CASE 51
-		LOCALS = 방위 +8, 치명저항 +57, 치댐저항 +42, CC강화 +40, CC저항 +30
-	CASE 52
-		LOCALS = 지략 +8, 가창 +4, 치명타 +95, 치댐 +65
-	CASE 53
-		LOCALS = 요리 +12, 정치 +2, 치유력 +144, 회피율 +70
-	; ----- T7 -----
-	CASE 54
-		LOCALS = 무투 +12, 공격력 +129, 명중률 +59, 치댐 +10
-	CASE 55
-		LOCALS = 무투 +8, 지략 +6, 공격력 +84, 치명타 +119, 치댐 +21
-	CASE 56
-		LOCALS = 무투 +8, 방위 +4, 공격력 +68, 총력전HP +870, 회피율 +75, CC강화 +10
-	CASE 57 ;; -----
-		LOCALS = 방위 +12, 총력전HP +1450, 방어력 +84, 치댐저항 +13
-	CASE 58
-		LOCALS = 가창 +14, 방위 +4, 총력전HP +1755, 회피율 +100, 방어력 +10
-	CASE 59
-		LOCALS = 정치 +12, 무투 +4, 총력전HP +1165, 명중률 +101, CC저항 +55, 치명저항 +17
-	CASE 60 ;; -----
-		LOCALS = 방위 +11, 정치 +1, 치명저항 +79, 치댐저항 +59, CC강화 +65, CC저항 +50
-	CASE 61
-		LOCALS = 지략 +12, 가창 +7, 치명타 +126, 치댐 +85, 명중률 +30
-	CASE 62
-		LOCALS = 요리 +18, 정치 +3, 치유력 +204, 회피율 +100, CC저항 +15
-	; ----- T8 -----
-	CASE 63
-		LOCALS = 무투 +16, 공격력 +140, 명중률 +95, 치댐 +28
-	CASE 64
-		LOCALS = 무투 +10, 지략 +8, 공격력 +94, 치명타 +139, 치댐 +55
-	CASE 65
-		LOCALS = 무투 +10, 방위 +5, 공격력 +85, 총력전HP +1065, 회피율 +95, CC강화 +25
-	CASE 66 ;; -----
-		LOCALS = 방위 +16, 총력전HP +1750, 방어력 +103, 치댐저항 +34
-	CASE 67
-		LOCALS = 가창 +19, 방위 +5, 총력전HP +2125, 회피율 +123, 방어력 +26
-	CASE 68
-		LOCALS = 정치 +16, 무투 +5, 총력전HP +1425, 명중률 +124, CC저항 +65, 치명저항 +47
-	CASE 69 ;; -----
-		LOCALS = 방위 +13, 정치 +3, 치명저항 +110, 치댐저항 +82, CC강화 +80, CC저항 +60
-	CASE 70
-		LOCALS = 지략 +16, 가창 +9, 치명타 +145, 치댐 +96, 명중률 +76
-	CASE 71
-		LOCALS = 요리 +24, 정치 +4, 치유력 +246, 회피율 +123, CC저항 +40
-	; ----- T9 -----
-	CASE 72 ;; -----
-		LOCALS = 무투 +20, 공격력 +150, 명중률 +150, 치댐 +55
-	CASE 73
-		LOCALS = 무투 +13, 지략 +10, 공격력 +105, 치명타 +160, 치댐 +105
-	CASE 74
-		LOCALS = 무투 +13, 방위 +10, 공격력 +105, 총력전HP +1250, 회피율 +117, CC강화 +50
-	CASE 75 ;; -----
-		LOCALS = 방위 +20, 총력전HP +2000, 방어력 +133, 치댐저항 +71
-	CASE 76
-		LOCALS = 가창 +24, 방위 +7, 총력전HP +2500, 회피율 +155, 방어력 +52
-	CASE 77
-		LOCALS = 정치 +20, 무투 +7, 총력전HP +1750, 명중률 +150, CC저항 +80, 치명저항 +91
-	CASE 78 ;; -----
-		LOCALS = 방위 +17, 정치 +5, 치명저항 +140, 치댐저항 +102, CC강화 +105, CC저항 +80
-	CASE 79
-		LOCALS = 지략 +20, 가창 +12, 치명타 +161, 치댐 +108, 명중률 +150
-	CASE 80
-		LOCALS = 요리 +30, 정치 +5, 치유력 +305, 회피율 +150, CC저항 +80
-ENDSELECT
-RETURNF LOCALS
-
 @장비티어(ARG)
 #FUNCTIONS
 SELECTCASE ARG
+	CASE -99 TO -1
+		LOCALS = --
 	CASE 0 TO 8
 		LOCALS = T1
 	CASE 9 TO 17
@@ -365,69 +189,9 @@ RETURNF LOCALS
 CALL SINGLE_DRAWLINE
 CALL ICPRINT(@"현재 <%ANAME(대상)%>의 장비", "L", 칼라_주의)
 CALL SINGLE_DRAWLINE
-; LOCAL:0 = 29
-; LOCAL:1 = LOCAL:0 * 3 + 2
-PRINTFORM %TOSTR_SPACE(3)%|%TOSTR_REPEAT("-",셀너비 / 2 - 5)%%ALIGN_TEXT("1 슬롯", 11, "CENTER")%%TOSTR_REPEAT("-",셀너비 / 2 - 5)%|
-PRINTFORM %TOSTR_REPEAT("-",셀너비 / 2 - 5)%%ALIGN_TEXT("2 슬롯", 11, "CENTER")%%TOSTR_REPEAT("-",셀너비 / 2 - 5)%|
-PRINTFORML %TOSTR_REPEAT("-",셀너비 / 2 - 5)%%ALIGN_TEXT("3 슬롯", 11, "CENTER")%%TOSTR_REPEAT("-",셀너비 / 2 - 5)%|
-; 화상 설정
-IF FLAG:화상설정
-	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
-	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
-	; PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
-	PRINTL
-	; 이미지 추가
-	IF 대상 >= 0
-		sHtml = 
-		FOR LOCAL, 0, 3
-			IF LOCAL == 0
-				LOCALS = %TOSTR_SPACE(11)%
-			ELSE
-				LOCALS = %TOSTR_SPACE(15)%
-			ENDIF
-			; CALL PRINT_HTML_IMAGE("장비_더미", 7, 3, 4)
-			; LOCALS += @"%RESULTS%"
-			CALL 장비이름(착용장비:대상:LOCAL)
-			IF RESULTS == "없음"
-				LOCALS += @"%TOSTR_SPACE(15)%"
-			ELSE
-				CALL PRINT_HTML_IMAGE(RESULTS, 7, 3, 4)
-				LOCALS += @"%RESULTS%"
-			ENDIF
-			sHtml += @"%LOCALS%"
-		NEXT
-		HTML_PRINT sHtml
-	ENDIF
-	PRINTL
-	; PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
-	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
-ENDIF
-; PRINTFORML %TOSTR_REPEAT("H", 셀너비 * 3 + 7)%
-; PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_REPEAT("-", 8)%H%TOSTR_SPACE(LOCAL - 18)%H%TOSTR_REPEAT("-", 8)%|%TOSTR_REPEAT("-", 8)%H%TOSTR_SPACE(LOCAL - 18)%H%TOSTR_REPEAT("-", 8)%|%TOSTR_REPEAT("-", 8)%H%TOSTR_SPACE(LOCAL - 18)%H%TOSTR_REPEAT("-", 8)%|
-PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
-; 버튼 줄
-LOCAL:1 = 셀너비 - 4
-PRINTFORM %TOSTR_SPACE(2)%
-LOCALS =
-LOCALS += @" | "
-PRINTFORM %LOCALS%
+; 장비 render
 ; 스롯 버튼, 90, 91, 92
-FOR LOCAL, 0, 3
-	RESULTS = 
-	CALL 장비이름(착용장비:대상:LOCAL)
-	IF 버튼활성화
-		PRINTBUTTON @"[%ALIGN_TEXT(RESULTS, LOCAL:1, "CENTER")%]", LOCAL + 90
-	ELSE
-		PRINTFORM [%ALIGN_TEXT(RESULTS, LOCAL:1, "CENTER")%]
-	ENDIF
-	PRINTFORM %LOCALS%
-NEXT
-PRINTL
-; 화상 설정 추가
-IF !FLAG:화상설정
-	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
-ENDIF
-PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_REPEAT("-",셀너비)%|%TOSTR_REPEAT("-",셀너비)%|%TOSTR_REPEAT("-",셀너비)%|
+CALL 장비변경_이미지(착용장비:대상:0, 착용장비:대상:1, 착용장비:대상:2, 90, 91, 92)
 PRINTL
 IF 대상 < 0
 	RETURN
@@ -452,6 +216,86 @@ FOR LOCAL, 0, 3
 	NEXT
 NEXT
 RESETCOLOR
+
+@장비변경_이미지(슬롯1, 슬롯2, 슬롯3, 슬롯1_버튼 = -1, 슬롯2_버튼 = -1, 슬롯3_버튼 = -1)
+#DIM 슬롯1 ; 1 슬롯 장비 번호
+#DIM 슬롯2 ; 2 슬롯 장비 번호
+#DIM 슬롯3 ; 3 슬롯 장비 번호
+#DIM 장비번호, 3
+#DIM DYNAMIC 슬롯1_버튼 ; 버튼 갑, -1 이면 비 활성화
+#DIM DYNAMIC 슬롯2_버튼
+#DIM DYNAMIC 슬롯3_버튼
+#DIM 장비번호_버튼, 3
+#DIMS DYNAMIC sHtml
+#DIM CONST 셀너비 = 29
+#LOCALSIZE 2
+#LOCALSSIZE 1
+
+장비번호:0 = 슬롯1
+장비번호:1 = 슬롯2
+장비번호:2 = 슬롯3
+; 버튼
+장비번호_버튼:0 = 슬롯1_버튼
+장비번호_버튼:1 = 슬롯2_버튼
+장비번호_버튼:2 = 슬롯3_버튼
+
+PRINTFORM %TOSTR_SPACE(3)%|%TOSTR_REPEAT("-",셀너비 / 2 - 5)%%ALIGN_TEXT("1 슬롯", 11, "CENTER")%%TOSTR_REPEAT("-",셀너비 / 2 - 5)%|
+PRINTFORM %TOSTR_REPEAT("-",셀너비 / 2 - 5)%%ALIGN_TEXT("2 슬롯", 11, "CENTER")%%TOSTR_REPEAT("-",셀너비 / 2 - 5)%|
+PRINTFORML %TOSTR_REPEAT("-",셀너비 / 2 - 5)%%ALIGN_TEXT("3 슬롯", 11, "CENTER")%%TOSTR_REPEAT("-",셀너비 / 2 - 5)%|
+; 화상 설정
+IF FLAG:화상설정
+	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
+	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
+	PRINTL
+	; 이미지 추가
+	sHtml = 
+	FOR LOCAL, 0, 3
+		IF LOCAL == 0
+			LOCALS = %TOSTR_SPACE(11)%
+		ELSE
+			LOCALS = %TOSTR_SPACE(15)%
+		ENDIF
+		CALL 장비이름(장비번호:LOCAL)
+		IF RESULTS == "없음"
+			LOCALS += @"%TOSTR_SPACE(15)%"
+		ELSE
+			CALL PRINT_HTML_IMAGE(RESULTS, 7, 3, 4)
+			LOCALS += @"%RESULTS%"
+		ENDIF
+		sHtml += @"%LOCALS%"
+	NEXT
+	HTML_PRINT sHtml
+	PRINTL
+	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
+ENDIF
+; PRINTFORML %TOSTR_REPEAT("H", 셀너비 * 3 + 7)%
+PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
+; 버튼 줄
+LOCAL:1 = 셀너비 - 4
+PRINTFORM %TOSTR_SPACE(2)%
+LOCALS =
+LOCALS += @" | "
+PRINTFORM %LOCALS%
+; 스롯 버튼, 90, 91, 92
+FOR LOCAL, 0, 3
+	RESULTS = 
+	CALL 장비이름(장비번호:LOCAL)
+	IF 장비번호_버튼:LOCAL >= 0
+		PRINTBUTTON @"[%ALIGN_TEXT(RESULTS, LOCAL:1, "CENTER")%]", 장비번호_버튼:LOCAL
+	ELSE
+		SETCOLOR 칼라_선택불가
+		PRINTFORM [%ALIGN_TEXT(RESULTS, LOCAL:1, "CENTER")%]
+		RESETCOLOR
+	ENDIF
+	PRINTFORM %LOCALS%
+NEXT
+PRINTL
+; 화상 설정 추가
+IF !FLAG:화상설정
+	PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|%TOSTR_SPACE(셀너비)%|
+ENDIF
+PRINTFORML %TOSTR_SPACE(3)%|%TOSTR_REPEAT("-",셀너비)%|%TOSTR_REPEAT("-",셀너비)%|%TOSTR_REPEAT("-",셀너비)%|
+PRINTL
 
 ; 보유중인 장비 + 장착 버튼
 @장비변경_보유(대상, 선택슬롯)
@@ -759,17 +603,20 @@ ABL:대상:요리 += RESULT:추가스탯_요리 * 탈착
 RETURN 1
 
 
-@총력전장비이미지(총력전장비)
-#DIMS sHtml
-#DIM iSpace
+@총력전장비이미지(총력전장비, 보유양표시 = 1)
 #DIM 총력전장비
+#DIM 보유양표시
+#DIMS sHtml
+; #DIM iSpace
 
 IF FLAG:이벤트화상
 	sHtml =  <p align='left'><nobr>
 	CALL 장비이름(총력전장비)
-	sHtml += @"<shape type='space' param='{iSpace}'><img src='%RESULTS%' height='800' ypos='0'>"
+	; <shape type='space' param='{iSpace}'>
+	sHtml += @"<img src='%RESULTS%' height='800' ypos='0'>"
 	HTML_PRINT sHtml
 ENDIF
+; should be const or func?
 SELECTCASE 총력전장비
 	CASE 0 TO 8
 	SETCOLOR 0Xbce9a9
@@ -799,15 +646,19 @@ PRINTFORML %TOSTR_SPACE(18)%%타입설명(총력전장비)%
 RESETCOLOR
 PRINTFORM %TOSTR_SPACE(18)%
 CALL COLOR_LINE
-PRINTFORM %TOSTR_SPACE(18)%
 SETCOLOR 칼라_주석
-PRINTFORM %장비효과(총력전장비)%
+CALL 총력전_장비_스탯_출력_하나(총력전장비) ; , 100
+FOR LOCAL:1, 0, RESULT
+	PRINTFORML %TOSTR_SPACE(18)%%RESULTS:(LOCAL:1)%
+NEXT
 RESETCOLOR
-PRINTFORML %TOSTR_SPACE(18)%
-PRINTFORM %TOSTR_SPACE(18)%
-SETCOLOR 칼라_회색
-PRINTFORML {장비:총력전장비} 개 보유중
-RESETCOLOR
+IF 보유양표시
+	PRINTFORM %TOSTR_SPACE(18)%
+	SETCOLOR 칼라_회색
+	PRINTFORM {장비:총력전장비} 개 보유중
+	RESETCOLOR
+ENDIF
+PRINTL
 SETCOLOR 칼라_회색
 CALL SINGLE_DRAWLINE
 RESETCOLOR
