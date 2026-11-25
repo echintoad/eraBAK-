@@ -11,7 +11,7 @@
 
 ;메뉴에 사용하는 번호의 개시치와 종료치의 정수
 ;개시치（10 이하는 오른쪽 컬럼의 버튼용）
-#DIM CONST COLUMN_LEFT_MENU_START_VALUE = 11
+#DIM CONST COLUMN_LEFT_MENU_START_VALUE = 10
 ;종료치（90이상은 설정용）
 #DIM CONST COLUMN_LEFT_MENU_END_VALUE = 89
 
@@ -23,6 +23,8 @@
 ;-------------------------------------------------
 ;왼쪽 컬럼 메뉴의 카테고리 명칭을 보존하는 배열
 #DIMS COLUMN_LEFT_CATEGORY_NAME, 10
+; 메뉴를 접을지
+#DIM COLUMN_LEFT_CATEGORY_COLLAPSE, 10
 
 ;왼쪽 컬럼의 표시항목으로 대등해 순서를 보존한다（배열 번호=행 번호/현재의 최대행수는 37）
 ;줄 순서 카테고리 번호
