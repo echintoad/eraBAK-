@@ -74,8 +74,8 @@ ENDCATCH
 ;SHOP.ERB로 정리해 REDRAW 0 CLEARLINE 하고 싶은 경우는 0
 ;-------------------------------------------------
 @EVENTBUY_LIFE(ARG:0)
-;왼쪽 컬럼의 입력 처리
-IF ARG:0 != 10 && SHOP_AVAIL:(ARG:0) && ARG:0 >= COLUMN_LEFT_MENU_START_VALUE && ARG:0 <= COLUMN_LEFT_MENU_END_VALUE
+;왼쪽 컬럼의 입력 처리, ARG:0 != 10 &&
+IF SHOP_AVAIL:(ARG:0) && ARG:0 >= COLUMN_LEFT_MENU_START_VALUE && ARG:0 <= COLUMN_LEFT_MENU_END_VALUE
 	;메뉴 이동했으므로 메뉴용의 범용 변수를 리셋트
 	VARSET MENUVAR, 0
 	;입력치를 메뉴 번호에 받는다
